@@ -12,14 +12,21 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import SchoolIcon from "@mui/icons-material/School";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [emailError, setEmailError] = useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = useState("");
     const [passwordError, setPasswordError] = useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+    console.log(setEmailError, setEmailErrorMessage, setPasswordError, setPasswordErrorMessage);
+
+    const navigateToForgot = () => {
+        navigate("/forgot-password");
+    }
 
     return (
         <Box
@@ -89,6 +96,7 @@ const LoginForm = () => {
                             component="button"
                             variant="body2"
                             sx={{ alignSelf: "flex-end", mt: 1, color: "#e6687a" }}
+                            onClick={navigateToForgot}
                         >
                             Forgot Password?
                         </Link>
