@@ -3,6 +3,10 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { createTheme } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import SchoolIcon from '@mui/icons-material/School';
+import GroupsIcon from '@mui/icons-material/Groups';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import ChildCareIcon from '@mui/icons-material/ChildCare';
 import {
     AppProvider,
     type Session,
@@ -10,20 +14,6 @@ import {
 } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DemoProvider, useDemoRouter } from '@toolpad/core/internal';
-
-const NAVIGATION: Navigation = [
-    {
-        segment: 'dashboard',
-        title: 'Dashboard',
-        icon: <DashboardIcon />,
-    },
-
-    {
-        segment: 'customers',
-        title: 'Customers',
-        icon: <DashboardIcon />,
-    },
-];
 
 const demoTheme = createTheme({
     cssVariables: {
@@ -41,6 +31,45 @@ const demoTheme = createTheme({
     },
 });
 
+const getNavigationByRole = (role: string): Navigation => {
+    const common: Navigation = [
+        { segment: 'dashboard', title: 'Dashboard', icon: <DashboardIcon /> },
+    ];
+
+    const adminNav = [
+        { segment: 'users', title: 'User Management', icon: <AdminPanelSettingsIcon /> },
+        { segment: 'settings', title: 'System Settings', icon: <SchoolIcon /> },
+    ];
+
+    const principalNav = [
+        { segment: 'school-overview', title: 'School Overview', icon: <SchoolIcon /> },
+        { segment: 'teachers', title: 'Teachers', icon: <GroupsIcon /> },
+    ];
+
+    const teacherNav = [
+        { segment: 'my-classes', title: 'Lớp của tôi', icon: <SchoolIcon /> },
+        { segment: 'students', title: 'Học sinh', icon: <GroupsIcon /> },
+    ];
+
+    const parentNav = [
+        { segment: 'my-children', title: 'Con của tôi', icon: <ChildCareIcon /> },
+        { segment: 'feedback', title: 'Góp ý nhà trường', icon: <DashboardIcon /> },
+    ];
+
+    switch (role) {
+        case 'Admin':
+            return [...common, ...adminNav];
+        case 'School Principal':
+            return [...common, ...principalNav];
+        case 'Teacher':
+            return [...common, ...teacherNav];
+        case 'Parent':
+            return [...common, ...parentNav];
+        default:
+            return common;
+    }
+};
+
 function DemoPageContent({ pathname }: { pathname: string }) {
     return (
         <Box
@@ -52,7 +81,7 @@ function DemoPageContent({ pathname }: { pathname: string }) {
                 textAlign: 'center',
             }}
         >
-            <Typography>Dashboard content for {pathname}</Typography>
+            <Typography variant="h5">Bạn đang ở: {pathname}</Typography>
         </Box>
     );
 }
@@ -64,40 +93,35 @@ interface DemoProps {
 export default function DashboardLayoutAccount(props: DemoProps) {
     const { window } = props;
 
-    const [session, setSession] = React.useState<Session | null>({
+    const testRole = 'Parent';
+
+    const [session] = React.useState<Session | null>({
         user: {
-            name: 'Bharat Kashyap',
-            email: 'bharatkashyap@outlook.com',
-            image: 'https://avatars.githubusercontent.com/u/19550456',
+            name: 'Test User',
+            email: 'test@example.com',
+            image: 'https://i.pravatar.cc/150?img=7',
+            role: testRole,
         },
     });
 
     const authentication = React.useMemo(() => {
         return {
-            signIn: () => {
-                setSession({
-                    user: {
-                        name: 'Bharat Kashyap',
-                        email: 'bharatkashyap@outlook.com',
-                        image: 'https://avatars.githubusercontent.com/u/19550456',
-                    },
-                });
-            },
-            signOut: () => {
-                setSession(null);
-            },
+            signIn: () => { },
+            signOut: () => { },
         };
     }, []);
 
     const router = useDemoRouter('/dashboard');
     const demoWindow = window !== undefined ? window() : undefined;
+    const role = session?.user?.role ?? 'Guest';
+    const navigation = getNavigationByRole(role);
 
     return (
         <DemoProvider window={demoWindow}>
             <AppProvider
                 session={session}
                 authentication={authentication}
-                navigation={NAVIGATION}
+                navigation={navigation}
                 router={router}
                 theme={demoTheme}
                 window={demoWindow}
