@@ -1,8 +1,17 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { getUserFromToken } from "../helper/authHelper";
 
 const PublicRoute = () => {
     const accessToken = localStorage.getItem("accessToken");
+    const location = useLocation();
+    const pathname = location.pathname;
+
+    const restrictedRoutes = ["/verify-otp", "/reset-password"];
+    const isRestricted = restrictedRoutes.includes(pathname);
+
+    if (!accessToken && isRestricted) {
+        return <Navigate to="/sign-in" replace />;
+    }
 
     if (accessToken) {
         const userData = getUserFromToken(accessToken);

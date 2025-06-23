@@ -1,0 +1,10 @@
+export { default as SakuraHome } from "./SakuraHome";
+export { default as StudentRegistration } from "./StudentRegistration";
+export { default as SignInSide } from "./Auth/SignInSide";
+export { default as ForgotPassword } from "./Auth/ForgotPassword";
+export { default as VerifyOTP } from "./Auth/VerifyOTP";
+export { default as ResetPassword } from "./Auth/ResetPassword";
+export { default as AdminHome } from "./AdminHome";
+export { default as PrincipalHome } from "./PrincipalHome";
+export { default as TeacherHome } from "./TeacherHome";
+export { default as ParentHome } from "./ParentHome";

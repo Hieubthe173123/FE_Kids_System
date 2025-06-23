@@ -102,7 +102,7 @@ export default function ParentHome(props: DemoProps) {
         };
     }, []);
 
-    const router = useDemoRouter('/time-table'); // default to /time-table
+    const router = useDemoRouter('/time-table');
     const demoWindow = window !== undefined ? window() : undefined;
 
     return (

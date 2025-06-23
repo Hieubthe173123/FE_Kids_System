@@ -1,20 +1,8 @@
-import { ROLE } from "../constants/roles";
-import AdminHome from "../components/AdminHome";
-import ParentHome from "../components/ParentHome";
-import PrincipalHome from "../components/PrincipalHome";
-import TeacherHome from "../components/TeacherHome";
+import { routesAdmin, routesParent, routesSchoolPrincipal, routesTeacher } from "./route";
 
 export const mainRoute = {
-    [ROLE.ADMIN]: [
-        { path: "/admin-home", component: AdminHome },
-    ],
-    [ROLE.PRINCIPAL]: [
-        { path: "/schoolprincipal-home", component: PrincipalHome },
-    ],
-    [ROLE.TEACHER]: [
-        { path: "/teacher-home", component: TeacherHome },
-    ],
-    [ROLE.PARENT]: [
-        { path: "/parent-home", component: ParentHome },
-    ],
+    admin: routesAdmin,
+    parent: routesParent,
+    teacher: routesTeacher,
+    schoolprincipal: routesSchoolPrincipal,
 };

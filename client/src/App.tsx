@@ -1,39 +1,60 @@
 import { Routes, Route } from "react-router-dom";
-import { mainRoute } from "./routes/mainRoute";
-import RoleLayout from "./layouts/RoleLayout";
-import SignInSide from "./components/Auth/SignInSide";
-import ForgotPassword from "./components/Auth/ForgotPassword";
-import PublicRoute from "./routes/publicRoute";
-import VerifyOTP from "./components/Auth/VerifyOTP";
-import ResetPassword from "./components/Auth/ResetPassword";
 import PrivateRoute from "./routes/privateRoute";
-import SakuraHome from "./components/SakuraHome";
+import { mainRoute } from "./routes/mainRoute";
+import PublicRoute from "./routes/publicRoute";
+import * as Components from "./components";
+
 
 function App() {
   return (
     <Routes>
-      {/* Public pages */}
-      <Route path="/" element={<SakuraHome />} />
-      <Route path="/sign-in" element={<SignInSide />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/" element={<Components.SakuraHome />} />
+      <Route path="/registration" element={<Components.StudentRegistration />} />
+      <Route path="/sign-in" element={<Components.SignInSide />} />
+      <Route path="/forgot-password" element={<Components.ForgotPassword />} />
+
       <Route element={<PublicRoute />}>
-        <Route path="/verify-otp" element={<VerifyOTP />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-otp" element={<Components.VerifyOTP />} />
+        <Route path="/reset-password" element={<Components.ResetPassword />} />
       </Route>
 
-      {/* RBAC */}
-      {Object.entries(mainRoute).map(([role, routes]) => (
-        <Route key={role} element={<PrivateRoute allowedRoles={[role]} />}>
-          <Route element={<RoleLayout />}>
-            {routes.map(({ path, component: Component }) => (
-              <Route key={path} path={path} element={<Component />} />
-            ))}
-          </Route>
+      {/* ADMIN */}
+      <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
+        <Route element={<Components.AdminHome />}>
+          {mainRoute.admin.map((route, i) => (
+            <Route key={i} path={route.path} element={<route.component />} />
+          ))}
         </Route>
-      ))}
+      </Route>
+
+      {/* SCHOOL PRINCIPAL */}
+      <Route element={<PrivateRoute allowedRoles={["schoolprincipal"]} />}>
+        <Route element={<Components.PrincipalHome />}>
+          {mainRoute.schoolprincipal.map((route, i) => (
+            <Route key={i} path={route.path} element={<route.component />} />
+          ))}
+        </Route>
+      </Route>
+
+      {/* TEACHER */}
+      <Route element={<PrivateRoute allowedRoles={["teacher"]} />}>
+        <Route element={<Components.TeacherHome />}>
+          {mainRoute.teacher.map((route, i) => (
+            <Route key={i} path={route.path} element={<route.component />} />
+          ))}
+        </Route>
+      </Route>
+
+      {/* PARENT */}
+      <Route element={<PrivateRoute allowedRoles={["parent"]} />}>
+        <Route element={<Components.ParentHome />}>
+          {mainRoute.parent.map((route, i) => (
+            <Route key={i} path={route.path} element={<route.component />} />
+          ))}
+        </Route>
+      </Route>
     </Routes>
   );
 }
 
 export default App;
-

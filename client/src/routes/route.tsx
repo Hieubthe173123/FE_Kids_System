@@ -1,33 +1,40 @@
-// import AdminHome from "../page/AdminHome";
-// import ParentHome from "../page/ParentHome";
-// import PrincipalHome from "../page/PrincipalHome";
-// import TeacherHome from "../page/TeacherHome";
+import AdminHome from "../components/AdminHome";
+import ParentHome from "../components/ParentHome";
+import PrincipalHome from "../components/PrincipalHome";
+import TeacherHome from "../components/TeacherHome";
+import TimeTable from "../pages/Parent/TimeTable";
 
-// export const routesParent = [
-//     {
-//         path: "/parent-home",
-//         component: ParentHome,
-//     }
 
-// ];
+export const routesParent = [
+    {
+        path: "/parent-home",
+        component: ParentHome,
+    },
 
-// export const routesTeacher = [
-//     {
-//         path: "/teacher-home",
-//         component: TeacherHome,
-//     }
-// ];
+    {
+        path: "/time-table",
+        component: TimeTable,
+    }
 
-// export const routesSchoolPrincipal = [
-//     {
-//         path: "/schoolprincipal-home",
-//         component: PrincipalHome,
-//     }
-// ];
+];
 
-// export const routesAdmin = [
-//     {
-//         path: "/admin-home",
-//         component: AdminHome,
-//     }
-// ];
+export const routesTeacher = [
+    {
+        path: "/teacher-home",
+        component: TeacherHome,
+    }
+];
+
+export const routesSchoolPrincipal = [
+    {
+        path: "/schoolprincipal-home",
+        component: PrincipalHome,
+    }
+];
+
+export const routesAdmin = [
+    {
+        path: "/admin-home",
+        component: AdminHome,
+    }
+];
