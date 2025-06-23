@@ -11,7 +11,7 @@ import {
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DemoProvider, useDemoRouter } from '@toolpad/core/internal';
 
-import TimeTable from '../components/Parent/TimeTable';
+import TimeTable from '../pages/Parent/TimeTable';
 
 const NAVIGATION: Navigation = [
     {

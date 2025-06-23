@@ -27,6 +27,7 @@
     "emailjs-com": "^3.2.0",
     "framer-motion": "^12.18.1",
     "gsap": "^3.13.0",
+    "jwt-decode": "^4.0.0",
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",

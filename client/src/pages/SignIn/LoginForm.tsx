@@ -13,16 +13,78 @@ import {
 import { useState } from "react";
 import SchoolIcon from "@mui/icons-material/School";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../helper/axiosInstance";
+import { getUserFromToken } from "../../helper/authHelper";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ROLE } from "../../constants/roles";
 
 const LoginForm = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [emailError, setEmailError] = useState(false);
-    const [emailErrorMessage, setEmailErrorMessage] = useState("");
     const [passwordError, setPasswordError] = useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-    console.log(setEmailError, setEmailErrorMessage, setPasswordError, setPasswordErrorMessage);
+    console.log(setPasswordError, setPasswordErrorMessage, setUsername);
+    console.log(username);
+
+
+
+    const handleLogin = async () => {
+        try {
+            const response = await axiosInstance.post("auth/login", {
+                username,
+                password,
+            });
+
+            const accessToken = response.data.accessToken;
+
+            if (accessToken) {
+                localStorage.setItem("accessToken", accessToken);
+                const userData = getUserFromToken(accessToken);
+
+                console.log("User data from token:", userData);
+
+                if (!userData || !userData.role) {
+                    toast.error("Không xác định được role người dùng!");
+                    return;
+                }
+
+                toast.success(`Xin chào ${userData.role}! 🎉`);
+                console.log(userData.role);
+
+                const navigateByRole = (role: string): string => {
+                    const normalized = role.toLowerCase();
+                    switch (normalized) {
+                        case ROLE.ADMIN:
+                            return "/admin-home";
+                        case ROLE.PRINCIPAL:
+                            return "/schoolprincipal-home";
+                        case ROLE.TEACHER:
+                            return "/teacher-home";
+                        case ROLE.PARENT:
+                            return "/parent-home";
+                        default:
+                            return "/";
+                    }
+                };
+                navigate(navigateByRole(userData.role));
+            } else {
+                toast.error("Không nhận được accessToken từ server");
+            }
+        } catch (error: any) {
+            console.error("Login failed:", error);
+            const errorMsg = error.response?.data?.message || "Đăng nhập thất bại";
+
+            if (error.response?.status === 401) {
+                setPasswordError(true);
+                setPasswordErrorMessage(errorMsg);
+            } else {
+                toast.error(errorMsg);
+            }
+        }
+    };
+
 
     const navigateToForgot = () => {
         navigate("/forgot-password");
@@ -67,15 +129,15 @@ const LoginForm = () => {
                 <form style={{ width: "100%" }}>
                     <Stack spacing={2}>
                         <TextField
-                            label="Email"
-                            type="email"
+                            label="Username"
+                            type="text"
                             variant="outlined"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             fullWidth
-                            error={emailError}
-                            helperText={emailErrorMessage}
-                            placeholder="your@email.com"
+                            // error={emailError}
+                            // helperText={emailErrorMessage}
+                            // placeholder="your@email.com"
                             required
                             InputProps={{ style: { borderRadius: "12px" } }}
                         />
@@ -111,6 +173,7 @@ const LoginForm = () => {
                     <Button
                         variant="contained"
                         fullWidth
+                        onClick={handleLogin}
                         sx={{
                             mt: 3,
                             py: 1.5,
@@ -127,6 +190,9 @@ const LoginForm = () => {
                         Đăng nhập vào Sakura
                     </Button>
                 </form>
+
+                <ToastContainer position="top-right" autoClose={3000} />
+
 
                 <Divider sx={{ my: 2, color: "#bbb" }}>hoặc</Divider>
 

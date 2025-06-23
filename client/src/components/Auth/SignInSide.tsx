@@ -1,8 +1,8 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import Stack from '@mui/material/Stack';
 import { Box } from '@mui/material';
-import LoginForm from '../components/SignIn/LoginForm';
-import SakuraContent from '../components/SignIn/SakuraContent';
+import LoginForm from '../../pages/SignIn/LoginForm';
+import SakuraContent from '../../pages/SignIn/SakuraContent';
 
 export default function SignInSide() {
     return (

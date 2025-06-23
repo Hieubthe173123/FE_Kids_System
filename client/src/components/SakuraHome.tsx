@@ -1,10 +1,12 @@
 import {
     createTheme, ThemeProvider, CssBaseline
 } from '@mui/material';
-import { Header } from '../components/HomePage/Header';
-import Footer from '../components/HomePage/Footer';
-import EnrollmentForm from "../components/Registration/EnrollmentForm";
-import ContactInformationForm from '../components/Registration/ContactInformationForm';
+import { Header } from '../pages/HomePage/Header';
+import { HeroSection } from '../pages/HomePage/HeroSection';
+import { FeaturesSection } from '../pages/HomePage/FeaturesSection';
+import { StatsSection } from '../pages/HomePage/StatsSection';
+import Footer from '../pages/HomePage/Footer';
+import { EnrollmentCTASection } from '../pages/HomePage/EnrollmentCTASection';
 
 
 const elegantTheme = createTheme({
@@ -35,14 +37,16 @@ const elegantTheme = createTheme({
 });
 
 
-export default function StudentRegistration() {
+export default function SakuraHome() {
     return (
         <ThemeProvider theme={elegantTheme}>
             <CssBaseline />
             <Header />
             <main>
-                <EnrollmentForm />
-                <ContactInformationForm />
+                <EnrollmentCTASection />
+                <HeroSection />
+                <FeaturesSection />
+                <StatsSection />
             </main>
             <Footer />
         </ThemeProvider>
