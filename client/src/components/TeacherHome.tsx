@@ -1,29 +1,29 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import DashboardIcon from '@mui/icons-material/Dashboard';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import SchoolIcon from '@mui/icons-material/School';
 import {
     AppProvider,
     type Session,
     type Navigation,
 } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import { DemoProvider, useDemoRouter } from '@toolpad/core/internal';
+import { DemoProvider } from '@toolpad/core/internal';
 
-import TimeTable from '../pages/Parent/TimeTable';
+import {
+    Outlet,
+    useLocation,
+    useNavigate,
+    useNavigationType,
+} from 'react-router-dom';
 
 const NAVIGATION: Navigation = [
     {
         segment: 'time-table',
-        title: 'Time Table',
-        icon: <DashboardIcon />,
-    },
-    {
-        segment: 'feedback',
-        title: 'Students Feedback',
-        icon: <DashboardIcon />,
-    },
+        title: 'Lịch học của bé',
+        icon: <CalendarMonthIcon />,
+    }
 ];
 
 const demoTheme = createTheme({
@@ -42,84 +42,87 @@ const demoTheme = createTheme({
     },
 });
 
-function DemoPageContent({ pathname }: { pathname: string }) {
-    switch (pathname) {
-        case '/time-table':
-            return <TimeTable />;
-        case '/feedback':
-            return (
-                <Box sx={{ p: 4 }}>
-                    <Typography variant="h4">Student Feedback</Typography>
-                    <Typography>Trang phản hồi từ học sinh</Typography>
-                </Box>
-            );
-        default:
-            return (
-                <Box
-                    sx={{
-                        py: 4,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        textAlign: 'center',
-                    }}
-                >
-                    <Typography>Dashboard content for {pathname}</Typography>
-                </Box>
-            );
-    }
-}
+export default function TeacherHome() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const navigationType = useNavigationType();
+    const pathname = location.pathname.replace('/teacher-home', '') || '/';
 
-interface DemoProps {
-    window?: () => Window;
-}
+    const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
+        JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
+    );
+    console.log(setIsMenuExpanded)
+    const [loading, setLoading] = React.useState<boolean>(true);
 
-export default function TeacherHome(props: DemoProps) {
-    const { window } = props;
-
-    const [session, setSession] = React.useState<Session | null>({
+    const session: Session = {
         user: {
             name: 'Phụ huynh Sakura',
             email: 'parent@sakura.edu.vn',
             image: 'https://avatars.githubusercontent.com/u/19550456',
         },
-    });
+    };
 
-    const authentication = React.useMemo(() => {
-        return {
-            signIn: () => {
-                setSession({
-                    user: {
-                        name: 'Phụ huynh Sakura',
-                        email: 'parent@sakura.edu.vn',
-                        image: 'https://avatars.githubusercontent.com/u/19550456',
-                    },
-                });
-            },
-            signOut: () => {
-                setSession(null);
-            },
-        };
-    }, []);
+    const authentication = {
+        signIn: () => { },
+        signOut: () => { },
+    };
 
-    const router = useDemoRouter('/time-table');
-    const demoWindow = window !== undefined ? window() : undefined;
+    React.useEffect(() => {
+        setLoading(true);
+        const timer = setTimeout(() => setLoading(false), 300);
+        return () => clearTimeout(timer);
+    }, [location, navigationType]);
+
+    React.useEffect(() => {
+        localStorage.setItem('parentMenuExpanded', JSON.stringify(isMenuExpanded));
+    }, [isMenuExpanded]);
 
     return (
-        <DemoProvider window={demoWindow}>
+        <DemoProvider>
             <AppProvider
                 session={session}
                 authentication={authentication}
                 navigation={NAVIGATION}
-                router={router}
+                router={{
+                    pathname,
+                    searchParams: new URLSearchParams(location.search),
+                    navigate: (to) => navigate(`/teacher-home${to}`),
+                }}
                 theme={demoTheme}
-                window={demoWindow}
                 branding={{
-                    title: 'Sakura School',
+                    logo: (
+                        <Box display="flex" alignItems="center">
+                            <SchoolIcon sx={{ fontSize: '2rem', mr: 1, color: '#1976d2' }} />
+                            <Typography variant="h6" fontWeight="bold" color="#1976d2">
+                                Teacher Sakura
+                            </Typography>
+                        </Box>
+                    ),
+                    title: '',
                 }}
             >
-                <DashboardLayout>
-                    <DemoPageContent pathname={router.pathname} />
+                <DashboardLayout
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        height: '100vh',
+                    }}
+                >
+                    <Box
+                        sx={{
+                            flex: 1,
+                            overflow: 'auto',
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                    >
+                        {loading && (
+                            <Box position="fixed" top={0} left={0} right={0} zIndex={1101}>
+                                <CircularProgress color="secondary" />
+                            </Box>
+                        )}
+                        <Outlet />
+                    </Box>
                 </DashboardLayout>
             </AppProvider>
         </DemoProvider>

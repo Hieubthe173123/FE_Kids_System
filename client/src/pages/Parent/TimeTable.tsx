@@ -6,7 +6,6 @@ import { useState } from 'react';
 import Schedules from './Schedules';
 import Information from './Information';
 import MealTimeline from './MealTimeline';
-import DailyFeedback from './DailyFeedback';
 
 
 type ScheduleItem = {
@@ -81,19 +80,6 @@ export default function TimeTable() {
             }));
         };
 
-    const feedbacks =
-        student
-            ? [
-                ...(student.schedule.morning || []),
-                ...(student.schedule.afternoon
-                    ? student.schedule.afternoon.map((item) => ({ ...item, feedback: item.feedback ?? undefined }))
-                    : []),
-            ]
-                .filter((item) => item.feedback)
-                .map((item) => `${item.subject}: ${item.feedback}`)
-            : [];
-
-
     return (
         <Box sx={{ p: 4, minHeight: '100vh', bgcolor: '#f5f7fb' }}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: '#0d47a1' }}>
@@ -125,10 +111,6 @@ export default function TimeTable() {
             />
 
             {student?.meals && <MealTimeline meals={student.meals} />}
-
-            {feedbacks.length > 0 && (
-                <DailyFeedback feedbacks={feedbacks} studentName={student?.name || ''} />
-            )}
 
 
         </Box>

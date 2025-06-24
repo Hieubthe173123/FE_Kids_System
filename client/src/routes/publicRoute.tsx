@@ -20,11 +20,11 @@ const PublicRoute = () => {
 
             switch (role) {
                 case "admin":
-                    return <Navigate to="/admin-home" replace />;
+                    return <Navigate to="/home" replace />;
                 case "schoolprincipal":
-                    return <Navigate to="/schoolprincipal-home" replace />;
+                    return <Navigate to="/home" replace />;
                 case "teacher":
-                    return <Navigate to="/teacher-home" replace />;
+                    return <Navigate to="/home" replace />;
                 case "parent":
                     return <Navigate to="/parent-home" replace />;
                 default:
