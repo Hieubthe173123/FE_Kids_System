@@ -13,12 +13,11 @@ import {
 import { useState } from "react";
 import SchoolIcon from "@mui/icons-material/School";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../helper/axiosInstance";
 import { getUserFromToken } from "../../helper/authHelper";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ROLE } from "../../constants/roles";
-// import { loginApi } from "../../services/AuthApi";
+import { loginApi } from "../../services/AuthApi";
 
 const LoginForm = () => {
     const navigate = useNavigate();
@@ -29,16 +28,10 @@ const LoginForm = () => {
     console.log(setPasswordError, setPasswordErrorMessage, setUsername);
     console.log(username);
 
-
-
     const handleLogin = async () => {
         try {
-            const response = await axiosInstance.post("auth/login", {
-                username,
-                password,
-            });
-
-            const accessToken = response.data.accessToken;
+            const data = await loginApi(username, password);
+            const accessToken = data.accessToken;
 
             if (accessToken) {
                 localStorage.setItem("accessToken", accessToken);
@@ -73,6 +66,7 @@ const LoginForm = () => {
             } else {
                 toast.error("Không nhận được accessToken từ server");
             }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Login failed:", error);
             const errorMsg = error.response?.data?.message || "Đăng nhập thất bại";
@@ -136,9 +130,6 @@ const LoginForm = () => {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             fullWidth
-                            // error={emailError}
-                            // helperText={emailErrorMessage}
-                            // placeholder="your@email.com"
                             required
                             InputProps={{ style: { borderRadius: "12px" } }}
                         />
@@ -161,7 +152,7 @@ const LoginForm = () => {
                             sx={{ alignSelf: "flex-end", mt: 1, color: "#e6687a" }}
                             onClick={navigateToForgot}
                         >
-                            Forgot Password?
+                            Forgot Password
                         </Link>
                     </Stack>
 
@@ -201,7 +192,6 @@ const LoginForm = () => {
                     <Button
                         fullWidth
                         variant="outlined"
-                        // startIcon={<GoogleIcon />}
                         sx={{
                             borderRadius: "12px",
                             py: 1.5,

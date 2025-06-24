@@ -12,6 +12,9 @@ import {
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import SchoolIcon from "@mui/icons-material/School";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { resetPasswordApi } from "../../services/AuthApi";
 
 const evaluatePasswordStrength = (password: string) => {
     let score = 0;
@@ -31,6 +34,11 @@ const ResetPassword = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [matchStatus, setMatchStatus] = useState<null | boolean>(null);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const email =
+        location.state?.email || localStorage.getItem("forgotPasswordEmail");
 
     const strength = evaluatePasswordStrength(newPassword);
 
@@ -41,6 +49,35 @@ const ResetPassword = () => {
         }
         setMatchStatus(newPassword === confirmPassword);
     }, [newPassword, confirmPassword]);
+
+    const handleSubmit = async () => {
+        if (!newPassword || !confirmPassword) {
+            toast.warning("Vui lòng nhập đầy đủ mật khẩu.");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            toast.error("Mật khẩu xác nhận không khớp.");
+            return;
+        }
+
+        try {
+            const res = await resetPasswordApi(email, newPassword, confirmPassword);
+            toast.success(res.message || "Đổi mật khẩu thành công!");
+            localStorage.removeItem("forgotPasswordEmail");
+            navigate("/sign-in");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            const msg =
+                error?.response?.data?.message || "Có lỗi xảy ra khi đổi mật khẩu.";
+            toast.error(msg);
+        }
+    };
+
+    const handleBackToLogin = () => {
+        localStorage.removeItem("forgotPasswordEmail");
+        navigate("/sign-in");
+    };
 
     return (
         <Box
@@ -80,7 +117,6 @@ const ResetPassword = () => {
                         Nhập mật khẩu mới cho tài khoản của bạn bên dưới.
                     </Typography>
 
-                    {/* New password */}
                     <OutlinedInput
                         fullWidth
                         type={showNewPassword ? "text" : "password"}
@@ -116,7 +152,6 @@ const ResetPassword = () => {
                         </Typography>
                     )}
 
-                    {/* Confirm password */}
                     <OutlinedInput
                         fullWidth
                         type={showConfirmPassword ? "text" : "password"}
@@ -146,7 +181,6 @@ const ResetPassword = () => {
                         }}
                     />
 
-                    {/* Realtime khớp mật khẩu */}
                     {confirmPassword && matchStatus !== null && (
                         <Typography
                             sx={{
@@ -164,6 +198,7 @@ const ResetPassword = () => {
                     <Button
                         variant="contained"
                         fullWidth
+                        onClick={handleSubmit}
                         sx={{
                             background: "linear-gradient(to right, #46a2da, #4194cb)",
                             color: "#fff",
@@ -183,9 +218,9 @@ const ResetPassword = () => {
                     <Typography sx={{ mt: 4, color: "#666" }}>
                         Quay về{" "}
                         <Box
-                            component="a"
-                            href="/sign-in"
+                            component="span"
                             sx={{
+                                cursor: "pointer",
                                 color: "#e6687a",
                                 fontWeight: "bold",
                                 textDecoration: "none",
@@ -194,6 +229,7 @@ const ResetPassword = () => {
                                     color: "rgb(230,104,122)",
                                 },
                             }}
+                            onClick={handleBackToLogin}
                         >
                             trang đăng nhập
                         </Box>

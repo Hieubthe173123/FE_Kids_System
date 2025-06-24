@@ -1,24 +1,33 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
     Box,
-    Button,
     Container,
     Typography,
     Paper,
     useMediaQuery,
-    useTheme
+    useTheme,
+    Button,
 } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import SchoolIcon from "@mui/icons-material/School";
+import { verifyOTPApi, forgotPasswordApi } from "../../services/AuthApi";
 
 const OTP_LENGTH = 6;
 
 const VerifyOTP = () => {
     const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
+    const [isVerifying, setIsVerifying] = useState(false);
     const [countdown, setCountdown] = useState(60);
     const [canResend, setCanResend] = useState(false);
     const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const email = location.state?.email || localStorage.getItem("forgotPasswordEmail");
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -39,14 +48,63 @@ const VerifyOTP = () => {
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
+
         if (value && index < OTP_LENGTH - 1) {
             inputRefs.current[index + 1]?.focus();
+        }
+
+        const currentOtp = newOtp.join("");
+        if (currentOtp.length === OTP_LENGTH && newOtp.every((digit) => digit !== "")) {
+            verifyOtpCode(currentOtp);
+        }
+    };
+
+    const verifyOtpCode = async (otpCode: string) => {
+        if (isVerifying) return;
+        setIsVerifying(true);
+        try {
+            const res = await verifyOTPApi(otpCode);
+            toast.success("Xác thực thành công!");
+
+            setTimeout(() => {
+                navigate("/reset-password", {
+                    state: {
+                        email,
+                        accountId: res.accountId,
+                    },
+                });
+            }, 2000);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            const msg = error?.response?.data?.message || "Xác thực thất bại!";
+            toast.error(msg);
+        } finally {
+            setIsVerifying(false);
         }
     };
 
     const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Backspace" && !otp[index] && index > 0) {
             inputRefs.current[index - 1]?.focus();
+        }
+    };
+
+    const handleResendOtp = async () => {
+        if (!email) {
+            toast.error("Không tìm thấy email để gửi lại OTP");
+            return;
+        }
+
+        try {
+            await forgotPasswordApi(email);
+            toast.success("Mã OTP mới đã được gửi lại!");
+            setOtp(Array(OTP_LENGTH).fill(""));
+            setCountdown(60);
+            setCanResend(false);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            const msg = error?.response?.data?.message || "Gửi lại OTP thất bại!";
+            toast.error(msg);
         }
     };
 
@@ -86,7 +144,7 @@ const VerifyOTP = () => {
                             Sakura School
                         </Typography>
                     </Box>
-
+                    <ToastContainer />
                     <Typography variant="h4" sx={{ color: "#4194cb", fontWeight: "bold", mb: 1 }}>
                         Nhập mã xác thực
                     </Typography>
@@ -94,8 +152,7 @@ const VerifyOTP = () => {
                         Mã OTP đã gửi đến email. Vui lòng nhập 6 chữ số bên dưới.
                     </Typography>
 
-                    {/* Custom OTP inputs */}
-                    <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 4 }}>
+                    <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 3 }}>
                         {otp.map((digit, index) => (
                             <Box
                                 key={index}
@@ -126,37 +183,30 @@ const VerifyOTP = () => {
                         ))}
                     </Box>
 
-                    {/* Resend */}
-                    <Box sx={{ mt: 2 }}>
-                        <Button
-                            disabled={!canResend}
-                            onClick={() => {
-                                setCountdown(60);
-                                setCanResend(false);
-                                // trigger resend logic
-                            }}
-                            sx={{
+                    <Button
+                        disabled={!canResend}
+                        onClick={handleResendOtp}
+                        sx={{
+                            background: canResend
+                                ? "linear-gradient(to right, #e6687a, rgb(230,104,122))"
+                                : "#ccc",
+                            color: "#fff",
+                            fontWeight: "bold",
+                            borderRadius: "16px",
+                            px: 4,
+                            py: 1.2,
+                            fontSize: "1rem",
+                            textTransform: "none",
+                            boxShadow: canResend ? "0 4px 12px rgba(230,104,122,0.3)" : "none",
+                            "&:hover": {
                                 background: canResend
-                                    ? "linear-gradient(to right, #e6687a, rgb(230,104,122))"
+                                    ? "linear-gradient(to right, #e6687a, #d45768)"
                                     : "#ccc",
-                                color: "#fff",
-                                fontWeight: "bold",
-                                borderRadius: "16px",
-                                px: 4,
-                                py: 1.2,
-                                fontSize: "1rem",
-                                textTransform: "none",
-                                boxShadow: canResend ? "0 4px 12px rgba(230,104,122,0.3)" : "none",
-                                "&:hover": {
-                                    background: canResend
-                                        ? "linear-gradient(to right, #e6687a, #d45768)"
-                                        : "#ccc",
-                                },
-                            }}
-                        >
-                            {canResend ? "Gửi lại mã" : `Gửi lại sau ${countdown}s`}
-                        </Button>
-                    </Box>
+                            },
+                        }}
+                    >
+                        {canResend ? "Gửi lại mã" : `Gửi lại sau ${countdown}s`}
+                    </Button>
                 </Paper>
             </Container>
         </Box>
