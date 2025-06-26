@@ -24,7 +24,7 @@ function App() {
       </Route>
 
       {/* SCHOOL PRINCIPAL */}
-      <Route element={<PrivateRoute allowedRoles={['schoolprincipal']} />}>
+      <Route element={<PrivateRoute allowedRoles={['principal']} />}>
         {renderRoutes(mainRoute.schoolprincipal)}
       </Route>
 

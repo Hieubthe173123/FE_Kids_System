@@ -54,3 +54,13 @@ export const resetPasswordApi = async (
         throw error;
     }
 };
+
+export const logoutApi = async () => {
+    try {
+        const response = await axiosInstance.post("auth/logout");
+        return response.data;
+    } catch (error) {
+        console.error("Logout failed:", error);
+        throw error;
+    }
+}

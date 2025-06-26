@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import ClassIcon from '@mui/icons-material/Class';
 import SchoolIcon from '@mui/icons-material/School';
 import {
     AppProvider,
@@ -20,9 +20,9 @@ import {
 
 const NAVIGATION: Navigation = [
     {
-        segment: 'time-table',
-        title: 'Lịch học của bé',
-        icon: <CalendarMonthIcon />,
+        segment: 'class-management',
+        title: 'Quản lý lớp học',
+        icon: <ClassIcon />,
     }
 ];
 
@@ -46,7 +46,7 @@ export default function PrincipalHome() {
     const location = useLocation();
     const navigate = useNavigate();
     const navigationType = useNavigationType();
-    const pathname = location.pathname.replace('/schoolprincipal-home', '') || '/';
+    const pathname = location.pathname.replace('/principal-home', '') || '/';
 
     const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
@@ -86,7 +86,7 @@ export default function PrincipalHome() {
                 router={{
                     pathname,
                     searchParams: new URLSearchParams(location.search),
-                    navigate: (to) => navigate(`/schoolprincipal-home${to}`),
+                    navigate: (to) => navigate(`/principal-home${to}`),
                 }}
                 theme={demoTheme}
                 branding={{
