@@ -5,6 +5,7 @@ import PrincipalHome from "../components/PrincipalHome";
 import TeacherHome from "../components/TeacherHome";
 import TimeTable from "../pages/Parent/TimeTable";
 import DailyFeedback from "../pages/Parent/DailyFeedback";
+import TestAuth from "../components/Auth/TestAuth";
 
 
 
@@ -24,6 +25,10 @@ export const routesParent = [
             {
                 path: "feedback",
                 component: DailyFeedback,
+            },
+            {
+                path:"test-auth",
+                component: TestAuth
             }
         ],
     },

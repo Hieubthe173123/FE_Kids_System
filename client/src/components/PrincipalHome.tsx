@@ -53,12 +53,12 @@ export default function PrincipalHome() {
     );
     console.log(setIsMenuExpanded)
     const [loading, setLoading] = React.useState<boolean>(true);
-
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
     const session: Session = {
         user: {
-            name: 'Phụ huynh Sakura',
-            email: 'parent@sakura.edu.vn',
-            image: 'https://avatars.githubusercontent.com/u/19550456',
+            name: user.fullName,
+            email: user.email,
+            image: user.image,
         },
     };
 

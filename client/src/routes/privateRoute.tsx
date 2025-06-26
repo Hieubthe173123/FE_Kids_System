@@ -5,7 +5,7 @@ const PrivateRoute = ({ allowedRoles }: { allowedRoles: string[] }) => {
     const accessToken = localStorage.getItem("accessToken");
 
     if (!accessToken) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/sign-in" replace />;
     }
 
     const userData = getUserFromToken(accessToken);
