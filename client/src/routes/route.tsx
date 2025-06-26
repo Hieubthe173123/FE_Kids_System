@@ -7,6 +7,7 @@ import TimeTable from "../pages/Parent/TimeTable";
 import DailyFeedback from "../pages/Parent/DailyFeedback";
 import ViewClassScreen from "../pages/Principal/ViewClassScreen";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
+import TestAuth from "../components/Auth/TestAuth";
 
 
 
@@ -26,6 +27,10 @@ export const routesParent = [
             {
                 path: "feedback",
                 component: DailyFeedback,
+            },
+            {
+                path: "test-auth",
+                component: TestAuth
             }
         ],
     },

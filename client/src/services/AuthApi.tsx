@@ -64,3 +64,12 @@ export const logoutApi = async () => {
         throw error;
     }
 }
+export const getUserApi = async () => {
+    try {
+        const response = await axiosInstance.get("/auth/information");
+        return response.data;
+    } catch (error) {
+        console.error("Get user failed:", error);
+        throw error;
+    }
+}

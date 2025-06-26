@@ -36,6 +36,11 @@ const NAVIGATION: Navigation = [
         title: 'Thực đơn hàng ngày',
         icon: <FastfoodIcon />,
     },
+    {
+        segment: 'test-auth',
+        title: 'Test auth',
+        icon: <FastfoodIcon />,
+    },
 ];
 
 const demoTheme = createTheme({
@@ -63,14 +68,15 @@ export default function ParentHome() {
     const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
-    console.log(setIsMenuExpanded)
-    const [loading, setLoading] = React.useState<boolean>(true);
 
+    const [loading, setLoading] = React.useState<boolean>(true);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
     const session: Session = {
         user: {
-            name: 'Phụ huynh Sakura',
-            email: 'parent@sakura.edu.vn',
-            image: 'https://avatars.githubusercontent.com/u/19550456',
+            name: user.fullName,
+            email: user.email,
+            image: user.image,
         },
     };
 

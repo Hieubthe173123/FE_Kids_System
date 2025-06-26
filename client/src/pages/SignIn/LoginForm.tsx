@@ -13,11 +13,13 @@ import {
 import { useState } from "react";
 import SchoolIcon from "@mui/icons-material/School";
 import { useNavigate } from "react-router-dom";
-import { getUserFromToken } from "../../helper/authHelper";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ROLE } from "../../constants/roles";
-import { loginApi } from "../../services/AuthApi";
+
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { getUser, login } from "../../redux/auth/authAPI";
+import { useAppSelector } from "../../hooks/useAppSelector";
 
 const LoginForm = () => {
     const navigate = useNavigate();
@@ -25,58 +27,52 @@ const LoginForm = () => {
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-    console.log(setPasswordError, setPasswordErrorMessage, setUsername);
-    console.log(username);
+    const dispatch = useAppDispatch();
+    const { loading } = useAppSelector((state) => state.auth);
+
 
     const handleLogin = async () => {
         try {
-            const data = await loginApi(username, password);
-            const accessToken = data.accessToken;
+            const resultAction = await dispatch(login({ username, password }));
 
-            if (accessToken) {
-                localStorage.setItem("accessToken", accessToken);
-                const userData = getUserFromToken(accessToken);
+            if (login.fulfilled.match(resultAction)) {
+                const getUserResult = await dispatch(getUser());
+                //   console.log("getUserResult",getUserResult);
 
-                console.log("User data from token:", userData);
-
-                if (!userData || !userData.role) {
-                    toast.error("Không xác định được role người dùng!");
-                    return;
-                }
-
-                toast.success(`Xin chào ${userData.role}! 🎉`);
-                console.log(userData.role);
-
-                const navigateByRole = (role: string): string => {
-                    const normalized = role.toLowerCase();
-                    switch (normalized) {
-                        case ROLE.ADMIN:
-                            return "/admin-home";
-                        case ROLE.PRINCIPAL:
-                            return "/principal-home";
-                        case ROLE.TEACHER:
-                            return "/teacher-home";
-                        case ROLE.PARENT:
-                            return "/parent-home";
-                        default:
-                            return "/";
+                if (getUser.fulfilled.match(getUserResult)) {
+                    const userData = getUserResult.payload;
+                    if (!userData) {
+                        toast.error("Không xác định được thông tin người dùng!");
+                        return;
                     }
-                };
-                navigate(navigateByRole(userData.role));
-            } else {
-                toast.error("Không nhận được accessToken từ server");
-            }
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            console.error("Login failed:", error);
-            const errorMsg = error.response?.data?.message || "Đăng nhập thất bại";
+                    toast.success(`Xin chào ${userData.account.role}! 🎉`);
 
-            if (error.response?.status === 401) {
+                    const navigateByRole = (role: string): string => {
+
+                        const normalized = role.toLowerCase();
+                        switch (normalized) {
+                            case ROLE.ADMIN:
+                                return "/admin-home";
+                            case ROLE.PRINCIPAL:
+                                return "/schoolprincipal-home";
+                            case ROLE.TEACHER:
+                                return "/teacher-home";
+                            case ROLE.PARENT:
+                                return "/parent-home";
+                            default:
+                                return "/";
+                        }
+                    };
+                    navigate(navigateByRole(userData.account.role));
+                }
+            } else if (login.rejected.match(resultAction)) {
+                const errorMsg = resultAction.payload as string;
+                toast.error(errorMsg);
                 setPasswordError(true);
                 setPasswordErrorMessage(errorMsg);
-            } else {
-                toast.error(errorMsg);
             }
+        } catch (err) {
+            toast.error("Có lỗi xảy ra khi đăng nhập");
         }
     };
 
@@ -166,6 +162,7 @@ const LoginForm = () => {
                         variant="contained"
                         fullWidth
                         onClick={handleLogin}
+                        disabled={loading}
                         sx={{
                             mt: 3,
                             py: 1.5,
@@ -179,7 +176,7 @@ const LoginForm = () => {
                             }
                         }}
                     >
-                        Đăng nhập vào Sakura
+                        {loading ? "Đang đăng nhập..." : "Đăng nhập vào Sakura"}
                     </Button>
                 </form>
 
