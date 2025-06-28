@@ -7,6 +7,7 @@ import TimeTable from "../pages/Parent/TimeTable";
 import DailyFeedback from "../pages/Parent/DailyFeedback";
 import ViewClassScreen from "../pages/Principal/ViewClassScreen";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
+import ProcessEnroll from "../pages/Principal/ProcessEnroll"
 import TestAuth from "../components/Auth/TestAuth";
 
 
@@ -74,7 +75,13 @@ export const routesSchoolPrincipal = [
                 path: "create-class",
                 component: ClassFormManager,
 
+            },
+            {
+                path: "process-enroll",
+                component: ProcessEnroll,
             }
+
+            
         ],
     },
 ];

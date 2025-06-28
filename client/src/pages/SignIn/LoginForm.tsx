@@ -54,7 +54,7 @@ const LoginForm = () => {
                             case ROLE.ADMIN:
                                 return "/admin-home";
                             case ROLE.PRINCIPAL:
-                                return "/schoolprincipal-home";
+                                return "/principal-home";
                             case ROLE.TEACHER:
                                 return "/teacher-home";
                             case ROLE.PARENT:
