@@ -3,6 +3,8 @@ import { Box, CircularProgress, Typography } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import ClassIcon from '@mui/icons-material/Class';
 import SchoolIcon from '@mui/icons-material/School';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+
 import {
     AppProvider,
     type Session,
@@ -19,11 +21,18 @@ import {
 } from 'react-router-dom';
 
 const NAVIGATION: Navigation = [
+    // set tittle 
     {
         segment: 'class-management',
         title: 'Quản lý lớp học',
         icon: <ClassIcon />,
+    },
+    {
+        segment: 'process-enroll',
+        title: 'Xử lý đăng kí nhập học',
+        icon: <EventNoteIcon />,
     }
+
 ];
 
 const demoTheme = createTheme({
@@ -51,7 +60,6 @@ export default function PrincipalHome() {
     const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
-    console.log(setIsMenuExpanded)
     const [loading, setLoading] = React.useState<boolean>(true);
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const session: Session = {
