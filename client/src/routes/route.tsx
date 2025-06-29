@@ -5,12 +5,12 @@ import PrincipalHome from "../components/PrincipalHome";
 import TeacherHome from "../components/TeacherHome";
 import TimeTable from "../pages/Parent/TimeTable";
 import DailyFeedback from "../pages/Parent/DailyFeedback";
+import MenuManagerDaily from "../pages/Principal/MenuDailyWeekly";
+import MenuManager from "../pages/Principal/MenuManager";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
 import ProcessEnroll from "../pages/Principal/ProcessEnroll"
 import TestAuth from "../components/Auth/TestAuth";
 import ClassMannager from "../pages/Principal/ClassMannager";
-
-
 
 export const routesParent = [
     {
@@ -72,6 +72,14 @@ export const routesSchoolPrincipal = [
                 component: ClassMannager,
             },
             {
+                path: "menu-dailyWeekly",
+                component: MenuManagerDaily,
+            },
+            {
+                path: "menu-management",
+                component: MenuManager,
+            },
+            {
                 path: "create-class",
                 component: ClassFormManager,
 
@@ -81,7 +89,7 @@ export const routesSchoolPrincipal = [
                 component: ProcessEnroll,
             }
 
-            
+
         ],
     },
 ];
