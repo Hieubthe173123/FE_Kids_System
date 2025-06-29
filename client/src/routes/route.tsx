@@ -5,10 +5,10 @@ import PrincipalHome from "../components/PrincipalHome";
 import TeacherHome from "../components/TeacherHome";
 import TimeTable from "../pages/Parent/TimeTable";
 import DailyFeedback from "../pages/Parent/DailyFeedback";
-import ViewClassScreen from "../pages/Principal/ViewClassScreen";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
 import ProcessEnroll from "../pages/Principal/ProcessEnroll"
 import TestAuth from "../components/Auth/TestAuth";
+import ClassMannager from "../pages/Principal/ClassMannager";
 
 
 
@@ -69,7 +69,7 @@ export const routesSchoolPrincipal = [
             { path: 'Home', component: PrincipalHome },
             {
                 path: "class-management",
-                component: ViewClassScreen,
+                component: ClassMannager,
             },
             {
                 path: "create-class",
