@@ -90,7 +90,7 @@ export default function ProcessEnroll() {
     const { data, error } = await accessProcessEnroll();
 
     if (error) {
-      toast.error("Không tìm thấy trạng thái chờ xác nhận");
+      toast.error("Không tìm thấy trạng thái Chờ xác nhận hoặc Xử lý lỗi");
     } else {
       toast.success("Xử lý email thành công!");
       fetchData();
@@ -139,7 +139,7 @@ export default function ProcessEnroll() {
       >
         <Typography
           variant="h5"
-          sx={{
+          sx={{ 
             fontWeight: "bold",
             color: PRIMARY_COLOR,
             display: "flex",
