@@ -41,6 +41,8 @@ const LoginForm = () => {
 
                 if (getUser.fulfilled.match(getUserResult)) {
                     const userData = getUserResult.payload;
+                    console.log(getUserResult);
+
                     if (!userData) {
                         toast.error("Không xác định được thông tin người dùng!");
                         return;
@@ -48,6 +50,7 @@ const LoginForm = () => {
                     toast.success(`Xin chào ${userData.account.role}! 🎉`);
 
                     const navigateByRole = (role: string): string => {
+                        console.log("navigateByRole", role);
 
                         const normalized = role.toLowerCase();
                         switch (normalized) {
