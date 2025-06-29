@@ -24,7 +24,9 @@ import EmailIcon from "@mui/icons-material/Email";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import { toast, ToastContainer } from "react-toastify";
+import dayjs from "dayjs";
 import "react-toastify/dist/ReactToastify.css";
 
 import {
@@ -65,9 +67,21 @@ export default function ProcessEnroll() {
     "Xử lý lỗi",
   ]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [columnAnchorEl, setColumnAnchorEl] = useState<null | HTMLElement>(null);
   const [enrollData, setEnrollData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visibleColumns, setVisibleColumns] = useState([
+    "enrollCode",
+    "studentName",
+    "studentAge",
+    "studentDob",
+    "studentGender",
+    "parentName",
+    "note",
+    "state"
+  ]);
   const open = Boolean(anchorEl);
+  const columnOpen = Boolean(columnAnchorEl);
 
   const fetchData = async () => {
     setLoading(true);
@@ -88,7 +102,6 @@ export default function ProcessEnroll() {
 
   const handleProcessEnroll = async () => {
     const { data, error } = await accessProcessEnroll();
-
     if (error) {
       toast.error("Không tìm thấy trạng thái Chờ xác nhận hoặc Xử lý lỗi");
     } else {
@@ -107,6 +120,12 @@ export default function ProcessEnroll() {
     );
   };
 
+  const handleColumnToggle = (field: string) => {
+    setVisibleColumns((prev) =>
+      prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]
+    );
+  };
+
   const filteredData = enrollData
     .filter((item) => selectedStates.includes(item.state))
     .filter(
@@ -116,15 +135,56 @@ export default function ProcessEnroll() {
         item.email.toLowerCase().includes(searchText.toLowerCase())
     );
 
-  const columns = [
-    { field: "enrollCode", headerName: "Mã hồ sơ", flex: 1.5 },
+  const allColumns = [
+    { field: "enrollCode", headerName: "Mã hồ sơ", flex: 1.3 },
     { field: "studentName", headerName: "Tên học sinh", flex: 1.2 },
     { field: "studentAge", headerName: "Tuổi học sinh", flex: 1.2 },
-    { field: "parentName", headerName: "Tên Phụ huynh", flex: 1 },
+    {
+      field: "studentDob",
+      headerName: "Ngày sinh",
+      flex: 1.2,
+      renderCell: (params: any) =>
+        params.value ? dayjs(params.value).format("DD-MM-YYYY") : "",
+    },
+    {
+      field: "studentGender",
+      headerName: "Giới tính",
+      flex: 1.2,
+      renderCell: (params: any) =>
+        params.value === "male"
+          ? "Nam"
+          : params.value === "female"
+            ? "Nữ"
+            : params.value,
+    },
+    { field: "parentName", headerName: "Tên Phụ huynh", flex: 1.2 },
+    {
+      field: "parentGender",
+      headerName: "Giới tính phụ huynh",
+      flex: 1.2,
+      renderCell: (params: any) =>
+        params.value === "male"
+          ? "Nam"
+          : params.value === "female"
+            ? "Nữ"
+            : params.value,
+    },
+    { field: "IDCard", headerName: "CMND/CCCD", flex: 1.2 },
+    {
+      field: "parentDob",
+      headerName: "Ngày sinh phụ huynh",
+      flex: 1.2,
+      renderCell: (params: any) =>
+        params.value ? dayjs(params.value).format("DD-MM-YYYY") : "",
+    },
+    { field: "address", headerName: "Địa chỉ", flex: 1.2 },
     { field: "email", headerName: "Email", flex: 1.5 },
-    { field: "IDCard", headerName: "CMND/CCCD", flex: 1 },
-    { field: "state", headerName: "Trạng thái", flex: 1 },
+    { field: "relationship", headerName: "Mối quan hệ", flex: 1.2 },
+    { field: "note", headerName: "Tình trạng sức khỏe", flex: 1.5 },
+    { field: "state", headerName: "Trạng thái", flex: 1.2 },
   ];
+
+  const columns = allColumns.filter((col) => visibleColumns.includes(col.field));
 
   return (
     <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, minHeight: "100vh" }}>
@@ -139,7 +199,7 @@ export default function ProcessEnroll() {
       >
         <Typography
           variant="h5"
-          sx={{ 
+          sx={{
             fontWeight: "bold",
             color: PRIMARY_COLOR,
             display: "flex",
@@ -192,6 +252,11 @@ export default function ProcessEnroll() {
               <FilterAltIcon />
             </IconButton>
           </Tooltip>
+          <Tooltip title="Quản lý cột hiển thị">
+            <IconButton onClick={(e) => setColumnAnchorEl(e.currentTarget)}>
+              <ViewColumnIcon />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Xử lý email">
             <IconButton onClick={handleProcessEnroll}>
               <EmailIcon color="primary" />
@@ -234,6 +299,9 @@ export default function ProcessEnroll() {
               fontSize: 14,
               padding: "12px 8px",
               borderBottom: "1px solid #eee",
+              display: "flex",
+              alignItems: "center",
+              lineHeight: "normal",
             },
             "& .MuiDataGrid-row:hover": {
               backgroundColor: "#f0f9ff",
@@ -275,6 +343,43 @@ export default function ProcessEnroll() {
             size="small"
           >
             Áp dụng lọc
+          </Button>
+        </MenuItem>
+      </Menu>
+
+      <Menu
+        anchorEl={columnAnchorEl}
+        open={columnOpen}
+        onClose={() => setColumnAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <MenuItem disableRipple>
+          <Typography fontWeight="bold">Chọn cột hiển thị</Typography>
+        </MenuItem>
+        <MenuItem disableRipple>
+          <FormGroup>
+            {allColumns.map((col) => (
+              <FormControlLabel
+                key={col.field}
+                control={
+                  <Checkbox
+                    checked={visibleColumns.includes(col.field)}
+                    onChange={() => handleColumnToggle(col.field)}
+                  />
+                }
+                label={col.headerName}
+              />
+            ))}
+          </FormGroup>
+        </MenuItem>
+        <MenuItem disableRipple>
+          <Button
+            onClick={() => setColumnAnchorEl(null)}
+            variant="contained"
+            fullWidth
+            size="small"
+          >
+            Áp dụng
           </Button>
         </MenuItem>
       </Menu>

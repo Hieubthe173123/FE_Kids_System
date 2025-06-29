@@ -102,17 +102,20 @@ export interface SchoolInformation {
     email: string;
 }
 
-export interface RegisterTheAdmission {
-    studentName: string;
-    studentAge: string;
-    studentDob: Date;
-    parentName: string;
-    parentDob: Date;
-    IDcard: number;
-    address: string;
-    phoneNumber: number;
-    email: string;
-    reason: string;
-    studentImage: string;
-    parentImages: string;
+export interface EnrollItem {
+  id: number;
+  enrollCode: string;
+  studentName: string;
+  studentAge: number;
+  studentDob: string | Date;
+  studentGender: "male" | "female" | "other";
+  parentName: string;
+  parentGender: "male" | "female" | "other";
+  IDCard: string;
+  parentDob: string | Date;
+  address: string;
+  email: string;
+  relationship: string;
+  note: string;
+  state: string;
 }
