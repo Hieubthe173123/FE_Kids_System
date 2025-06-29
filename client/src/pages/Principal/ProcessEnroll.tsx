@@ -24,8 +24,13 @@ import EmailIcon from "@mui/icons-material/Email";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import { getListEnrollSchool, accessProcessEnroll } from "../../services/ApiServices";
+import {
+  getListEnrollSchool,
+  accessProcessEnroll,
+} from "../../services/ApiServices";
 
 const PRIMARY_COLOR = "#4194cb";
 const BACKGROUND_COLOR = "#fefefe";
@@ -62,35 +67,35 @@ export default function ProcessEnroll() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [enrollData, setEnrollData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
   const open = Boolean(anchorEl);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const data = await getListEnrollSchool();
-      const processEnrollList = data.data;
-      const formatted = processEnrollList.map((item: any, index: number) => ({
+      const formatted = data.data.map((item: any, index: number) => ({
         ...item,
         id: index + 1,
       }));
       setEnrollData(formatted);
     } catch (error) {
       console.error("Lỗi khi tải danh sách hồ sơ:", error);
+      toast.error("Lỗi khi tải danh sách hồ sơ");
     } finally {
       setLoading(false);
     }
   };
 
   const handleProcessEnroll = async () => {
-  try {
-    await accessProcessEnroll();
-    fetchData();
-  } catch (error) {
-   console.error("Lỗi khi xử lý email", error);
-  }
-};
+    const { data, error } = await accessProcessEnroll();
 
+    if (error) {
+      toast.error("Không tìm thấy trạng thái chờ xác nhận");
+    } else {
+      toast.success("Xử lý email thành công!");
+      fetchData();
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -123,20 +128,32 @@ export default function ProcessEnroll() {
 
   return (
     <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, minHeight: "100vh" }}>
-      <Typography
-        variant="h5"
+      <Box
         sx={{
           mb: 3,
-          fontWeight: "bold",
-          color: PRIMARY_COLOR,
           display: "flex",
+          justifyContent: "space-between",
           alignItems: "center",
-          gap: 1,
+          flexWrap: "wrap",
         }}
       >
-        <AssignmentTurnedInIcon />
-        Danh sách hồ sơ nhập học
-      </Typography>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: "bold",
+            color: PRIMARY_COLOR,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <AssignmentTurnedInIcon />
+          Danh sách hồ sơ nhập học
+        </Typography>
+        <Box sx={{ mt: 1 }}>
+          <ToastContainer position="top-right" autoClose={3000} />
+        </Box>
+      </Box>
 
       <Box
         sx={{
@@ -225,7 +242,6 @@ export default function ProcessEnroll() {
         />
       </Paper>
 
-      {/* ▼ Dropdown filter trạng thái */}
       <Menu
         anchorEl={anchorEl}
         open={open}

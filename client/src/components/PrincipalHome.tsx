@@ -60,7 +60,6 @@ export default function PrincipalHome() {
     const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
-    console.log(setIsMenuExpanded)
     const [loading, setLoading] = React.useState<boolean>(true);
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const session: Session = {

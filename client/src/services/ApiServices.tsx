@@ -9,12 +9,20 @@ export const getListEnrollSchool = async () => {
     }
 }
 
-export const accessProcessEnroll = async() => {
-    try {
-        const response = await axiosInstance.post("/enrollSchool/process-enroll");
-        return response.data;
-    } catch (error) {
-        console.error("Get user failed:", error);
-        throw error;
-    }
-}
+export const accessProcessEnroll = async () => {
+  try {
+    const response = await axiosInstance.post("/enrollSchool/process-enroll");
+    return {
+      data: response.data,
+      error: null,
+    };
+  } catch (error: any) {
+    return {
+      data: null,
+      error: {
+        message: error.response?.data?.message || "Đã xảy ra lỗi",
+        status: error.response?.status || null,
+      },
+    };
+  }
+};
