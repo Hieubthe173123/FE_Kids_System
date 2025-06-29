@@ -6,10 +6,10 @@ import TeacherHome from "../components/TeacherHome";
 import TimeTable from "../pages/Parent/TimeTable";
 import DailyFeedback from "../pages/Parent/DailyFeedback";
 import ViewClassScreen from "../pages/Principal/ViewClassScreen";
+import MenuManagerDaily from "../pages/Principal/MenuDailyWeekly";
+import MenuManager from "../pages/Principal/MenuManager";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
 import TestAuth from "../components/Auth/TestAuth";
-
-
 
 export const routesParent = [
     {
@@ -69,6 +69,14 @@ export const routesSchoolPrincipal = [
             {
                 path: "class-management",
                 component: ViewClassScreen,
+            },
+            {
+                path: "menu-dailyWeekly",
+                component: MenuManagerDaily,
+            },
+            {
+                path: "menu-management",
+                component: MenuManager,
             },
             {
                 path: "create-class",

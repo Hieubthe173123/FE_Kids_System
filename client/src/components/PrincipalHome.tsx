@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import ClassIcon from '@mui/icons-material/Class';
+import MenuIcon from '@mui/icons-material/Menu';
 import SchoolIcon from '@mui/icons-material/School';
 import {
     AppProvider,
@@ -23,7 +24,17 @@ const NAVIGATION: Navigation = [
         segment: 'class-management',
         title: 'Quản lý lớp học',
         icon: <ClassIcon />,
-    }
+    },
+    {
+        segment: 'menu-dailyWeekly',
+        title: 'Thực đơn theo tuần',
+        icon: <MenuIcon />,
+    },
+    // {
+    //     segment: 'menu-management',
+    //     title: 'Tạo thực đơn',
+    //     icon: <MenuIcon />,
+    // },
 ];
 
 const demoTheme = createTheme({
