@@ -1,4 +1,5 @@
 import axiosInstance from "../helper/axiosInstance";
+import dayjs from "dayjs";
 
 export const getAllClass = async () => {
     try {
@@ -57,12 +58,12 @@ export const getClassBySchooYear = async (year: string) => {
 };
 
 
-export const getClassBySchooYear2 = async (year: string) => {
+export const getAllClassBySchoolYear = async (year: string) => {
     try {
-        const response = await axiosInstance.get(`/class/school-year/${year}`);
+        const response = await axiosInstance.get(`/class/school-year/${year}/all`);
         return response.data;
     } catch (error) {
-        console.error(`Failed to fetch classes for school year ID ${year}:`, error);
+        console.error(`Failed to fetch all classes for school year ${year}:`, error);
         throw error;
     }
 }
@@ -78,10 +79,16 @@ export const getClassByStatus = async (status: boolean) => {
     }
 }
 
-export const createClass = async (className: string, classAge: string, room: string, status: boolean) => {
+
+
+export const createClass = async (className: string, classAge: string, room: string | null, status: boolean, schoolYear: string) => {
     try {
         const response = await axiosInstance.post(`/class/create`, {
-            className, classAge, room, status
+            className,
+            classAge,
+            room,
+            status,
+            schoolYear
         });
         return response.data;
     } catch (error) {
@@ -188,6 +195,127 @@ export const getAvailableTeachers = async () => {
         return response.data;
     } catch (error) {
         console.error('Failed to fetch available teachers:', error);
+        throw error;
+    }
+};
+
+export const getAllRooms = async () => {
+    try {
+        const response = await axiosInstance.get('/room');
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch all rooms:', error);
+        throw error;
+    }
+}
+
+export const createClassBatch = async (classes: { className: string, classAge: string, room: string | null, status: boolean, schoolYear: string }[]) => {
+    try {
+        const response = await axiosInstance.post('/class/create-batch', { classes });
+        return response.data;
+    } catch (error) {
+        console.error('Failed to create classes in batch:', error);
+        throw error;
+    }
+}
+
+
+
+export const getListEnrollSchool = async () => {
+    try {
+        const response = await axiosInstance.get("/enrollSchool");
+        return response.data;
+    } catch (error) {
+        console.error("Get enrollList failed:", error);
+        throw error;
+    }
+}
+
+export const accessProcessEnroll = async () => {
+    try {
+        const response = await axiosInstance.post("/enrollSchool/process-enroll");
+        return {
+            data: response.data,
+            error: null,
+        };
+    } catch (error: any) {
+        return {
+            data: null,
+            error: {
+                message: error.response?.data?.message || "Đã xảy ra lỗi",
+                status: error.response?.status || null,
+            },
+        };
+    }
+};
+
+
+
+export const getWeeklyMenuByDate = async (weekStart: string) => {
+    try {
+        const response = await axiosInstance.get("/weeklyMenu", {
+            params: { weekStart },
+        });
+
+        const allMenus = response.data.data || [];
+        const matchedWeek = allMenus.find((menu: any) =>
+            dayjs(menu.weekStart).isSame(weekStart, "day")
+        );
+
+        return matchedWeek?.dailyMenus || [];
+    } catch (error) {
+        console.error("Lỗi lấy thực đơn theo tuần:", error);
+        throw error;
+    }
+};
+
+export const getWeeklyMenuById = async (id: string) => {
+    try {
+        const response = await axiosInstance.get(`/weeklyMenu/${id}`);
+        return response.data.data;
+    } catch (error) {
+        console.error("Lỗi lấy thực đơn theo ID:", error);
+        throw error;
+    }
+};
+
+export const createWeeklyMenu = async (menuData: any) => {
+    console.log("🚀 ~ createWeeklyMenu ~ menuData:", menuData)
+    try {
+        const response = await axiosInstance.post("/weeklyMenu", menuData);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi tạo thực đơn:", error);
+        throw error;
+    }
+};
+
+export const updateWeeklyMenu = async (id: string, menuData: any) => {
+    try {
+        const response = await axiosInstance.put(`/weeklyMenu/${id}`, menuData);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi cập nhật thực đơn:", error);
+        throw error;
+    }
+};
+
+export const deleteWeeklyMenu = async (id: string) => {
+    try {
+        const response = await axiosInstance.delete(`/weeklyMenu/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi xóa thực đơn:", error);
+        throw error;
+    }
+};
+
+export const getAllWeeklyMenus = async () => {
+    try {
+        const response = await axiosInstance.get("/weeklyMenu");
+        return response.data.data || [];
+    } catch (error) {
+        console.error("Lỗi lấy tất cả thực đơn:", error);
         throw error;
     }
 };
