@@ -11,6 +11,8 @@ import ClassFormManager from "../pages/Principal/ClassFormManager";
 import ProcessEnroll from "../pages/Principal/ProcessEnroll"
 import TestAuth from "../components/Auth/TestAuth";
 import ClassMannager from "../pages/Principal/ClassMannager";
+import ParentManagement from "../pages/Principal/ParentManager";
+import StudentManagement from "../pages/Principal/StudentManagement";
 
 export const routesParent = [
     {
@@ -87,8 +89,15 @@ export const routesSchoolPrincipal = [
             {
                 path: "process-enroll",
                 component: ProcessEnroll,
+            },
+            {
+                path: "parent-management",
+                component: ParentManagement,
+            },
+            {
+                path: "students-management",
+                component: StudentManagement,
             }
-
 
         ],
     },

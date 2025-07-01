@@ -97,3 +97,107 @@ export const getAllWeeklyMenus = async () => {
     throw error;
   }
 };
+
+export const getAllParents = async () => {
+  try {
+    const response = await axiosInstance.get("/parent");
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi lấy danh sách phụ huynh:", error);
+    throw error;
+  }
+};
+
+export const createParent = async (parentData: any) => {
+  try {
+    const response = await axiosInstance.post("/parent", parentData);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi tạo phụ huynh:", error);
+    throw error;
+  }
+};
+
+export const updateParent = async (id: string, parentData: any) => {
+  try {
+    const response = await axiosInstance.put(`/parent/${id}`, parentData);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi cập nhật phụ huynh:", error);
+    throw error;
+  }
+};
+
+export const getAccountParentUnused = async () => {
+  try {
+    const response = await axiosInstance.get(`/parent/unused`);
+    return response.data;
+  } catch (error) {
+    console.error("Không thể lấy được Tài khoản Phụ huynh:", error);
+    throw error;
+  }
+};
+
+export const deleteParent = async (id: string) => {
+  try {
+    const response = await axiosInstance.delete(`/parent/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi xóa phụ huynh:", error);
+    throw error;
+  }
+};
+
+export const getAllStudents = async () => {
+  try {
+    const response = await axiosInstance.get("/student");
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi lấy danh sách học sinh:", error);
+    throw error;
+  }
+};
+
+export const createStudent = async (studentData: any) => {
+  try {
+    const response = await axiosInstance.post("/student", studentData);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi tạo học sinh:", error);
+    throw error;
+  }
+};
+
+export const updateStudent = async (id: string, studentData: any) => {
+  try {
+    const response = await axiosInstance.put(`/student/${id}`, studentData);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi cập nhật học sinh:", error);
+    throw error;
+  }
+};
+
+export const deleteStudent = async (id: string) => {
+  try {
+    const response = await axiosInstance.delete(`/student/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi xóa học sinh:", error);
+    throw error;
+  }
+};
+
+export const getAllStudentNoParent = async () => {
+  console.log("23214323");
+  
+  try {
+    const response = await axiosInstance.get("/student/no-parent");
+    console.log("🚀 ~ getAllStudentNoParent ~ response:", response.data)
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi lấy danh sách học sinh:", error);
+    throw error;
+  }
+}
+
