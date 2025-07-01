@@ -37,13 +37,17 @@ const NAVIGATION: Navigation = [
         segment: 'menu-dailyWeekly',
         title: 'Thực đơn theo tuần',
         icon: <MenuIcon />,
-    }
-
-    // {
-    //     segment: 'menu-management',
-    //     title: 'Tạo thực đơn',
-    //     icon: <MenuIcon />,
-    // },
+    },
+    {
+        segment: 'parent-management',
+        title: 'Quản lý phụ huynh',
+        icon: <MenuIcon />,
+    },
+     {
+        segment: 'students-management',
+        title: 'Quản lý học sinh',
+        icon: <MenuIcon />,
+    },
 ];
 
 const demoTheme = createTheme({
