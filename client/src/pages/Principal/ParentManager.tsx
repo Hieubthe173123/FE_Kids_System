@@ -243,7 +243,7 @@ export default function ParentManagement() {
                 setEditingParent(params.row);
                 setForm(params.row);
                 setSelectedStudents(
-                  params.row.student?.map((s: any) => s._id) || [] 
+                  params.row.student?.map((s: any) => s._id) || []
                 );
                 setOpenDialog(true);
               }}

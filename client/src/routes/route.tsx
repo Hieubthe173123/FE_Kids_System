@@ -13,6 +13,7 @@ import TestAuth from "../components/Auth/TestAuth";
 import ClassMannager from "../pages/Principal/ClassMannager";
 import ParentManagement from "../pages/Principal/ParentManager";
 import StudentManagement from "../pages/Principal/StudentManagement";
+import MealTimeline from "../pages/Parent/MealTimeline";
 
 export const routesParent = [
     {
@@ -26,6 +27,10 @@ export const routesParent = [
             {
                 path: "time-table",
                 component: TimeTable,
+            },
+            {
+                path: "meal-time",
+                component: MealTimeline,
             },
             {
                 path: "feedback",
