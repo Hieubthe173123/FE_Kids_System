@@ -11,10 +11,8 @@ import {
 } from '@mui/icons-material';
 import {
     getAllClassBySchoolYear,
-    // createClass,
     updateClass,
-    getAllRooms,
-    createClassBatch
+    getAllRooms
 } from '../../services/PrincipalApi';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -135,55 +133,6 @@ export default function ClassCreateTable() {
         );
     }, [rows, searchTerm]);
 
-
-    // const handleSave = async () => {
-    //     try {
-    //         setLoading(true);
-    //         const invalidRows = rows.filter(row => !row.className || !row.age);
-    //         if (invalidRows.length > 0) {
-    //             toast.warn(`Vui lòng điền đủ thông tin cho tất cả các lớp.`);
-    //             setLoading(false);
-    //             return;
-    //         }
-
-    //         await Promise.all(
-    //             rows.map(row => {
-    //                 const classData = {
-    //                     className: row.className,
-    //                     classAge: row.age.toString(),
-    //                     room: row.room || '',
-    //                     status: row.status,
-    //                     schoolYear: schoolYear
-    //                 };
-    //                 if (row.id && !row.id.startsWith('new-')) {
-    //                     return updateClass(row.id, classData.className, classData.classAge, classData.room, classData.status);
-    //                 } else {
-    //                     return createClass(classData.className, classData.classAge, classData.room, classData.status, classData.schoolYear);
-    //                 }
-    //             })
-    //         );
-
-    //         const result = await getAllClassBySchoolYear(schoolYear);
-    //         const updatedRows = result.data.map((item: any) => ({
-    //             id: item._id,
-    //             className: item.className,
-    //             age: parseInt(item.classAge),
-    //             room: item.room?._id || '',
-    //             status: item.status,
-    //             editing: false,
-    //             studentCount: item.students?.length || 0,
-    //             teacherCount: item.teacher?.length || 0,
-    //         }));
-    //         setRows(updatedRows);
-
-    //         toast.success('Đã lưu danh sách lớp thành công');
-    //     } catch (error) {
-    //         toast.error('Lỗi khi lưu danh sách lớp');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
     const handleSave = async () => {
         try {
             setLoading(true);
@@ -195,10 +144,7 @@ export default function ClassCreateTable() {
                 return;
             }
 
-            const newRows = rows.filter(row => row.id && row.id.startsWith('new-'));
-            const existingRows = rows.filter(row => row.id && !row.id.startsWith('new-'));
-
-            const updatePromises = existingRows.map(row => {
+            const updatePromises = rows.map(row => {
                 return updateClass(
                     row.id ?? '',
                     row.className,
@@ -208,20 +154,7 @@ export default function ClassCreateTable() {
                 );
             });
 
-            let createPromise = Promise.resolve();
-            if (newRows.length > 0) {
-                const classList = newRows.map(row => ({
-                    className: row.className,
-                    classAge: row.age.toString(),
-                    room: row.room || null,
-                    status: row.status,
-                    schoolYear: schoolYear,
-                }));
-
-                createPromise = createClassBatch(classList);
-            }
-
-            await Promise.all([createPromise, ...updatePromises]);
+            await Promise.all(updatePromises);
 
             const result = await getAllClassBySchoolYear(schoolYear);
             const updatedRows = result.data.map((item: any) => ({
@@ -241,36 +174,6 @@ export default function ClassCreateTable() {
             toast.error('Lỗi khi lưu danh sách lớp');
         } finally {
             setLoading(false);
-        }
-    };
-
-
-    const handleGenerateDefaultClasses = () => {
-        const DEFAULT_CLASS_NAMES = ['A', 'B', 'C', 'D'];
-        const existingClassNames = new Set(rows.map(r => r.className?.trim().toLowerCase()));
-        const newClasses: ClassRow[] = [];
-
-        for (let age = 1; age <= 5; age++) {
-            for (const letter of DEFAULT_CLASS_NAMES) {
-                const className = `Lớp ${age}${letter}`;
-                if (!existingClassNames.has(className.toLowerCase())) {
-                    newClasses.push({
-                        id: `new-${Date.now()}-${age}-${letter}`,
-                        className,
-                        age,
-                        room: '',
-                        status: true,
-                        editing: false,
-                    });
-                }
-            }
-        }
-
-        if (newClasses.length === 0) {
-            toast.info("Tất cả lớp mặc định đã tồn tại cho năm học này");
-        } else {
-            setRows(prev => [...prev, ...newClasses]);
-            toast.success(`Đã tạo ${newClasses.length} lớp mặc định còn thiếu`);
         }
     };
 
@@ -519,23 +422,6 @@ export default function ClassCreateTable() {
             )}
 
             <Box mt={4} textAlign="right">
-                <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={handleGenerateDefaultClasses}
-                    disabled={loading}
-                    sx={{
-                        mr: 2,
-                        px: 4,
-                        py: 1.2,
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        textTransform: 'none',
-                        borderRadius: 3,
-                    }}
-                >
-                    Tạo lớp mặc định
-                </Button>
                 <Button
                     variant="contained"
                     color="primary"
