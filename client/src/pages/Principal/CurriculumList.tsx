@@ -36,12 +36,14 @@ import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+import CurriculumForm from "./CurriculumForm";
+import CurriculumTimeForm from "./CurriculumTimeForm"
 import {
   getAllCurriculums,
   createCurriculums,
@@ -338,8 +340,7 @@ export default function CurriculumManager() {
         />
 
         <Box display="flex" gap={1}>
-
-            <Tooltip title="Làm mới">
+          <Tooltip title="Làm mới">
             <IconButton onClick={fetchCurriculums}>
               <RefreshIcon />
             </IconButton>
@@ -356,13 +357,13 @@ export default function CurriculumManager() {
               <AddIcon />
             </IconButton>
           </Tooltip>
-          
+
           <Tooltip title="Cài giờ hoạt động cố định">
             <IconButton color="warning" onClick={handleSetTime}>
               <AccessTimeIcon />
             </IconButton>
           </Tooltip>
-        
+
           <Tooltip title="Chọn cột hiển thị">
             <IconButton onClick={(e) => setColumnAnchorEl(e.currentTarget)}>
               <ViewColumnIcon />
@@ -478,143 +479,17 @@ export default function CurriculumManager() {
         </MenuItem>
       </Menu>
 
-      {/* Dialog create */}
-      <Dialog
+      {/* Dialog Create and Update */}
+      <CurriculumForm
         open={openAddDialog}
         onClose={handleCloseAddDialog}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{
-          sx: {
-            borderRadius: 4,
-            boxShadow: 6,
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            bgcolor: PRIMARY_COLOR,
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            py: 2,
-            px: 3,
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-          }}
-        >
-          <AddCircleOutlineIcon sx={{ fontSize: 28 }} />
-          {editingActivityId ? "Cập nhật hoạt động" : "Thêm mới hoạt động"}
-        </DialogTitle>
-
-        <DialogContent
-          dividers
-          sx={{ px: 4, py: 3, backgroundColor: "#fafafa" }}
-        >
-          <Box display="flex" flexDirection="column" gap={3}>
-            <TextField
-              label="Tên hoạt động"
-              value={newActivity.activityName}
-              onChange={(e) =>
-                setNewActivity({ ...newActivity, activityName: e.target.value })
-              }
-              fullWidth
-              variant="outlined"
-            />
-
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Loại hoạt động</FormLabel>
-              <RadioGroup
-                row
-                value={newActivity.activityFixed ? "fixed" : "normal"}
-                onChange={(e) =>
-                  setNewActivity({
-                    ...newActivity,
-                    activityFixed: e.target.value === "fixed",
-                  })
-                }
-              >
-                <FormControlLabel
-                  value="normal"
-                  control={<Radio sx={{ color: PRIMARY_COLOR }} />}
-                  label="Hoạt động thông thường"
-                />
-                <FormControlLabel
-                  value="fixed"
-                  control={<Radio sx={{ color: PRIMARY_COLOR }} />}
-                  label="Hoạt động cố định"
-                />
-              </RadioGroup>
-            </FormControl>
-
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>Độ tuổi</InputLabel>
-              <Select
-                value={newActivity.age}
-                label="Độ tuổi"
-                onChange={(e) =>
-                  setNewActivity({ ...newActivity, age: e.target.value })
-                }
-              >
-                {["1", "2", "3", "4", "5", "Tất cả"].map((age) => (
-                  <MenuItem key={age} value={age}>
-                    {age}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <TextField
-              label="Số tiết học"
-              type="number"
-              value={newActivity.activityNumber}
-              onChange={(e) =>
-                setNewActivity({
-                  ...newActivity,
-                  activityNumber: Number(e.target.value),
-                })
-              }
-              fullWidth
-              variant="outlined"
-              inputProps={{ min: 1 }}
-            />
-          </Box>
-        </DialogContent>
-
-        <DialogActions sx={{ px: 4, py: 2.5, bgcolor: "#f5f5f5" }}>
-          <Button
-            onClick={handleCloseAddDialog}
-            variant="outlined"
-            sx={{
-              borderRadius: 3,
-              textTransform: "none",
-              color: "grey.700",
-              borderColor: "grey.400",
-              "&:hover": { borderColor: "grey.600" },
-            }}
-          >
-            Huỷ
-          </Button>
-
-          <Button
-            onClick={
-              editingActivityId ? handleUpdateActivity : handleCreateActivity
-            }
-            variant="contained"
-            sx={{
-              borderRadius: 3,
-              textTransform: "none",
-              backgroundColor: PRIMARY_COLOR,
-              "&:hover": {
-                backgroundColor: "#004e92",
-              },
-            }}
-          >
-            {editingActivityId ? "Cập nhật" : "Tạo mới"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSubmit={
+          editingActivityId ? handleUpdateActivity : handleCreateActivity
+        }
+        editing={!!editingActivityId}
+        newActivity={newActivity}
+        setNewActivity={setNewActivity}
+      />
 
       {/* Dialog delete */}
       <Dialog
@@ -650,26 +525,10 @@ export default function CurriculumManager() {
       </Dialog>
 
       {/* Dialog time */}
-      <Dialog open={openSetTimeDialog} onClose={handleCloseSetTimeDialog}>
-        <DialogTitle>Cài giờ hoạt động cố định</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">
-            (Phần này sẽ hiển thị các hoạt động có{" "}
-            <strong>activityFixed = true</strong> và cho phép gán giờ.)
-          </Typography>
-          {/* TODO: Render form chọn hoạt động + giờ tại đây */}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseSetTimeDialog}>Đóng</Button>
-          <Button
-            variant="contained"
-            onClick={() => toast.success("Đã lưu giờ!")}
-            autoFocus
-          >
-            Lưu
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CurriculumTimeForm
+        open={openSetTimeDialog}
+        onClose={handleCloseSetTimeDialog}
+      />
     </Box>
   );
 }
