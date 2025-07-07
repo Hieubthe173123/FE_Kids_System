@@ -19,13 +19,15 @@ interface Meal {
     content: string;
 }
 
-interface Props {
-    meals: Meal[];
-}
+export default function MealTimeline() {
+    const meals: Meal[] = [
+        { time: '7:30', content: 'Sữa tươi' },
+        { time: '10:30', content: 'Cơm + Thịt kho + Canh rau ngót' },
+        { time: '14:30', content: 'Bánh flan' },
+    ];
 
-export default function MealTimeline({ meals }: Props) {
     return (
-        <Box mt={6}>
+        <Box mt={6} p={4} minHeight="100vh" bgcolor="#f5f7fb">
             <Typography
                 variant="h5"
                 gutterBottom

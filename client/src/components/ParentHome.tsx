@@ -26,16 +26,19 @@ const NAVIGATION: Navigation = [
         title: 'Lịch học của bé',
         icon: <CalendarMonthIcon />,
     },
+
+    {
+        segment: 'meal-time',
+        title: 'Thực đơn hàng ngày',
+        icon: <FastfoodIcon />,
+    },
+
     {
         segment: 'feedback',
         title: 'Đánh giá học sinh',
         icon: <FeedbackIcon />,
     },
-    {
-        segment: 'menu',
-        title: 'Thực đơn hàng ngày',
-        icon: <FastfoodIcon />,
-    },
+
     {
         segment: 'test-auth',
         title: 'Test auth',
@@ -68,10 +71,12 @@ export default function ParentHome() {
     const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
+    console.log(setIsMenuExpanded);
+
 
     const [loading, setLoading] = React.useState<boolean>(true);
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
+
     const session: Session = {
         user: {
             name: user.fullName,

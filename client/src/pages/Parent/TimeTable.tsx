@@ -5,7 +5,6 @@ import {
 import { useState } from 'react';
 import Schedules from './Schedules';
 import Information from './Information';
-import MealTimeline from './MealTimeline';
 
 
 type ScheduleItem = {
@@ -55,10 +54,11 @@ const mockStudents: Student[] = [
             ],
         },
         meals: [
-            { time: '7:30', content: 'Sữa tươi' },
-            { time: '10:30', content: 'Cơm + Thịt kho + Canh rau ngót' },
-            { time: '14:30', content: 'Bánh flan' },
-        ],
+            { time: '7:45 - 8:15', content: 'Ăn sáng: Cháo thịt bằm, sữa tươi' },
+            { time: '10:15 - 10:45', content: 'Ăn nhẹ: Bánh quy, nước cam' },
+            { time: '11:45 - 12:15', content: 'Ăn trưa: Cơm, canh rau, thịt kho' },
+            { time: '14:30 - 15:00', content: 'Ăn xế: Sữa chua, trái cây' },
+        ]
     },
 ];
 
@@ -109,9 +109,6 @@ export default function TimeTable() {
                 onChange={handleAccordionChange}
                 scheduleData={student?.schedule.afternoon || []}
             />
-
-            {student?.meals && <MealTimeline meals={student.meals} />}
-
 
         </Box>
     );

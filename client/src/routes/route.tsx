@@ -12,6 +12,9 @@ import ProcessEnroll from "../pages/Principal/ProcessEnroll"
 import TestAuth from "../components/Auth/TestAuth";
 import ClassMannager from "../pages/Principal/ClassMannager";
 import CurriculimList from "../pages/Principal/CurriculumList";
+import ParentManagement from "../pages/Principal/ParentManager";
+import StudentManagement from "../pages/Principal/StudentManagement";
+import MealTimeline from "../pages/Parent/MealTimeline";
 
 export const routesParent = [
     {
@@ -25,6 +28,10 @@ export const routesParent = [
             {
                 path: "time-table",
                 component: TimeTable,
+            },
+            {
+                path: "meal-time",
+                component: MealTimeline,
             },
             {
                 path: "feedback",
@@ -91,9 +98,16 @@ export const routesSchoolPrincipal = [
             },
             {
                 path: "curriculum-management",
-                component: CurriculimList,
+                component: CurriculimList,  
+            },
+            {
+                path: "parent-management",
+                component: ParentManagement,
+            },
+            {
+                path: "students-management",
+                component: StudentManagement,
             }
-
 
         ],
     },

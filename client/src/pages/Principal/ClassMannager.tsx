@@ -61,6 +61,7 @@ export default function ClassMannager() {
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [isReadOnly, setIsReadOnly] = useState(false);
     const navigate = useNavigate();
 
     const [teacherPerClass, setTeacherPerClass] = useState<{ [key: string]: string }>(() => {
@@ -90,6 +91,23 @@ export default function ClassMannager() {
                 console.error("Failed to fetch class data:", error);
                 setClassData([]);
             });
+    }, [selectedSchoolYear]);
+
+    useEffect(() => {
+        if (!selectedSchoolYear) {
+            setIsReadOnly(false);
+            return;
+        }
+
+        const endYear = parseInt(selectedSchoolYear.split(' - ')[1], 10);
+        const currentYear = new Date().getFullYear();
+
+        if (endYear < currentYear) {
+            setIsReadOnly(true);
+            toast.info(`Năm học ${selectedSchoolYear} đã kết thúc. Chức năng chỉnh sửa đã bị khóa.`);
+        } else {
+            setIsReadOnly(false);
+        }
     }, [selectedSchoolYear]);
 
 
@@ -202,7 +220,6 @@ export default function ClassMannager() {
     }, [isTeacherModalOpen, selectedRoom, selectedSchoolYear, classData]);
 
 
-
     const rooms = useMemo(() => [...new Set(classData.map(c => c.room))], [classData]);
     const classKey = `${selectedRoom}_${selectedSchoolYear}`;
     const currentTeacher = teacherPerClass[classKey] || "Chưa phân công";
@@ -221,7 +238,8 @@ export default function ClassMannager() {
             return;
         }
         setSelectedTeachers(prev => [...prev, { id: String(teacher.id), name: teacher.name, phone: teacher.phone }]);
-        setAvailableTeachers(prev => prev.filter(t => t.id !== teacher._id));
+        setAvailableTeachers(prev => prev.filter(t => t.id !== teacher.id));
+        // setAvailableTeachers(prev => prev.filter(t => t.id !== teacher._id));
     };
 
     const handleConfirmTeacherSelection = async () => {
@@ -371,6 +389,31 @@ export default function ClassMannager() {
         setSelectedStudents(newSelected);
     };
 
+    const handleOpenAddStudentModal = () => {
+        if (!selectedRoom) {
+            toast.warn("Vui lòng chọn một lớp trước khi thêm học sinh!");
+            return;
+        }
+        setIsStudentModalOpen(true);
+    };
+
+    const handleOpenAddTeacherModal = () => {
+        if (!selectedRoom) {
+            toast.warn("Vui lòng chọn một lớp trước khi thêm giáo viên!");
+            return;
+        }
+        setIsTeacherModalOpen(true);
+    };
+
+    const handleRemoveSelectedTeacher = (teacherId: string) => {
+        const teacherToRemove = selectedTeachers.find(t => t.id === teacherId);
+        if (!teacherToRemove) return;
+        setSelectedTeachers(prev => prev.filter(t => t.id !== teacherId));
+        setAvailableTeachers(prev =>
+            [...prev, teacherToRemove].sort((a, b) => a.name.localeCompare(b.name))
+        );
+    };
+
     return (
         <Box sx={{ display: "flex", height: "90vh", bgcolor: BACKGROUND_COLOR, overflow: "hidden", p: 2, gap: 3, boxSizing: "border-box", flexDirection: { xs: "column", md: "row" } }}>
             <ClassListSidebar
@@ -417,6 +460,7 @@ export default function ClassMannager() {
                                                     bgcolor: "#ffcdd2"
                                                 }
                                             }}
+                                            disabled={isReadOnly}
                                         >
                                             <DeleteIcon fontSize="small" />
                                         </IconButton>
@@ -425,7 +469,7 @@ export default function ClassMannager() {
                             ))}
                             <IconButton
                                 size="small"
-                                onClick={() => setIsTeacherModalOpen(true)}
+                                onClick={handleOpenAddTeacherModal}
                                 sx={{
                                     bgcolor: "#e3f2fd",
                                     color: "#1565c0",
@@ -434,6 +478,7 @@ export default function ClassMannager() {
                                         bgcolor: "#bbdefb"
                                     }
                                 }}
+                                disabled={isReadOnly}
                             >
                                 <PersonSearchIcon fontSize="small" />
                             </IconButton>
@@ -465,6 +510,7 @@ export default function ClassMannager() {
                                     color="error"
                                     startIcon={<DeleteIcon />}
                                     onClick={handleRemoveSelectedStudents}
+                                    disabled={isReadOnly}
                                 >
                                     Xóa {selectedStudents.length} học sinh
                                 </Button>
@@ -475,19 +521,11 @@ export default function ClassMannager() {
                                 variant="contained"
                                 startIcon={<PersonAddAlt1Icon />}
                                 sx={{ backgroundColor: PRIMARY_COLOR, "&:hover": { backgroundColor: PRIMARY_DARK } }}
-                                onClick={() => setIsStudentModalOpen(true)}
+                                onClick={handleOpenAddStudentModal}
+                                disabled={isReadOnly}
                             >
                                 Thêm học sinh
                             </Button>
-                            {/* <Button
-                                variant="contained"
-                                startIcon={<CreateIcon />}
-                                sx={{ backgroundColor: "#e6687a", color: "#fff", "&:hover": { backgroundColor: "#d75c6e" } }}
-                                onClick={() => navigate("/principal-home/create-class")}
-                            >
-                                Tạo / Sửa lớp
-                            </Button> */}
-
                             <Button
                                 variant="contained"
                                 startIcon={<CreateIcon />}
@@ -499,6 +537,7 @@ export default function ClassMannager() {
                                         toast.warn("Vui lòng chọn một năm học trước.");
                                     }
                                 }}
+                                disabled={isReadOnly}
                             >
                                 Tạo / Sửa lớp
                             </Button>
@@ -522,9 +561,7 @@ export default function ClassMannager() {
             <TeacherSelectionModal
                 open={isTeacherModalOpen}
                 onClose={handleCloseModal}
-                onRemoveTeacher={(id) =>
-                    setSelectedTeachers(prev => prev.filter(t => t.id !== id))
-                }
+                onRemoveTeacher={handleRemoveSelectedTeacher}
                 availableTeachers={availableTeachers.filter(
                     (t) => !selectedTeachers.some(sel => sel.id === t.id)
                 )}
@@ -538,7 +575,8 @@ export default function ClassMannager() {
             <AddStudentModal
                 open={isStudentModalOpen}
                 onClose={() => setIsStudentModalOpen(false)}
-                availableStudents={availableStudents.map(s => ({ ...s, studentId: s.studentId.toString() }))}
+                availableStudents={availableStudents.map(s => ({ ...s, _id: s.studentId.toString(), studentId: s.studentId.toString() }))}
+                // availableStudents={availableStudents.map(s => ({ ...s, studentId: s.studentId.toString() }))}
                 onAddStudent={handleAddStudentToClass}
                 selectedRoom={selectedRoom}
             />
