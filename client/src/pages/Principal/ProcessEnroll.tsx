@@ -32,7 +32,7 @@ import "react-toastify/dist/ReactToastify.css";
 import {
   getListEnrollSchool,
   accessProcessEnroll,
-} from "../../services/ApiServices";
+} from "../../services/PrincipalApi";
 
 const PRIMARY_COLOR = "#4194cb";
 const BACKGROUND_COLOR = "#fefefe";
