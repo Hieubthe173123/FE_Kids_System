@@ -78,7 +78,8 @@ export default function ProcessEnroll() {
     "studentGender",
     "parentName",
     "note",
-    "state"
+    "state",
+    "createdAt"
   ]);
   const open = Boolean(anchorEl);
   const columnOpen = Boolean(columnAnchorEl);
@@ -182,6 +183,13 @@ export default function ProcessEnroll() {
     { field: "relationship", headerName: "Mối quan hệ", flex: 1.2 },
     { field: "note", headerName: "Tình trạng sức khỏe", flex: 1.5 },
     { field: "state", headerName: "Trạng thái", flex: 1.2 },
+     {
+      field: "createdAt",
+      headerName: "Ngày tạo",
+      flex: 1.2,
+      renderCell: (params: any) =>
+        params.value ? dayjs(params.value).format("DD-MM-YYYY") : "",
+    },
   ];
 
   const columns = allColumns.filter((col) => visibleColumns.includes(col.field));

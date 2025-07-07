@@ -1,4 +1,63 @@
+import dayjs from "dayjs";
 import axiosInstance from "../helper/axiosInstance";
+
+export const getAllCurriculums = async () => {
+  try {
+    const response = await axiosInstance.get("/curriculum");
+    return response.data;
+  } catch (error) {
+    console.error("Get currriculumList failed:", error);
+    throw error;
+  }
+};
+
+export const createCurriculums = async (activityData: any) => {
+  try {
+    const response = await axiosInstance.post("/curriculum", activityData);
+    return {
+      data: response.data,
+      error: null,
+    };
+  } catch (error: any) {
+    const errorList = error.response?.data;
+    return {
+      data: null,
+      error: {
+        errorList: errorList,
+    },
+    };
+  }
+};
+
+export const updateCurriculum = async (editingActivityId: string, updatedActivity: any) => {
+  try {
+    const response = await axiosInstance.put(`/curriculum/${editingActivityId}`, updatedActivity);
+    return {
+      data: response.data,
+      error: null,
+    };
+  } catch (error: any) {
+    const errorList = error.response?.data;
+    return {
+      data: null,
+      error: {
+        errorList: errorList,
+      },
+    };
+  }
+};
+
+
+export const deleteCurriculum = async (id: any) => {
+  try {
+    const response = await axiosInstance.put(`/curriculum/delete/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Get currriculumList failed:", error);
+    throw error;
+  }
+};
+
 export const getListEnrollSchool = async () => {
   try {
     const response = await axiosInstance.get("/enrollSchool");
@@ -7,7 +66,7 @@ export const getListEnrollSchool = async () => {
     console.error("Get enrollList failed:", error);
     throw error;
   }
-}
+};
 
 export const accessProcessEnroll = async () => {
   try {
@@ -26,8 +85,6 @@ export const accessProcessEnroll = async () => {
     };
   }
 };
-
-import dayjs from "dayjs";
 
 export const getWeeklyMenuByDate = async (weekStart: string) => {
   try {
@@ -58,7 +115,6 @@ export const getWeeklyMenuById = async (id: string) => {
 };
 
 export const createWeeklyMenu = async (menuData: any) => {
-  console.log("🚀 ~ createWeeklyMenu ~ menuData:", menuData)
   try {
     const response = await axiosInstance.post("/weeklyMenu", menuData);
     return response.data;
