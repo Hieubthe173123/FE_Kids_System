@@ -5,6 +5,7 @@ import ClassIcon from '@mui/icons-material/Class';
 import MenuIcon from '@mui/icons-material/Menu';
 import SchoolIcon from '@mui/icons-material/School';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 
 import {
     AppProvider,
@@ -27,6 +28,11 @@ const NAVIGATION: Navigation = [
         segment: 'class-management',
         title: 'Quản lý lớp học',
         icon: <ClassIcon />,
+    },
+    {
+        segment: 'curriculum-management',
+        title: 'Quản lý khung chương trình',
+        icon: <HistoryEduIcon />,
     },
     {
         segment: 'process-enroll',

@@ -11,6 +11,7 @@ import ClassFormManager from "../pages/Principal/ClassFormManager";
 import ProcessEnroll from "../pages/Principal/ProcessEnroll"
 import TestAuth from "../components/Auth/TestAuth";
 import ClassMannager from "../pages/Principal/ClassMannager";
+import CurriculimList from "../pages/Principal/CurriculumList";
 import ParentManagement from "../pages/Principal/ParentManager";
 import StudentManagement from "../pages/Principal/StudentManagement";
 import MealTimeline from "../pages/Parent/MealTimeline";
@@ -94,6 +95,10 @@ export const routesSchoolPrincipal = [
             {
                 path: "process-enroll",
                 component: ProcessEnroll,
+            },
+            {
+                path: "curriculum-management",
+                component: CurriculimList,  
             },
             {
                 path: "parent-management",
