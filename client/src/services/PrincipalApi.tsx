@@ -278,6 +278,24 @@ export const deleteCurriculum = async (id: any) => {
   }
 };
 
+export const createTimeCurriculum = async (activityList: any) => {
+  try {
+      const response = await axiosInstance.post(`/curriculum/time-fixed`, activityList);
+    return {
+      data: response.data,
+      error: null,
+    };
+  } catch (error: any) {
+    const errorList = error.response?.data;
+    return {
+      data: null,
+      error: {
+        errorList: errorList,
+      },
+    };
+  }
+};
+
 export const getListEnrollSchool = async () => {
   try {
     const response = await axiosInstance.get("/enrollSchool");

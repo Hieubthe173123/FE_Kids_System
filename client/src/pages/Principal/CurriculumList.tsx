@@ -43,6 +43,7 @@ import {
   createCurriculums,
   deleteCurriculum,
   updateCurriculum,
+  createTimeCurriculum
 } from "../../services/PrincipalApi";
 
 const PRIMARY_COLOR = "#4194cb";
@@ -72,7 +73,9 @@ function CustomFooter({ count }: { count: number }) {
 export default function CurriculumManager() {
   const [searchText, setSearchText] = useState("");
   const [filterFixed, setFilterFixed] = useState<string[]>(["fixed", "normal"]);
-  const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
+  const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
   const [curriculums, setCurriculums] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [visibleColumns, setVisibleColumns] = useState([
@@ -90,14 +93,24 @@ export default function CurriculumManager() {
   const [openSetTimeDialog, setOpenSetTimeDialog] = useState(false);
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [editingActivityId, setEditingActivityId] = useState<string | null>(null);
+  const [editingActivityId, setEditingActivityId] = useState<string | null>(
+    null
+  );
   const [curriculumToDelete, setCurriculumToDelete] = useState<any>(null);
-
   const [newActivity, setNewActivity] = useState({
     activityName: "",
     activityFixed: false,
     activityNumber: 0,
     age: "",
+  });
+  const [ageFilter, setAgeFilter] = useState("all");
+  const [updatedActivities, setUpdatedActivities] = useState<any[]>([]);
+  console.log("🚀 ~ CurriculumManager ~ updatedActivities:", updatedActivities);
+
+  const filteredActivities = curriculums.filter((activity: any) => {
+    if (!activity.activityFixed) return false;
+
+    return activity.age === ageFilter;
   });
 
   const columnOpen = Boolean(columnAnchorEl);
@@ -143,14 +156,16 @@ export default function CurriculumManager() {
   const handleAdd = () => {
     setOpenAddDialog(true);
   };
-
+  // Xử lý pop-up
   const handleSetTime = () => {
     setOpenSetTimeDialog(true);
   };
 
-  const handleCloseSetTimeDialog = () => {
-    setOpenSetTimeDialog(false);
-  };
+const handleCloseSetTimeDialog = () => {
+  setOpenSetTimeDialog(false);
+  setUpdatedActivities([]); 
+};
+
 
   const handleCloseAddDialog = () => {
     setOpenAddDialog(false);
@@ -244,6 +259,54 @@ export default function CurriculumManager() {
     setCurriculumToDelete(null);
   };
 
+  //Xử lý thời gian
+  const handleTimeChange = (
+    activityId: string,
+    field: "startTime" | "endTime",
+    value: Date | null
+  ) => {
+    setUpdatedActivities((prev: any[]) => {
+      const index = prev.findIndex((item) => item.activityId === activityId);
+
+      if (index !== -1) {
+        const updated = { ...prev[index], [field]: value };
+        const newList = [...prev];
+        newList[index] = updated;
+        return newList;
+      } else {
+        return [...prev, { activityId, [field]: value }];
+      }
+    });
+  };
+
+  const handleUpdate = async () => {
+    const payload = updatedActivities.map((item: any) => ({
+      activityId: item.activityId,
+      startTime: item.startTime ? item.startTime.toISOString() : null,
+      endTime: item.endTime ? item.endTime.toISOString() : null,
+    }));
+    const res = await createTimeCurriculum(payload);
+
+    if (res.error) {
+      const { errorList } = res.error;
+      console.log("🚀 ~ handleUpdate ~ errorList:", errorList);
+      if (errorList && errorList.length > 0) {
+        for (const error of errorList) {
+          const { message } = error;
+          toast.error(message);
+        }
+      } else {
+        toast.error("Lỗi tại máy chủ");
+      }
+      return;
+    } else {
+      toast.success("Đã cập nhật giờ thành công!");
+      setOpenSetTimeDialog(false);
+      setUpdatedActivities([]);
+      fetchCurriculums();
+    }
+  };
+
   const filteredData = curriculums
     .filter(
       (item) =>
@@ -252,8 +315,10 @@ export default function CurriculumManager() {
     )
     .filter((item) => {
       if (filterFixed.length === 0) return true;
-      if (filterFixed.includes("fixed") && item.activityFixed === true) return true;
-      if (filterFixed.includes("normal") && item.activityFixed === false) return true;
+      if (filterFixed.includes("fixed") && item.activityFixed === true)
+        return true;
+      if (filterFixed.includes("normal") && item.activityFixed === false)
+        return true;
       return false;
     });
 
@@ -264,7 +329,7 @@ export default function CurriculumManager() {
       field: "activityFixed",
       headerName: "Cố định",
       flex: 1.2,
-      renderCell: (params: any) => (params.value ? "✔️" : "❌"),
+      renderCell: (params: any) => (params.value ? "Có" : "Không"),
     },
     { field: "age", headerName: "Độ tuổi", flex: 1 },
     { field: "activityNumber", headerName: "Số tiết học", flex: 1 },
@@ -522,6 +587,12 @@ export default function CurriculumManager() {
       <CurriculumTimeForm
         open={openSetTimeDialog}
         onClose={handleCloseSetTimeDialog}
+        ageFilter={ageFilter}
+        setAgeFilter={setAgeFilter}
+        activities={filteredActivities}
+        timeData={updatedActivities}
+        handleTimeChange={handleTimeChange}
+        handleUpdate={handleUpdate}
       />
     </Box>
   );
