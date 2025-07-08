@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -17,13 +17,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Select,
   MenuItem as MuiMenuItem,
-  InputLabel,
-  FormControl,
-  FormLabel,
-  Radio,
-  RadioGroup,
 } from "@mui/material";
 import {
   DataGrid,
@@ -134,7 +128,7 @@ export default function CurriculumManager() {
     fetchCurriculums();
   }, []);
 
-    const handleFilterToggle = (type: string) => {
+  const handleFilterToggle = (type: string) => {
     setFilterFixed((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
@@ -205,7 +199,7 @@ export default function CurriculumManager() {
   const handleUpdateActivity = async () => {
     if (!editingActivityId) return;
 
-     const response = await updateCurriculum(editingActivityId, newActivity);
+    const response = await updateCurriculum(editingActivityId, newActivity);
 
     if (response.error) {
       const { errorList } = response.error;
@@ -251,17 +245,17 @@ export default function CurriculumManager() {
   };
 
   const filteredData = curriculums
-  .filter(
-    (item) =>
-      item.curriculumCode.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.activityName.toLowerCase().includes(searchText.toLowerCase())
-  )
-  .filter((item) => {
+    .filter(
+      (item) =>
+        item.curriculumCode.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.activityName.toLowerCase().includes(searchText.toLowerCase())
+    )
+    .filter((item) => {
       if (filterFixed.length === 0) return true;
       if (filterFixed.includes("fixed") && item.activityFixed === true) return true;
       if (filterFixed.includes("normal") && item.activityFixed === false) return true;
       return false;
-  });
+    });
 
   const allColumns = [
     { field: "curriculumCode", headerName: "Mã chương trình", flex: 1.2 },

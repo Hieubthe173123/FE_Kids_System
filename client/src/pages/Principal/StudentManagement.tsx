@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box, Typography, TextField, IconButton, Tooltip,
   Paper, Button, Dialog, DialogTitle, DialogContent,
@@ -7,7 +7,7 @@ import {
 import {
   DataGrid, GridFooterContainer, GridPagination
 } from "@mui/x-data-grid";
-import { Add, Edit, Delete, Refresh, Search, Person, Cake, Wc, Home } from "@mui/icons-material";
+import { Add, Edit, Delete, Refresh, Search } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -225,7 +225,7 @@ export default function StudentManagement() {
         <DialogTitle>{editingStudent ? "Cập nhật học sinh" : "Thêm học sinh mới"}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid {...({} as any)} item xs={12}>
               <TextField
                 label="Mã học sinh"
                 value={form.studentCode}
@@ -233,7 +233,7 @@ export default function StudentManagement() {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid {...({} as any)} item xs={12}>
               <TextField
                 label="Họ tên"
                 value={form.fullName}
@@ -241,7 +241,7 @@ export default function StudentManagement() {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid {...({} as any)} item xs={6}>
               <TextField
                 label="Ngày sinh"
                 type="date"
@@ -251,7 +251,7 @@ export default function StudentManagement() {
                 InputLabelProps={{ shrink: true }}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid {...({} as any)} item xs={6}>
               <TextField
                 label="Tuổi"
                 type="number"
@@ -260,7 +260,7 @@ export default function StudentManagement() {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid {...({} as any)} item xs={12}>
               <TextField
                 label="Giới tính"
                 select
@@ -273,7 +273,7 @@ export default function StudentManagement() {
                 <MenuItem value="other">Khác</MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={12}>
+            <Grid {...({} as any)} item xs={12}>
               <TextField
                 label="Địa chỉ"
                 fullWidth
@@ -281,7 +281,7 @@ export default function StudentManagement() {
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid {...({} as any)} item xs={12}>
               <TextField
                 label="Ghi chú"
                 fullWidth

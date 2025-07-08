@@ -90,7 +90,7 @@ export const Header = () => {
                 <Box sx={{ width: 250, p: 2 }} role="presentation" onClick={toggleDrawer(false)}>
                     <List>
                         {menuItems.map(({ label, onClick }, idx) => (
-                            <ListItem button key={idx} onClick={onClick}>
+                            <ListItem button key={idx} onClick={onClick} {...({} as any)}>
                                 <ListItemText primary={label} />
                             </ListItem>
                         ))}

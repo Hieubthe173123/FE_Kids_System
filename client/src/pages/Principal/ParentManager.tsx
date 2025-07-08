@@ -385,7 +385,7 @@ export default function ParentManagement() {
 
         <DialogContent>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6} {...({} as any)}>
               <TextField
                 label="Họ tên"
                 value={form.fullName}
@@ -397,7 +397,7 @@ export default function ParentManagement() {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6} {...({} as any)}>
               <TextField
                 label="Ngày sinh"
                 type="date"
@@ -411,7 +411,7 @@ export default function ParentManagement() {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6} {...({} as any)}>
               <TextField
                 label="Số điện thoại"
                 value={form.phoneNumber}
@@ -423,7 +423,7 @@ export default function ParentManagement() {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6} {...({} as any)}>
               <TextField
                 label="Email"
                 value={form.email}
@@ -435,7 +435,7 @@ export default function ParentManagement() {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6} {...({} as any)}>
               <TextField
                 label="CMND/CCCD"
                 value={form.IDCard}
@@ -447,7 +447,7 @@ export default function ParentManagement() {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6} {...({} as any)}>
               <TextField
                 label="Giới tính"
                 select
@@ -464,7 +464,7 @@ export default function ParentManagement() {
               </TextField>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={12} {...({} as any)}>
               <TextField
                 label="Tài khoản"
                 select
@@ -483,7 +483,7 @@ export default function ParentManagement() {
               </TextField>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={12} {...({} as any)}>
               <TextField
                 label="Thêm học sinh"
                 select
@@ -509,7 +509,7 @@ export default function ParentManagement() {
               </TextField>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={12} {...({} as any)}>
               <TextField
                 label="Địa chỉ"
                 value={form.address}

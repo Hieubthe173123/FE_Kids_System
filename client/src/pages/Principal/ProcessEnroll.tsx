@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -183,7 +183,7 @@ export default function ProcessEnroll() {
     { field: "relationship", headerName: "Mối quan hệ", flex: 1.2 },
     { field: "note", headerName: "Tình trạng sức khỏe", flex: 1.5 },
     { field: "state", headerName: "Trạng thái", flex: 1.2 },
-     {
+    {
       field: "createdAt",
       headerName: "Ngày tạo",
       flex: 1.2,

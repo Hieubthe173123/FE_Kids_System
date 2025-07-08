@@ -28,7 +28,16 @@ const statsData = [
 
 const FONT_FAMILY = "'Poppins', 'Roboto', sans-serif";
 
-const StatItem = ({ icon, count, label, color, index, isFeatured }) => {
+type StatItemProps = {
+    icon: React.ReactNode;
+    count: number;
+    label: string;
+    color: string;
+    index: number;
+    isFeatured: boolean;
+};
+
+const StatItem: React.FC<StatItemProps> = ({ icon, count, label, color, index, isFeatured }) => {
     const itemVariants = {
         hidden: { opacity: 0, y: 30 },
         visible: {
@@ -46,7 +55,7 @@ const StatItem = ({ icon, count, label, color, index, isFeatured }) => {
     } : {};
 
     return (
-        <Grid item xs={12} sm={4} component={motion.div} variants={itemVariants}>
+        <Grid item xs={12} sm={4} component={motion.div} variants={itemVariants} {...({} as any)}>
             <Box
                 sx={{
                     textAlign: 'center',
@@ -164,8 +173,8 @@ export const StatsSection = () => {
 
             <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
                 <Grid container spacing={{ xs: 8, md: 6 }} alignItems="center" justifyContent="center">
-                    <Grid item xs={12} lg={4}>
-                        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} variants={headerVariants}>
+                    <Grid item xs={12} lg={4} {...({} as any)}>
+                        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} variants={headerVariants} {...({} as any)}>
                             <Typography variant="h2" sx={{ fontFamily: FONT_FAMILY, fontWeight: 700, mb: 2, lineHeight: 1.3, color: 'text.primary', textAlign: { xs: 'center', lg: 'left' } }}>
                                 Những con số <br />
                                 <span style={{ color: theme.palette.primary.main }}>biết nói</span>
@@ -176,7 +185,7 @@ export const StatsSection = () => {
                         </motion.div>
                     </Grid>
 
-                    <Grid item xs={12} lg={8}>
+                    <Grid item xs={12} lg={8} {...({} as any)}>
                         <Grid container spacing={3} alignItems="center" justifyContent="center">
                             {statsData.map((stat, index) => (
                                 <StatItem

@@ -200,123 +200,123 @@ export default function WeeklyMenuCRUD() {
       </TableContainer>
 
       {/* --- Custom Styled Dialog --- */}
-<Dialog
-  open={openDialog}
-  onClose={() => setOpenDialog(false)}
-  maxWidth="md"
-  fullWidth
-  PaperProps={{
-    sx: {
-      borderRadius: 4,
-      backgroundImage: `url("/images/bg-kindergarten.png")`, // bạn có thể thay bằng hình của bạn
-      backgroundSize: "cover",
-      backgroundRepeat: "no-repeat",
-      backgroundPosition: "center",
-      padding: 3,
-      fontFamily: "'Fredoka', 'Comic Sans MS', cursive",
-      color: "#333",
-    },
-  }}
->
-  <DialogTitle sx={{ fontSize: "1.5rem", fontWeight: "bold", color: "#ff6f61" }}>
-    {editData ? "🎨 Cập nhật thực đơn tuần" : "🧸 Tạo mới thực đơn tuần"}
-  </DialogTitle>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            backgroundImage: `url("/images/bg-kindergarten.png")`, // bạn có thể thay bằng hình của bạn
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            padding: 3,
+            fontFamily: "'Fredoka', 'Comic Sans MS', cursive",
+            color: "#333",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontSize: "1.5rem", fontWeight: "bold", color: "#ff6f61" }}>
+          {editData ? "🎨 Cập nhật thực đơn tuần" : "🧸 Tạo mới thực đơn tuần"}
+        </DialogTitle>
 
-  <DialogContent>
-    {errorMsg && (
-      <Alert severity="warning" sx={{ mb: 2 }}>
-        {errorMsg}
-      </Alert>
-    )}
+        <DialogContent>
+          {errorMsg && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              {errorMsg}
+            </Alert>
+          )}
 
-    <TextField
-      type="date"
-      label="📅 Ngày bắt đầu tuần"
-      value={dayjs(weekStart).format("YYYY-MM-DD")}
-      onChange={(e) => {
-        const newStart = e.target.value;
-        setWeekStart(newStart);
-        setDailyMenus(
-          Array.from({ length: 7 }, (_, i) => {
-            const date = dayjs(newStart).add(i, "day").format("YYYY-MM-DD");
-            return { date, breakfast: "", lunch: "", dinner: "" };
-          })
-        );
-      }}
-      fullWidth
-      InputLabelProps={{ shrink: true }}
-      sx={{ mb: 2, backgroundColor: "white", borderRadius: 1 }}
-    />
+          <TextField
+            type="date"
+            label="📅 Ngày bắt đầu tuần"
+            value={dayjs(weekStart).format("YYYY-MM-DD")}
+            onChange={(e) => {
+              const newStart = e.target.value;
+              setWeekStart(newStart);
+              setDailyMenus(
+                Array.from({ length: 7 }, (_, i) => {
+                  const date = dayjs(newStart).add(i, "day").format("YYYY-MM-DD");
+                  return { date, breakfast: "", lunch: "", dinner: "" };
+                })
+              );
+            }}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            sx={{ mb: 2, backgroundColor: "white", borderRadius: 1 }}
+          />
 
-    <Tabs
-      value={selectedDayIndex}
-      onChange={(e, newVal) => setSelectedDayIndex(newVal)}
-      variant="scrollable"
-      scrollButtons="auto"
-      sx={{
-        mb: 2,
-        backgroundColor: "#fff8e1",
-        borderRadius: 2,
-        ".Mui-selected": { color: "#ff6f61" },
-      }}
-    >
-      {dailyMenus.map((menu, idx) => (
-        <Tab key={idx} label={dayjs(menu.date).format("dddd").toUpperCase()} />
-      ))}
-    </Tabs>
+          <Tabs
+            value={selectedDayIndex}
+            onChange={(e, newVal) => setSelectedDayIndex(newVal)}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              mb: 2,
+              backgroundColor: "#fff8e1",
+              borderRadius: 2,
+              ".Mui-selected": { color: "#ff6f61" },
+            }}
+          >
+            {dailyMenus.map((menu, idx) => (
+              <Tab key={idx} label={dayjs(menu.date).format("dddd").toUpperCase()} />
+            ))}
+          </Tabs>
 
-    {dailyMenus[selectedDayIndex] && (
-      <Box>
-        <Typography fontWeight="bold" mb={1} color="#ff4081">
-          📅 {dayjs(dailyMenus[selectedDayIndex].date).format("dddd, DD/MM/YYYY")}
-        </Typography>
-        <TextField
-          label="🌞 Món sáng"
-          value={dailyMenus[selectedDayIndex].breakfast}
-          onChange={(e) =>
-            handleMealChange(selectedDayIndex, "breakfast", e.target.value)
-          }
-          fullWidth
-          multiline
-          sx={{ mb: 2, backgroundColor: "#fff", borderRadius: 1 }}
-        />
-        <TextField
-          label="🍽️ Món trưa"
-          value={dailyMenus[selectedDayIndex].lunch}
-          onChange={(e) =>
-            handleMealChange(selectedDayIndex, "lunch", e.target.value)
-          }
-          fullWidth
-          multiline
-          sx={{ mb: 2, backgroundColor: "#fff", borderRadius: 1 }}
-        />
-        <TextField
-          label="💤 Món chiều"
-          value={dailyMenus[selectedDayIndex].dinner}
-          onChange={(e) =>
-            handleMealChange(selectedDayIndex, "dinner", e.target.value)
-          }
-          fullWidth
-          multiline
-          sx={{ backgroundColor: "#fff", borderRadius: 1 }}
-        />
-      </Box>
-    )}
-  </DialogContent>
+          {dailyMenus[selectedDayIndex] && (
+            <Box>
+              <Typography fontWeight="bold" mb={1} color="#ff4081">
+                📅 {dayjs(dailyMenus[selectedDayIndex].date).format("dddd, DD/MM/YYYY")}
+              </Typography>
+              <TextField
+                label="🌞 Món sáng"
+                value={dailyMenus[selectedDayIndex].breakfast}
+                onChange={(e) =>
+                  handleMealChange(selectedDayIndex, "breakfast", e.target.value)
+                }
+                fullWidth
+                multiline
+                sx={{ mb: 2, backgroundColor: "#fff", borderRadius: 1 }}
+              />
+              <TextField
+                label="🍽️ Món trưa"
+                value={dailyMenus[selectedDayIndex].lunch}
+                onChange={(e) =>
+                  handleMealChange(selectedDayIndex, "lunch", e.target.value)
+                }
+                fullWidth
+                multiline
+                sx={{ mb: 2, backgroundColor: "#fff", borderRadius: 1 }}
+              />
+              <TextField
+                label="💤 Món chiều"
+                value={dailyMenus[selectedDayIndex].dinner}
+                onChange={(e) =>
+                  handleMealChange(selectedDayIndex, "dinner", e.target.value)
+                }
+                fullWidth
+                multiline
+                sx={{ backgroundColor: "#fff", borderRadius: 1 }}
+              />
+            </Box>
+          )}
+        </DialogContent>
 
-  <DialogActions>
-    <Button onClick={() => setOpenDialog(false)} sx={{ color: "#ff6f61" }}>
-      ❌ Hủy
-    </Button>
-    <Button
-      variant="contained"
-      onClick={handleSave}
-      sx={{ backgroundColor: "#4caf50", color: "white" }}
-    >
-      ✅ Lưu
-    </Button>
-  </DialogActions>
-</Dialog>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} sx={{ color: "#ff6f61" }}>
+            ❌ Hủy
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSave}
+            sx={{ backgroundColor: "#4caf50", color: "white" }}
+          >
+            ✅ Lưu
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

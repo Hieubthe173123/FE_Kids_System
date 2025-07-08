@@ -22,7 +22,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 dayjs.extend(isoWeek);
-import { useState, useEffect } from "react";  
+import { useState, useEffect, type JSX } from "react";
 import { getWeeklyMenuByDate } from "../../services/ApiServices";
 import { useNavigate } from "react-router-dom"; // thêm ở đầu file
 
@@ -114,39 +114,39 @@ export default function WeeklyMenuPage() {
         <RestaurantMenuIcon sx={{ color: "#4194cb" }} /> Thực đơn tuần vui nhộn 🎉
       </Typography>
 
-<Paper
-  sx={{
-    p: 2,
-    borderRadius: 2,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: 2,
-    backgroundColor: "#e3f2fd",
-  }}
->
-  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-    <CalendarMonthIcon sx={{ color: "#4194cb" }} />
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker
-        label="Chọn ngày trong tuần"
-        value={weekStart}
-        onChange={(newValue) => {
-          if (newValue) setWeekStart(newValue.startOf("week").add(1, "day"));
+      <Paper
+        sx={{
+          p: 2,
+          borderRadius: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 2,
+          backgroundColor: "#e3f2fd",
         }}
-        format="DD/MM/YYYY"
-      />
-    </LocalizationProvider>
-  </Box>
-  <Button
-    variant="contained"
-    sx={{ backgroundColor: "#4194cb", color: "#fff", whiteSpace: "nowrap" }}
-    onClick={() => navigate("/principal-home/menu-management")}
-  >
-    ➕ Tạo mới thực đơn tuần
-  </Button>
-</Paper>
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <CalendarMonthIcon sx={{ color: "#4194cb" }} />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Chọn ngày trong tuần"
+              value={weekStart}
+              onChange={(newValue) => {
+                if (newValue) setWeekStart(newValue.startOf("week").add(1, "day"));
+              }}
+              format="DD/MM/YYYY"
+            />
+          </LocalizationProvider>
+        </Box>
+        <Button
+          variant="contained"
+          sx={{ backgroundColor: "#4194cb", color: "#fff", whiteSpace: "nowrap" }}
+          onClick={() => navigate("/principal-home/menu-management")}
+        >
+          ➕ Tạo mới thực đơn tuần
+        </Button>
+      </Paper>
 
       <Paper sx={{ p: 2, borderRadius: 2, backgroundColor: "#f9f9f9" }}>
         {menuData.length === 0 ? (

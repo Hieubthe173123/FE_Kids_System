@@ -87,7 +87,7 @@ export const HeroSection = () => {
                                 }}
                             >
                                 {/* Text column */}
-                                <Grid
+                                <Grid {...({} as any)}
                                     item
                                     xs={12}
                                     md={6}
@@ -156,7 +156,7 @@ export const HeroSection = () => {
                                 </Grid>
 
                                 {/* Image column */}
-                                <Grid
+                                <Grid {...({} as any)}
                                     item
                                     xs={12}
                                     md={6}

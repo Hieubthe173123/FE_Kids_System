@@ -83,7 +83,7 @@ export const FeaturesSection = () => {
 
                 <Grid container spacing={3}>
                     {features.map((item, index) => (
-                        <Grid item xs={12} md={6} key={index}>
+                        <Grid item xs={12} md={6} key={index} {...({} as any)}>
                             <MotionPaper
                                 initial={{ opacity: 0, y: 25 }}
                                 whileInView={{ opacity: 1, y: 0 }}
