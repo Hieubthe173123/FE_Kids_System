@@ -116,3 +116,26 @@ export interface RegisterTheAdmission {
     studentImage: string;
     parentImages: string;
 }
+
+export interface AccountListItem {
+    _id: string;
+    fullName: string;
+    dob: Date;
+    phoneNumber: number;
+    email: string;
+    IDCard: string | number;
+    gender: boolean;
+    role: 'parent' | 'teacher';
+    account: Partial<Account> | null;
+    address: string;
+    status: boolean;
+    image?: string; // Có thể là 'images' trong Teacher hoặc 'image' từ DB
+  
+    // Chỉ có khi role === 'parent'
+    student?: Student[];
+  
+    // Optional để dùng chung cho parent / teacher
+    createdAt?: Date;
+    updatedAt?: Date;
+  }
+  

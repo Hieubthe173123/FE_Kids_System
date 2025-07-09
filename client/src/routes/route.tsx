@@ -8,6 +8,7 @@ import DailyFeedback from "../pages/Parent/DailyFeedback";
 import ViewClassScreen from "../pages/Principal/ViewClassScreen";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
 import TestAuth from "../components/Auth/TestAuth";
+import AdminHomePage from "../pages/admin/admin.home/AdminHome";
 
 
 
@@ -43,7 +44,9 @@ export const routesAdmin = [
         component: AdminHome,
         children: [
             { index: true, component: () => <Navigate to="admin-home" replace /> },
-            { path: 'dashboard', component: AdminHome },
+            { path: 'statistics', component: AdminHomePage },
+            { path: 'account-management', component: AdminHomePage },
+
         ],
     },
 ];
