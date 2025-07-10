@@ -2,10 +2,11 @@ import * as React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import ClassIcon from '@mui/icons-material/Class';
-import MenuIcon from '@mui/icons-material/Menu';
 import SchoolIcon from '@mui/icons-material/School';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import MenuBookIcon from '@mui/icons-material/MenuBook'; // cho thực đơn
+import PeopleIcon from '@mui/icons-material/People'; // cho phụ huynh
 
 import {
     AppProvider,
@@ -42,17 +43,17 @@ const NAVIGATION: Navigation = [
     {
         segment: 'menu-dailyWeekly',
         title: 'Thực đơn theo tuần',
-        icon: <MenuIcon />,
+        icon: <MenuBookIcon />,
     },
     {
         segment: 'parent-management',
         title: 'Quản lý phụ huynh',
-        icon: <MenuIcon />,
+        icon: <PeopleIcon />,
     },
      {
         segment: 'students-management',
         title: 'Quản lý học sinh',
-        icon: <MenuIcon />,
+        icon: <SchoolIcon />,
     },
 ];
 

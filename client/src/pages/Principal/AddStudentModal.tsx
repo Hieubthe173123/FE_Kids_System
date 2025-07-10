@@ -1,188 +1,146 @@
-import { useState, useMemo } from 'react';
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
-    Box,
-    Typography,
-    Modal,
-    Button,
-    Alert,
-    Stack,
-    Divider,
-    IconButton,
-    List,
-    ListItem,
-    ListItemAvatar,
-    Avatar,
-    ListItemText,
     TextField,
-    InputAdornment,
-    Fade
+    Button,
+    Typography,
+    MenuItem,
+    Paper,
+    Stack,
 } from "@mui/material";
+import { toast } from "react-toastify";
 import {
-    Close as CloseIcon,
-    PersonAdd as PersonAddIcon,
-    Search as SearchIcon
-} from '@mui/icons-material';
-import dayjs from "dayjs";
+    getStudentById,
+    createStudent,
+    updateStudent,
+} from "../../services/ApiServices";
 
-const WEB_TONE_COLOR = "#4194cb";
-const ACCENT_COLOR = "#e6687a";
-const ACCENT_DARK_COLOR = "#d75c6e";
-
-const calculateAge = (dob: string) => {
-    if (!dob) return '(N/A)';
-    const birthDate = dayjs(dob);
-    const age = dayjs().diff(birthDate, "year");
-    return `${age} tuổi`;
+const defaultForm = {
+    studentCode: "",
+    fullName: "",
+    dob: "",
+    gender: "",
+    address: "",
+    age: 0,
+    status: true,
+    image: "",
+    note: "",
 };
 
-type Student = {
-    _id: string;
-    studentId: string;
-    name: string;
-    dob: string;
-};
+export default function StudentForm() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [form, setForm] = useState(defaultForm);
 
-type AddStudentModalProps = {
-    open: boolean;
-    onClose: () => void;
-    availableStudents: Student[];
-    onAddStudent: (student: Student) => void;
-    selectedRoom: string;
-};
-
-export default function AddStudentModal({
-    open,
-    onClose,
-    availableStudents,
-    onAddStudent,
-    selectedRoom
-}: AddStudentModalProps) {
-    const [searchTerm, setSearchTerm] = useState('');
-
-    const filteredStudents = useMemo(() => {
-        if (!searchTerm) {
-            return availableStudents;
+    useEffect(() => {
+        if (id) {
+            getStudentById(id).then((res: any) => {
+                const student = res.data;
+                if (student.dob) {
+                    student.dob = student.dob.substring(0, 10);
+                }
+                setForm(student);
+            });
         }
-        return availableStudents.filter(student =>
-            student.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [availableStudents, searchTerm]);
+    }, [id]);
 
-    const handleClose = () => {
-        setSearchTerm('');
-        onClose();
+    const handleSave = async () => {
+        try {
+            if (id) {
+                await updateStudent(id, form);
+                toast.success("Cập nhật thành công");
+            } else {
+                await createStudent(form);
+                toast.success("Tạo mới thành công");
+            }
+            navigate("/principal-home/students-management");
+        } catch {
+            toast.error("Lỗi khi lưu học sinh");
+        }
     };
 
     return (
-        <Modal open={open} onClose={handleClose} closeAfterTransition>
-            <Fade in={open}>
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: { xs: '90%', sm: 600 },
-                        bgcolor: "background.paper",
-                        borderRadius: 4,
-                        boxShadow: 24,
-                        outline: 'none'
-                    }}
+        <Paper
+            elevation={3}
+            sx={{
+                p: 4,
+                maxWidth: 600,
+                mx: "auto",
+                mt: 4,
+                backgroundColor: "#fefefe",
+                borderRadius: 2,
+            }}
+        >
+            <Typography variant="h6" mb={3} textAlign="center">
+                {id ? "Cập nhật học sinh" : "Thêm học sinh mới"}
+            </Typography>
+
+            <Stack spacing={2}>
+                <TextField
+                    label="Mã học sinh"
+                    value={form.studentCode}
+                    onChange={(e) => setForm({ ...form, studentCode: e.target.value })}
+                    fullWidth
+                />
+
+                <TextField
+                    label="Họ tên"
+                    value={form.fullName}
+                    onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                    fullWidth
+                />
+
+                <TextField
+                    label="Ngày sinh"
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
+                    value={form.dob}
+                    onChange={(e) => setForm({ ...form, dob: e.target.value })}
+                    fullWidth
+                />
+
+                <TextField
+                    label="Tuổi"
+                    type="number"
+                    value={form.age}
+                    onChange={(e) => setForm({ ...form, age: parseInt(e.target.value) })}
+                    fullWidth
+                />
+
+                <TextField
+                    label="Giới tính"
+                    select
+                    value={form.gender}
+                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                    fullWidth
                 >
-                    <Stack sx={{ p: 3 }} spacing={2}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Stack direction="row" spacing={1.5} alignItems="center">
-                                <PersonAddIcon sx={{ fontSize: '2.5rem', color: WEB_TONE_COLOR }} />
-                                <Box>
-                                    <Typography variant="h6" fontWeight="bold">
-                                        Thêm học sinh vào lớp {selectedRoom}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Chọn học sinh từ danh sách chưa được xếp lớp
-                                    </Typography>
-                                </Box>
-                            </Stack>
-                            <IconButton onClick={handleClose} aria-label="close">
-                                <CloseIcon />
-                            </IconButton>
-                        </Box>
-                        <Divider />
+                    <MenuItem value="male">Nam</MenuItem>
+                    <MenuItem value="female">Nữ</MenuItem>
+                    <MenuItem value="other">Khác</MenuItem>
+                </TextField>
 
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            size="small"
-                            placeholder="Tìm kiếm học sinh..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
+                <TextField
+                    label="Địa chỉ"
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    fullWidth
+                />
 
-                        <Box sx={{ maxHeight: 350, overflowY: "auto", pr: 1 }}>
-                            {filteredStudents.length > 0 ? (
-                                <List disablePadding>
-                                    {filteredStudents.map((student) => (
-                                        <ListItem
-                                            key={student.studentId}
-                                            disablePadding
-                                            sx={{
-                                                bgcolor: 'grey.50',
-                                                borderRadius: 2,
-                                                mb: 1,
-                                                p: 1.5,
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center'
-                                            }}
-                                        >
-                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                <ListItemAvatar sx={{ minWidth: 50 }}>
-                                                    <Avatar sx={{ bgcolor: WEB_TONE_COLOR }}>
-                                                        {student.name.charAt(0).toUpperCase()}
-                                                    </Avatar>
-                                                </ListItemAvatar>
-                                                <ListItemText
-                                                    primary={student.name}
-                                                    secondary={calculateAge(student.dob)}
-                                                />
-                                            </Box>
-                                            <Button
-                                                variant="contained"
-                                                size="small"
-                                                onClick={() => onAddStudent(student)}
-                                                sx={{
-                                                    backgroundColor: ACCENT_COLOR,
-                                                    '&:hover': { backgroundColor: ACCENT_DARK_COLOR }
-                                                }}
-                                            >
-                                                Thêm vào lớp
-                                            </Button>
-                                        </ListItem>
-                                    ))}
-                                </List>
-                            ) : (
-                                <Alert severity="info" sx={{ mt: 2 }}>
-                                    Không có học sinh nào phù hợp hoặc tất cả đã được xếp lớp.
-                                </Alert>
-                            )}
-                        </Box>
+                <TextField
+                    label="Ghi chú"
+                    value={form.note}
+                    onChange={(e) => setForm({ ...form, note: e.target.value })}
+                    fullWidth
+                />
 
-                        <Divider />
-
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button variant="outlined" onClick={handleClose}>
-                                Đóng
-                            </Button>
-                        </Box>
-                    </Stack>
-                </Box>
-            </Fade>
-        </Modal>
+                <Button
+                    variant="contained"
+                    sx={{ mt: 2, alignSelf: "center", px: 5 }}
+                    onClick={handleSave}
+                >
+                    {id ? "Cập nhật" : "Lưu"}
+                </Button>
+            </Stack>
+        </Paper>
     );
 }

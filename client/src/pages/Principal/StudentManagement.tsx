@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
 import {
   Box, Typography, TextField, IconButton, Tooltip,
-  Paper, Button, Dialog, DialogTitle, DialogContent,
-  DialogActions, Grid, MenuItem
+  Paper
 } from "@mui/material";
 import {
   DataGrid, GridFooterContainer, GridPagination
 } from "@mui/x-data-grid";
-import { Add, Edit, Delete, Refresh, Search } from "@mui/icons-material";
+import { Add, Edit, Delete, Refresh, Search } from "@mui/icons-material"; 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 import {
   getAllStudents,
-  createStudent,
-  updateStudent,
   deleteStudent,
 } from "../../services/ApiServices";
 
@@ -45,19 +43,7 @@ function CustomFooter({ count }: { count: number }) {
 export default function StudentManagement() {
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const [form, setForm] = useState<Omit<Student, "_id">>({
-    studentCode: "",
-    fullName: "",
-    dob: "",
-    gender: "",
-    address: "",
-    age: 0,
-    status: true,
-    image: "",
-    note: "",
-  });
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
@@ -71,35 +57,6 @@ export default function StudentManagement() {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const handleSave = async () => {
-    try {
-      if (editingStudent) {
-        await updateStudent(editingStudent._id, form);
-        toast.success("Cập nhật thành công");
-      } else {
-        await createStudent(form);
-        toast.success("Tạo mới học sinh thành công");
-      }
-
-      setForm({
-        studentCode: "",
-        fullName: "",
-        dob: "",
-        gender: "",
-        address: "",
-        age: 0,
-        status: true,
-        image: "",
-        note: "",
-      });
-      setEditingStudent(null);
-      setOpenDialog(false);
-      fetchData();
-    } catch {
-      toast.error("Có lỗi xảy ra");
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Bạn có chắc muốn xoá?")) {
@@ -144,14 +101,7 @@ export default function StudentManagement() {
       renderCell: (params: any) => (
         <>
           <Tooltip title="Sửa">
-            <IconButton
-              color="primary"
-              onClick={() => {
-                setEditingStudent(params.row);
-                setForm(params.row);
-                setOpenDialog(true);
-              }}
-            >
+            <IconButton color="primary" onClick={() => navigate(`/principal-home/students-edit/${params.row._id}`)}>
               <Edit />
             </IconButton>
           </Tooltip>
@@ -178,23 +128,7 @@ export default function StudentManagement() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Thêm học sinh mới">
-            <IconButton
-              onClick={() => {
-                setEditingStudent(null);
-                setForm({
-                  studentCode: "",
-                  fullName: "",
-                  dob: "",
-                  gender: "",
-                  address: "",
-                  age: 0,
-                  status: true,
-                  image: "",
-                  note: "",
-                });
-                setOpenDialog(true);
-              }}
-            >
+            <IconButton onClick={() => navigate("/principal-home/students-create")}>
               <Add />
             </IconButton>
           </Tooltip>
@@ -220,86 +154,6 @@ export default function StudentManagement() {
           slots={{ footer: () => <CustomFooter count={filteredStudents.length} /> }}
         />
       </Paper>
-
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="sm">
-        <DialogTitle>{editingStudent ? "Cập nhật học sinh" : "Thêm học sinh mới"}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Mã học sinh"
-                value={form.studentCode}
-                onChange={(e) => setForm({ ...form, studentCode: e.target.value })}
-                fullWidth
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Họ tên"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                fullWidth
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={6}>
-              <TextField
-                label="Ngày sinh"
-                type="date"
-                value={form.dob}
-                onChange={(e) => setForm({ ...form, dob: e.target.value })}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={6}>
-              <TextField
-                label="Tuổi"
-                type="number"
-                value={form.age}
-                onChange={(e) => setForm({ ...form, age: parseInt(e.target.value) })}
-                fullWidth
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Giới tính"
-                select
-                fullWidth
-                value={form.gender}
-                onChange={(e) => setForm({ ...form, gender: e.target.value })}
-              >
-                <MenuItem value="male">Nam</MenuItem>
-                <MenuItem value="female">Nữ</MenuItem>
-                <MenuItem value="other">Khác</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Địa chỉ"
-                fullWidth
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Ghi chú"
-                fullWidth
-                value={form.note}
-                onChange={(e) => setForm({ ...form, note: e.target.value })}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} color="error">
-            Hủy
-          </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
-            Lưu
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <ToastContainer position="top-right" autoClose={3000} />
     </Box>
