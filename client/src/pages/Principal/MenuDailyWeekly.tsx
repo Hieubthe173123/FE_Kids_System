@@ -19,7 +19,7 @@ import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from "dayjs/plugin/isoWeek";
 dayjs.extend(isoWeek);
 import { useState, useEffect, type JSX } from "react";
@@ -133,7 +133,10 @@ export default function WeeklyMenuPage() {
               label="Chọn ngày trong tuần"
               value={weekStart}
               onChange={(newValue) => {
-                if (newValue) setWeekStart(newValue.startOf("week").add(1, "day"));
+                if (newValue) {
+                  const dayjsValue = newValue as Dayjs;
+                  setWeekStart(dayjsValue.startOf('week').add(1, 'day'));
+                }
               }}
               format="DD/MM/YYYY"
             />

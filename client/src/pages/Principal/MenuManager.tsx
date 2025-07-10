@@ -78,11 +78,16 @@ export default function WeeklyMenuCRUD() {
 
   const handleSave = async () => {
     try {
-      if (dayjs(weekStart).isBefore(dayjs(), "day") && !editData) {
+      // if (dayjs(weekStart).isBefore(dayjs(), "day") && !editData) {
+      //   setErrorMsg("Không thể tạo thực đơn cho tuần đã trôi qua.");
+      //   return;
+      // }
+
+      const startOfThisWeek = dayjs().startOf('week').add(1, 'day'); // nếu tuần bắt đầu từ Thứ 2
+      if (dayjs(weekStart).isBefore(startOfThisWeek) && !editData) {
         setErrorMsg("Không thể tạo thực đơn cho tuần đã trôi qua.");
         return;
       }
-
       const payload = {
         weekStart,
         dailyMenus: dailyMenus.map((d) => ({

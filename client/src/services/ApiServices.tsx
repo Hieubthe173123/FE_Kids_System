@@ -8,8 +8,34 @@ export const getWeeklyMenuByDate = async (weekStart: string) => {
     const response = await axiosInstance.get("/weeklyMenu", {
       params: { weekStart }, // ví dụ: "2025-06-30"
     });
+    console.log("🚀 ~ getWeeklyMenuByDate ~ response:", response)
 
     const allMenus = response.data.data || [];
+    console.log("🚀 ~ getWeeklyMenuByDate ~ allMenus:", allMenus)
+    const matchedWeek = allMenus.find((menu: any) =>
+      dayjs(menu.weekStart).isSame(weekStart, "day")
+    );
+
+    return matchedWeek?.dailyMenus || [];
+  } catch (error) {
+    console.error("Lỗi lấy thực đơn theo tuần:", error);
+    throw error;
+  }
+};
+
+export const getWeeklyMenuByDateNow = async () => {
+  try {
+    const weekStart = dayjs().startOf("week").add(1, "day").format("YYYY-MM-DD");
+
+    const response = await axiosInstance.get("/weeklyMenu", {
+      params: { weekStart },
+    });
+
+    console.log("🚀 ~ getWeeklyMenuByDate ~ response:", response);
+
+    const allMenus = response.data.data || [];
+
+    // 👉 Tìm thực đơn có đúng tuần đó
     const matchedWeek = allMenus.find((menu: any) =>
       dayjs(menu.weekStart).isSame(weekStart, "day")
     );
@@ -121,6 +147,16 @@ export const deleteParent = async (id: string) => {
   }
 };
 
+export const getParentById = async (id: string) => {
+  try {
+    const response = await axiosInstance.get(`/parent/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy phụ huynh theo ID:", error);
+    throw error;
+  }
+};
+
 export const getAllStudents = async () => {
   try {
     const response = await axiosInstance.get("/student");
@@ -137,6 +173,16 @@ export const createStudent = async (studentData: any) => {
     return response.data;
   } catch (error) {
     console.error("Lỗi tạo học sinh:", error);
+    throw error;
+  }
+};
+
+export const getStudentById = async (id: string) => {
+  try {
+    const response = await axiosInstance.get(`/student/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy học sinh theo ID:", error);
     throw error;
   }
 };
