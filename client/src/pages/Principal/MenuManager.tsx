@@ -213,7 +213,7 @@ export default function WeeklyMenuCRUD() {
         PaperProps={{
           sx: {
             borderRadius: 4,
-            backgroundImage: `url("/images/bg-kindergarten.png")`, // bạn có thể thay bằng hình của bạn
+            backgroundImage: `url("/images/bg-kindergarten.png")`,
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
@@ -255,7 +255,7 @@ export default function WeeklyMenuCRUD() {
 
           <Tabs
             value={selectedDayIndex}
-            onChange={(e, newVal) => setSelectedDayIndex(newVal)}
+            onChange={(_, newVal) => setSelectedDayIndex(newVal)}
             variant="scrollable"
             scrollButtons="auto"
             sx={{

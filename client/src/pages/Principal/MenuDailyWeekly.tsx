@@ -19,12 +19,12 @@ import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import isoWeek from "dayjs/plugin/isoWeek";
 dayjs.extend(isoWeek);
 import { useState, useEffect, type JSX } from "react";
 import { getWeeklyMenuByDate } from "../../services/ApiServices";
-import { useNavigate } from "react-router-dom"; // thêm ở đầu file
+import { useNavigate } from "react-router-dom";
 
 interface MealItem {
   dishName: string;

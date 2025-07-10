@@ -38,13 +38,7 @@ const NAVIGATION: Navigation = [
         segment: 'feedback',
         title: 'Đánh giá học sinh',
         icon: <FeedbackIcon />,
-    },
-
-    {
-        segment: 'test-auth',
-        title: 'Test auth',
-        icon: <FastfoodIcon />,
-    },
+    }
 ];
 
 const demoTheme = createTheme({
