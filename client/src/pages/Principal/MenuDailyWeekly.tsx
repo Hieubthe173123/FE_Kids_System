@@ -133,10 +133,7 @@ export default function WeeklyMenuPage() {
               label="Chọn ngày trong tuần"
               value={weekStart}
               onChange={(newValue) => {
-                if (newValue) {
-                  const dayjsValue = newValue as Dayjs;
-                  setWeekStart(dayjsValue.startOf('week').add(1, 'day'));
-                }
+                if (dayjs.isDayjs(newValue)) setWeekStart(newValue.startOf("week").add(1, "day"));
               }}
               format="DD/MM/YYYY"
             />

@@ -209,7 +209,7 @@ export const deleteStudent = async (id: string) => {
 
 export const getAllStudentNoParent = async () => {
   console.log("23214323");
-  
+
   try {
     const response = await axiosInstance.get("/student/no-parent");
     console.log("🚀 ~ getAllStudentNoParent ~ response:", response.data)

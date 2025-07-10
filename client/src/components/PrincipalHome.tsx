@@ -22,6 +22,7 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
+import { logout } from '../redux/auth/authAPI';
 
 const NAVIGATION: Navigation = [
     // set tittle 
@@ -50,7 +51,7 @@ const NAVIGATION: Navigation = [
         title: 'Quản lý phụ huynh',
         icon: <PeopleIcon />,
     },
-     {
+    {
         segment: 'students-management',
         title: 'Quản lý học sinh',
         icon: <SchoolIcon />,
@@ -94,7 +95,10 @@ export default function PrincipalHome() {
 
     const authentication = {
         signIn: () => { },
-        signOut: () => { },
+        signOut: async () => {
+            await logout();
+            window.location.href = '/sign-in';
+        },
     };
 
     React.useEffect(() => {

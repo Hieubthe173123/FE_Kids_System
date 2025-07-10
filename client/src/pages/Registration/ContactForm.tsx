@@ -99,7 +99,7 @@ export const ContactForm = () => {
                                     label="Ngày sinh"
                                     value={formState.studentDob ? dayjs(formState.studentDob) : null}
                                     onChange={(date) => {
-                                        let value = date ? date.format('YYYY-MM-DD') : '';
+                                        let value = (date && typeof (date as any).format === 'function') ? (date as any).format('YYYY-MM-DD') : '';
                                         let age = '';
                                         if (value) {
                                             const dobDate = new Date(value);
@@ -193,7 +193,10 @@ export const ContactForm = () => {
                                         label="Ngày sinh"
                                         value={formState.parentDob ? dayjs(formState.parentDob) : null}
                                         onChange={(date) => {
-                                            let value = date ? date.format('YYYY-MM-DD') : '';
+                                            let value = '';
+                                            if (date && typeof (date as any).format === 'function') {
+                                                value = (date as any).format('YYYY-MM-DD');
+                                            }
                                             setFormState(prev => ({ ...prev, parentDob: value }));
                                         }}
                                         slotProps={{
