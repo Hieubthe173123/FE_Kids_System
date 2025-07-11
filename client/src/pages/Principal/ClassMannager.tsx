@@ -576,7 +576,6 @@ export default function ClassMannager() {
                 open={isStudentModalOpen}
                 onClose={() => setIsStudentModalOpen(false)}
                 availableStudents={availableStudents.map(s => ({ ...s, _id: s.studentId.toString(), studentId: s.studentId.toString() }))}
-                // availableStudents={availableStudents.map(s => ({ ...s, studentId: s.studentId.toString() }))}
                 onAddStudent={handleAddStudentToClass}
                 selectedRoom={selectedRoom}
             />

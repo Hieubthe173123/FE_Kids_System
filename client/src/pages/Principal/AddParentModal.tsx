@@ -6,7 +6,6 @@ import {
   Button,
   Typography,
   Box,
-  Grid,
   Paper,
 } from "@mui/material";
 import {
@@ -19,7 +18,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 
 export default function ParentFormPage() {
-  const { id } = useParams(); // nếu có thì là sửa
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -60,6 +59,25 @@ export default function ParentFormPage() {
   }, [id]);
 
   const handleSave = async () => {
+    if (!form.fullName || !form.dob || !form.phoneNumber || !form.email || !form.IDCard || !form.gender || !form.address || !form.account) {
+      toast.warning("Vui lòng nhập đầy đủ thông tin bắt buộc");
+      return;
+    }
+    const phoneRegex = /^0\d{9}$/;
+    if (!phoneRegex.test(form.phoneNumber)) {
+      toast.info("Số điện thoại không hợp lệ. Chỉ nhập số, 10 số bắt đầu bằng 0.");
+      return;
+    }
+    if (form.IDCard.length < 12) {
+      toast.info("CCCD phải tối thiểu 12 số.");
+      return;
+    }
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    if (!emailRegex.test(form.email)) {
+      toast.info("Email không hợp lệ. Vui lòng nhập đúng định dạng email.");
+      return;
+    }
+
     try {
       const payload = { ...form, student: selectedStudents };
 
@@ -83,129 +101,41 @@ export default function ParentFormPage() {
         {id ? "Cập nhật phụ huynh" : "Thêm phụ huynh mới"}
       </Typography>
       <Paper sx={{ p: 3 }}>
-        <Grid {...({} as any)} container spacing={2} direction="column">
-          <Grid {...({} as any)} item xs={12}>
-            <TextField
-              label="Họ tên"
-              fullWidth
-              value={form.fullName}
-              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-            />
-          </Grid>
-
-          <Grid {...({} as any)} item xs={12}>
-            <TextField
-              label="Ngày sinh"
-              type="date"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={form.dob}
-              onChange={(e) => setForm({ ...form, dob: e.target.value })}
-            />
-          </Grid>
-
-          <Grid {...({} as any)} item xs={12}>
-            <TextField
-              label="Số điện thoại"
-              fullWidth
-              value={form.phoneNumber}
-              onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-            />
-          </Grid>
-
-          <Grid {...({} as any)} item xs={12}>
-            <TextField
-              label="Email"
-              fullWidth
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
-          </Grid>
-
-          <Grid {...({} as any)} item xs={12}>
-            <TextField
-              label="CMND"
-              fullWidth
-              value={form.IDCard}
-              onChange={(e) => setForm({ ...form, IDCard: e.target.value })}
-            />
-          </Grid>
-
-          <Grid {...({} as any)} item xs={12}>
-            <TextField
-              label="Giới tính"
-              select
-              fullWidth
-              value={form.gender}
-              onChange={(e) => setForm({ ...form, gender: e.target.value })}
-            >
+        <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={4}>
+          {/* Cột trái */}
+          <Box flex={1}>
+            <TextField id="standard-basic" label="Họ tên" variant="standard" fullWidth value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
+            <TextField id="standard-dob" label="Ngày sinh" type="date" variant="standard" fullWidth InputLabelProps={{ shrink: true }} value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} sx={{ mt: 2 }} />
+            <TextField id="standard-phone" label="Số điện thoại" type="number" variant="standard" fullWidth value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value.replace(/[^0-9]/g, "") })} sx={{ mt: 2 }} />
+            <TextField id="standard-email" label="Email" variant="standard" fullWidth value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} sx={{ mt: 2 }} />
+            <TextField id="standard-idcard" label="CCCD" type="number" variant="standard" fullWidth value={form.IDCard} onChange={(e) => setForm({ ...form, IDCard: e.target.value.replace(/[^0-9]/g, "") })} sx={{ mt: 2 }} />
+          </Box>
+          {/* Cột phải */}
+          <Box flex={1}>
+            <TextField id="standard-gender" label="Giới tính" select variant="standard" fullWidth value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
               <MenuItem value="male">Nam</MenuItem>
               <MenuItem value="female">Nữ</MenuItem>
             </TextField>
-          </Grid>
-
-          <Grid {...({} as any)} item xs={12}>
-            <TextField
-              label="Địa chỉ"
-              fullWidth
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-            />
-          </Grid>
-
-          <Grid {...({} as any)} item xs={12}>
-            <TextField
-              label="Tài khoản"
-              select
-              fullWidth
-              value={form.account}
-              onChange={(e) => setForm({ ...form, account: e.target.value })}
-            >
+            <TextField id="standard-address" label="Địa chỉ" variant="standard" fullWidth value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} sx={{ mt: 2 }} />
+            <TextField id="standard-account" label="Tài khoản" select variant="standard" fullWidth value={form.account} onChange={(e) => setForm({ ...form, account: e.target.value })} sx={{ mt: 2 }}>
               {accountList.map((acc: any) => (
                 <MenuItem key={acc._id} value={acc._id}>
                   {acc.username}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-
-          <Grid {...({} as any)} item xs={12}>
-            <TextField
-              label="Thêm học sinh"
-              select
-              fullWidth
-              SelectProps={{ multiple: true }}
-              value={selectedStudents}
-              onChange={(e) =>
-                setSelectedStudents(
-                  typeof e.target.value === "string"
-                    ? e.target.value.split(",")
-                    : e.target.value
-                )
-              }
-            >
+            <TextField id="standard-student" label="Thêm học sinh" select variant="standard" fullWidth SelectProps={{ multiple: true }} value={selectedStudents} onChange={(e) => setSelectedStudents(typeof e.target.value === "string" ? e.target.value.split(",") : e.target.value)} sx={{ mt: 2 }}>
               {studentList.map((student) => (
                 <MenuItem key={student._id} value={student._id}>
                   {student.fullName}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-        </Grid>
-
-
-
+          </Box>
+        </Box>
         <Box mt={3} display="flex" justifyContent="flex-end">
-          <Button
-            variant="outlined"
-            sx={{ mr: 2 }}
-            onClick={() => navigate("/parents")}
-          >
-            Quay lại
-          </Button>
-          <Button variant="contained" onClick={handleSave}>
-            Lưu
-          </Button>
+          <Button variant="outlined" sx={{ mr: 2 }} onClick={() => navigate("/principal-home/parent-management")}>Quay lại</Button>
+          <Button variant="contained" onClick={handleSave}>Lưu</Button>
         </Box>
       </Paper>
       <ToastContainer />

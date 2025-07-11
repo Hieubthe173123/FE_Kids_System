@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -10,8 +10,6 @@ import {
   MenuItem,
   Paper,
   TextField,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -31,7 +29,6 @@ export default function CurriculumTimeForm({
   handleUpdate,
 }: any) {
   const [searchTerm, setSearchTerm] = useState("");
-  const theme = useTheme();
 
   const filteredActivities = activities.filter((activity: any) => {
     const matchesAge =

@@ -6,7 +6,7 @@ import {
 import {
   DataGrid, GridFooterContainer, GridPagination
 } from "@mui/x-data-grid";
-import { Add, Edit, Delete, Refresh, Search } from "@mui/icons-material"; 
+import { Add, Edit, Delete, Refresh, Search } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ import {
   getAllStudents,
   deleteStudent,
 } from "../../services/ApiServices";
+import Swal from "sweetalert2";
 
 type Student = {
   _id: string;
@@ -50,7 +51,7 @@ export default function StudentManagement() {
       const res = await getAllStudents();
       setStudents(res.data);
     } catch {
-      toast.error("Lỗi khi tải danh sách học sinh");
+      toast.error("Không thể tải danh sách học sinh. Vui lòng thử lại.");
     }
   };
 
@@ -59,13 +60,23 @@ export default function StudentManagement() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xoá?")) {
+    const result = await Swal.fire({
+      title: "Bạn có chắc chắn muốn xoá học sinh này?",
+      text: "Thao tác này sẽ không thể hoàn tác!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xoá",
+      cancelButtonText: "Huỷ"
+    });
+    if (result.isConfirmed) {
       try {
         await deleteStudent(id);
-        toast.success("Xoá học sinh thành công");
+        toast.success("Đã xoá học sinh thành công.");
         fetchData();
       } catch {
-        toast.error("Lỗi khi xoá học sinh");
+        toast.error("Xoá học sinh thất bại. Vui lòng thử lại.");
       }
     }
   };
@@ -145,7 +156,7 @@ export default function StudentManagement() {
         />
       </Box>
 
-      <Paper sx={{ height: 550, p: 2 }}>
+      <Paper sx={{ height: 460, p: 2 }}>
         <DataGrid
           rows={filteredStudents.map((s) => ({ ...s, id: s._id }))}
           columns={columns}
