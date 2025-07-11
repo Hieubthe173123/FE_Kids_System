@@ -43,7 +43,8 @@ interface DailyMenu {
 }
 
 export default function WeeklyMenuPage() {
-  const [weekStart, setWeekStart] = useState(dayjs().startOf("week").add(1, "day"));
+  // const [weekStart, setWeekStart] = useState(dayjs().startOf("week").add(1, "day"));
+  const [weekStart, setWeekStart] = useState(dayjs().isoWeekday(1));
   const [menuData, setMenuData] = useState<DailyMenu[]>([]);
   const navigate = useNavigate(); // thêm trong component
   useEffect(() => {

@@ -33,6 +33,7 @@ import {
   createWeeklyMenu,
   updateWeeklyMenu,
 } from "../../services/ApiServices";
+import { toast } from "react-toastify";
 
 export default function WeeklyMenuCRUD() {
   const [menus, setMenus] = useState<any[]>([]);
@@ -43,6 +44,10 @@ export default function WeeklyMenuCRUD() {
   const [dailyMenus, setDailyMenus] = useState<any[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
+
+  const getStartOfWeek = (dateStr: string) => {
+    return dayjs(dateStr).isoWeekday(1).format("YYYY-MM-DD");
+  };
 
   const fetchMenus = async () => {
     try {
@@ -83,9 +88,14 @@ export default function WeeklyMenuCRUD() {
       //   return;
       // }
 
-      const startOfThisWeek = dayjs().startOf('week').add(1, 'day'); // nếu tuần bắt đầu từ Thứ 2
-      if (dayjs(weekStart).isBefore(startOfThisWeek) && !editData) {
-        setErrorMsg("Không thể tạo thực đơn cho tuần đã trôi qua.");
+      // const startOfThisWeek = dayjs().startOf('week').add(1, 'day'); // nếu tuần bắt đầu từ Thứ 2
+      // if (dayjs(weekStart).isBefore(startOfThisWeek) && !editData) {
+      const startOfSelectedWeek = dayjs(weekStart).startOf('week');
+      const startOfCurrentWeek = dayjs().startOf('week');
+
+      // Nếu tuần được chọn < tuần hiện tại → chặn
+      if (startOfSelectedWeek.isBefore(startOfCurrentWeek, 'week')) {
+        setErrorMsg("Không thể tạo hoặc sửa thực đơn cho tuần đã trôi qua.");
         return;
       }
       const payload = {
@@ -140,7 +150,8 @@ export default function WeeklyMenuCRUD() {
             setOpenDialog(true);
             setEditData(null);
             setErrorMsg("");
-            const defaultStart = dayjs().startOf("week").add(1, "day").format("YYYY-MM-DD");
+            // const defaultStart = dayjs().startOf("week").add(1, "day").format("YYYY-MM-DD");
+            const defaultStart = dayjs().startOf("isoWeek").format("YYYY-MM-DD"); // luôn là thứ Hai
             setWeekStart(defaultStart);
             setDailyMenus(
               Array.from({ length: 7 }, (_, i) => {
@@ -179,8 +190,17 @@ export default function WeeklyMenuCRUD() {
                 <TableCell>
                   <IconButton
                     onClick={() => {
+                      const selectedWeek = dayjs(menu.weekStart).startOf('week'); // tuần bắt đầu
+                      const currentWeekStart = dayjs().startOf('week'); // đầu tuần hiện tại
+
+                      if (selectedWeek.isBefore(currentWeekStart)) {
+                        toast.error("⛔ Không thể chỉnh sửa thực đơn của tuần đã trôi qua.");
+                        return;
+                      }
+
                       setEditData(menu);
-                      setWeekStart(dayjs(menu.weekStart).format("YYYY-MM-DD"));
+                      const newStart = dayjs(menu.weekStart).format("YYYY-MM-DD");
+                      setWeekStart(newStart);
                       setDailyMenus(
                         menu.dailyMenus.map((d: any) => ({
                           date: dayjs(d.date).format("YYYY-MM-DD"),
@@ -239,11 +259,25 @@ export default function WeeklyMenuCRUD() {
             label="📅 Ngày bắt đầu tuần"
             value={dayjs(weekStart).format("YYYY-MM-DD")}
             onChange={(e) => {
-              const newStart = e.target.value;
+              const newStart = getStartOfWeek(e.target.value); // ⬅️ Luôn về thứ Hai
+
+              const exists = menus.find((m) =>
+                dayjs(m.weekStart).isoWeek() === dayjs(newStart).isoWeek() &&
+                dayjs(m.weekStart).year() === dayjs(newStart).year()
+              );
+
+              if (exists && !editData) {
+                setErrorMsg("⛔ Tuần này đã có thực đơn. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
+                return;
+              }
+
+              setErrorMsg("");
               setWeekStart(newStart);
+              setSelectedDayIndex(0);
+              const monday = dayjs(newStart);
               setDailyMenus(
                 Array.from({ length: 7 }, (_, i) => {
-                  const date = dayjs(newStart).add(i, "day").format("YYYY-MM-DD");
+                  const date = monday.add(i, "day").format("YYYY-MM-DD");
                   return { date, breakfast: "", lunch: "", dinner: "" };
                 })
               );
@@ -272,8 +306,9 @@ export default function WeeklyMenuCRUD() {
 
           {dailyMenus[selectedDayIndex] && (
             <Box>
-              <Typography fontWeight="bold" mb={1} color="#ff4081">
-                📅 {dayjs(dailyMenus[selectedDayIndex].date).format("dddd, DD/MM/YYYY")}
+              <Typography fontStyle="italic" color="gray" sx={{ mb: 2 }}>
+                Tuần từ {dayjs(weekStart).format("DD/MM")} đến{" "}
+                {dayjs(weekStart).add(6, "day").format("DD/MM")}
               </Typography>
               <TextField
                 label="🌞 Món sáng"
