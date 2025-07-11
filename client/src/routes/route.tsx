@@ -5,12 +5,17 @@ import PrincipalHome from "../components/PrincipalHome";
 import TeacherHome from "../components/TeacherHome";
 import TimeTable from "../pages/Parent/TimeTable";
 import DailyFeedback from "../pages/Parent/DailyFeedback";
-import ViewClassScreen from "../pages/Principal/ViewClassScreen";
+import MenuManagerDaily from "../pages/Principal/MenuDailyWeekly";
+import MenuManager from "../pages/Principal/MenuManager";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
+import ProcessEnroll from "../pages/Principal/ProcessEnroll"
 import TestAuth from "../components/Auth/TestAuth";
 import AdminHomePage from "../pages/admin/admin.home/AdminHome";
-
-
+import ClassMannager from "../pages/Principal/ClassMannager";
+import CurriculimList from "../pages/Principal/CurriculumList";
+import ParentManagement from "../pages/Principal/ParentManager";
+import StudentManagement from "../pages/Principal/StudentManagement";
+import MealTimeline from "../pages/Parent/MealTimeline";
 
 export const routesParent = [
     {
@@ -24,6 +29,10 @@ export const routesParent = [
             {
                 path: "time-table",
                 component: TimeTable,
+            },
+            {
+                path: "meal-time",
+                component: MealTimeline,
             },
             {
                 path: "feedback",
@@ -71,13 +80,38 @@ export const routesSchoolPrincipal = [
             { path: 'Home', component: PrincipalHome },
             {
                 path: "class-management",
-                component: ViewClassScreen,
+                component: ClassMannager,
+            },
+            {
+                path: "menu-dailyWeekly",
+                component: MenuManagerDaily,
+            },
+            {
+                path: "menu-management",
+                component: MenuManager,
             },
             {
                 path: "create-class",
                 component: ClassFormManager,
 
+            },
+            {
+                path: "process-enroll",
+                component: ProcessEnroll,
+            },
+            {
+                path: "curriculum-management",
+                component: CurriculimList,  
+            },
+            {
+                path: "parent-management",
+                component: ParentManagement,
+            },
+            {
+                path: "students-management",
+                component: StudentManagement,
             }
+
         ],
     },
 ];

@@ -23,7 +23,7 @@ export default function Footer() {
       <Container maxWidth="lg" sx={{ pt: 6 }}>
         <Grid container spacing={4} justifyContent="space-between" alignItems="flex-start">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} {...({} as any)}>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Sakura School
             </Typography>
@@ -45,7 +45,7 @@ export default function Footer() {
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} {...({} as any)}>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Chính sách
             </Typography>
@@ -65,7 +65,7 @@ export default function Footer() {
             </Stack>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} {...({} as any)}>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Kết nối với chúng tôi
             </Typography>

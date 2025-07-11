@@ -16,7 +16,7 @@ const enrollmentBenefits = [
     'Chương trình dinh dưỡng khoa học, bữa ăn đa dạng và hấp dẫn.',
 ];
 
-const ImageMosaic = ({ imageUrl }) => {
+const ImageMosaic = ({ imageUrl }: { imageUrl: string }) => {
     const gridTemplate = [
         { x: -50, y: -50, pos: '0% 0%' },
         { x: 50, y: -50, pos: '100% 0%' },
@@ -32,8 +32,10 @@ const ImageMosaic = ({ imageUrl }) => {
         },
     };
 
+    type TileCustom = { x: number; y: number; pos: string };
+
     const tileVariants = {
-        hidden: (custom) => ({ opacity: 0, x: custom.x, y: custom.y, scale: 0.8 }),
+        hidden: (custom: TileCustom) => ({ opacity: 0, x: custom.x, y: custom.y, scale: 0.8 }),
         visible: {
             opacity: 1,
             x: 0,
@@ -82,7 +84,7 @@ const ImageMosaic = ({ imageUrl }) => {
 };
 
 
-const BenefitItem = ({ text }) => (
+const BenefitItem = ({ text }: { text: string }) => (
     <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1.5 }}>
         <CheckCircleIcon sx={{ color: accentPink, fontSize: '1.4rem', mt: '3px' }} />
         <Typography variant="body1" sx={{ color: 'text.secondary', fontFamily: FONT_FAMILY }}>
@@ -106,10 +108,10 @@ export const EnrollmentCTASection = () => {
         <Box sx={{ py: { xs: 8, md: 12 }, backgroundColor: '#f2fafe', overflow: 'hidden' }}>
             <Container maxWidth="lg">
                 <Grid container spacing={{ xs: 8, md: 10 }} alignItems="center">
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={6} {...({} as any)}>
                         <ImageMosaic imageUrl="/1.png" />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={6} {...({} as any)}>
                         <motion.div
                             initial="hidden"
                             whileInView="visible"
