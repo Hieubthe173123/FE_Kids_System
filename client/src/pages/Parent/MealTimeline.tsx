@@ -44,13 +44,10 @@ const mealTypes = [
 const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
 
 // Hàm này giờ không cần tham số, nó sẽ luôn lấy tuần hiện tại
-const getWeekDays = () => {
+const getWeekDays = (weekStart: string) => {
+    if (!weekStart || isNaN(Date.parse(weekStart))) return [];
     const weekDays = [];
-    const today = new Date();
-    const currentDayOfWeek = today.getDay();
-    const diff = today.getDate() - currentDayOfWeek + (currentDayOfWeek === 0 ? -6 : 1);
-    const monday = new Date(today.setDate(diff));
-
+    const monday = new Date(weekStart);
     for (let i = 0; i < 7; i++) {
         const day = new Date(monday);
         day.setDate(monday.getDate() + i);
@@ -102,15 +99,15 @@ export default function WeeklyMealSchedule() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const weekDays = getWeekDays();
+    const [weekDays, setWeekDays] = useState<{ name: string; date: string; fullDate: string }[]>([]);
 
     const fetchMenu = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         try {
-            // API trả về trực tiếp mảng dailyMenus
-            const dailyMenus = await getWeeklyMenuByDateNow();
-
+            const res = await getWeeklyMenuByDateNow();
+            const { weekStart, dailyMenus } = res;
+            setWeekDays(getWeekDays(weekStart));
             if (dailyMenus && Array.isArray(dailyMenus) && dailyMenus.length > 0) {
                 const mappedMenu: MenuDataType = {};
                 dailyMenus.forEach((day: {
@@ -140,7 +137,6 @@ export default function WeeklyMealSchedule() {
         }
     }, []);
 
-    // useEffect chỉ chạy một lần khi component được mount
     useEffect(() => {
         fetchMenu();
     }, [fetchMenu]);

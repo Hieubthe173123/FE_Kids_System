@@ -6,7 +6,7 @@ dayjs.extend(utc);
 export const getWeeklyMenuByDate = async (weekStart: string) => {
   try {
     const response = await axiosInstance.get("/weeklyMenu", {
-      params: { weekStart }, // ví dụ: "2025-06-30"
+      params: { weekStart },
     });
 
     const allMenus = response.data.data || [];

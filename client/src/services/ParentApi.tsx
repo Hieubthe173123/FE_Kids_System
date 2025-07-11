@@ -10,3 +10,13 @@ export const getStudentsByParentId = async (parentId: string) => {
         throw error;
     }
 }
+
+export const getStudentClassInfo = async (studentId: string) => {
+    try {
+        const response = await axiosInstance.get(`/class/${studentId}/class-info`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching student class info:", error);
+        throw error;
+    }
+}

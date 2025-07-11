@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import Schedules from './Schedules';
 import Information from './Information';
 import scheduleData from "../../data/schedules.json";
-import { getStudentsByParentId } from '../../services/ParentApi';
+import { getStudentsByParentId, getStudentClassInfo } from '../../services/ParentApi';
 
 interface Student {
     id: string;
@@ -23,6 +23,12 @@ export default function TimeTable() {
 
     const [childrenList, setChildrenList] = useState<Student[]>([]);
     const [selectedChildId, setSelectedChildId] = useState<string>("");
+
+    const [currentClassInfo, setCurrentClassInfo] = useState<{
+        name: string;
+        teacher: string;
+        year: string;
+    } | undefined>(undefined);
 
     const selectedDayjs = dayjs(selectedDate);
     const startOfWeek = selectedDayjs.startOf('isoWeek');
@@ -60,12 +66,6 @@ export default function TimeTable() {
             }));
         };
 
-    const currentClassInfo = {
-        name: `Lớp ${currentClassData.class}`,
-        teacher: 'Cô Linh',
-        year: '2024 - 2025',
-    };
-
     useEffect(() => {
         const userStr = localStorage.getItem("user");
         if (!userStr) return;
@@ -87,6 +87,27 @@ export default function TimeTable() {
 
         fetchStudents();
     }, []);
+
+    useEffect(() => {
+        const fetchClassInfo = async () => {
+            if (!selectedChildId) return;
+
+            try {
+                const res = await getStudentClassInfo(selectedChildId);
+                setCurrentClassInfo({
+                    name: res.className || "Chưa có lớp",
+                    teacher: res.teacher || "Chưa có giáo viên",
+                    year: res.schoolYear || "Chưa rõ",
+                });
+            } catch (error) {
+                console.error("Không lấy được thông tin lớp học:", error);
+                setCurrentClassInfo(undefined);
+            }
+        };
+
+        fetchClassInfo();
+    }, [selectedChildId]);
+
 
     return (
         <Box sx={{ p: 4, minHeight: '100vh', bgcolor: '#f5f7fb' }}>
