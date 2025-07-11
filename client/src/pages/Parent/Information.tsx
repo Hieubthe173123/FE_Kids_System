@@ -4,6 +4,10 @@ import {
     Paper,
     Box,
     Divider,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -25,19 +29,30 @@ interface ClassInfo {
     year: string;
 }
 
+interface ChildInfo {
+    id: string;
+    name: string;
+    age: number
+}
+
 interface Props {
     selectedDate: string;
     onDateChange: (date: string) => void;
     currentClassInfo: ClassInfo | undefined;
+    childrenList: ChildInfo[];
+    selectedChildId: string;
+    onChildChange: (childId: string) => void;
 }
 
 export default function Information({
     selectedDate,
     onDateChange,
-    currentClassInfo
+    currentClassInfo,
+    childrenList,
+    selectedChildId,
+    onChildChange
 }: Props) {
     const [weekRange, setWeekRange] = useState<{ start: string; end: string }>({ start: '', end: '' });
-
 
     useEffect(() => {
         const date = dayjs(selectedDate);
@@ -49,11 +64,30 @@ export default function Information({
         });
     }, [selectedDate]);
 
+    const selectedChild = childrenList.find(child => child.id === selectedChildId);
 
     return (
         <>
-            <Grid container spacing={3} my={2} justifyContent="flex-start">
-                <Grid item xs={12} md={4} sx={{ pl: { xs: 0, md: 0 } }} {...({} as any)}>
+            <Grid container spacing={2} alignItems="flex-start" my={2}>
+                <Grid item xs={12} sm={6} md={6} {...({} as any)}>
+                    <FormControl fullWidth variant="outlined" size="small" sx={{ minWidth: 180 }}>
+                        <InputLabel id="select-child-label">👶 Chọn con</InputLabel>
+                        <Select
+                            labelId="select-child-label"
+                            id="select-child"
+                            value={selectedChildId}
+                            onChange={e => onChildChange(e.target.value)}
+                            label="👶 Chọn con"
+                            sx={{ bgcolor: 'white', minWidth: 180 }}
+                        >
+                            {(childrenList ?? []).map(child => (
+                                <MenuItem key={child.id} value={child.id}>{child.name} - {child.age} tuổi</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Grid>
+
+                <Grid item xs={12} sm={5} {...({} as any)}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
                         <DatePicker
                             label="📅 Chọn ngày"
@@ -68,25 +102,40 @@ export default function Information({
                                 textField: {
                                     fullWidth: true,
                                     variant: 'outlined',
-                                    sx: { bgcolor: 'white', borderRadius: 2 },
+                                    size: 'small',
+                                    sx: { bgcolor: 'white' },
                                 },
                             }}
                         />
                     </LocalizationProvider>
                     {weekRange.start && (
                         <Typography mt={1} variant="body2" color="text.secondary">
-                            📆 Tuần từ <strong>{weekRange.start}</strong> đến <strong>{weekRange.end}</strong>
+                            🗓️ Tuần từ <strong>{weekRange.start}</strong> đến <strong>{weekRange.end}</strong>
                         </Typography>
                     )}
                 </Grid>
             </Grid>
 
+            {selectedChild && (
+                <Typography variant="body2" color="text.secondary" mt={1}>
+                    👶 Đang xem thời khóa biểu của: <strong>{selectedChild.name}</strong>
+                </Typography>
+            )}
+
             {currentClassInfo && (
                 <Paper
                     elevation={2}
                     sx={{
-                        display: 'flex', justifyContent: 'space-around', alignItems: 'center', bgcolor: '#f9fbfc', borderRadius: 3,
-                        py: 2, px: 3, mt: 2, flexWrap: 'wrap', gap: 2
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        bgcolor: '#f9fbfc',
+                        borderRadius: 3,
+                        py: 2,
+                        px: 3,
+                        mt: 2,
+                        flexWrap: 'wrap',
+                        gap: 2
                     }}
                 >
                     <Box display="flex" alignItems="center" gap={1.5}>
@@ -96,7 +145,9 @@ export default function Information({
                             <Typography fontWeight={600} fontSize={16}>{currentClassInfo.name}</Typography>
                         </Box>
                     </Box>
+
                     <Divider orientation="vertical" flexItem sx={{ mx: 1, display: { xs: 'none', md: 'block' } }} />
+
                     <Box display="flex" alignItems="center" gap={1.5}>
                         <PersonIcon sx={{ color: '#46a2da' }} />
                         <Box>
@@ -104,7 +155,9 @@ export default function Information({
                             <Typography fontWeight={600} fontSize={16}>{currentClassInfo.teacher}</Typography>
                         </Box>
                     </Box>
+
                     <Divider orientation="vertical" flexItem sx={{ mx: 1, display: { xs: 'none', md: 'block' } }} />
+
                     <Box display="flex" alignItems="center" gap={1.5}>
                         <CalendarMonthIcon sx={{ color: '#46a2da' }} />
                         <Box>

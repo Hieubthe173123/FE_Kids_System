@@ -1,28 +1,15 @@
+import { useEffect, useState, useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
-import { useState, useMemo } from 'react';
 import dayjs from 'dayjs';
 import Schedules from './Schedules';
 import Information from './Information';
 import scheduleData from "../../data/schedules.json";
+import { getStudentsByParentId } from '../../services/ParentApi';
 
-type ScheduleItem = {
-    time: string;
-    subject: string;
-};
-
-type ApiScheduleItem = {
-    time: string;
-    activity: string;
-};
-
-type WeeklyScheduleObject = {
-    [key: string]: ScheduleItem[];
-}
-
-interface ClassInfo {
+interface Student {
+    id: string;
     name: string;
-    teacher: string;
-    year: string;
+    age: number;
 }
 
 export default function TimeTable() {
@@ -34,32 +21,28 @@ export default function TimeTable() {
         afternoon: true,
     });
 
+    const [childrenList, setChildrenList] = useState<Student[]>([]);
+    const [selectedChildId, setSelectedChildId] = useState<string>("");
+
     const selectedDayjs = dayjs(selectedDate);
     const startOfWeek = selectedDayjs.startOf('isoWeek');
 
     const weeklySchedules = useMemo(() => {
-        const morningSchedule: WeeklyScheduleObject = {};
-        const afternoonSchedule: WeeklyScheduleObject = {};
+        const morningSchedule: any = {};
+        const afternoonSchedule: any = {};
 
-        if (currentClassData && currentClassData.schedule) {
+        if (currentClassData?.schedule) {
             for (const [day, activities] of Object.entries(currentClassData.schedule)) {
-                const morningActivities: ScheduleItem[] = [];
-                const afternoonActivities: ScheduleItem[] = [];
+                const morningActivities: any[] = [];
+                const afternoonActivities: any[] = [];
 
-                if (Array.isArray(activities)) {
-                    activities.forEach((item: ApiScheduleItem) => {
-                        const startHour = parseInt(item.time.split('-')[0].split(':')[0], 10);
-                        const scheduleItem: ScheduleItem = {
-                            time: item.time,
-                            subject: item.activity,
-                        };
-                        if (startHour < 14) {
-                            morningActivities.push(scheduleItem);
-                        } else {
-                            afternoonActivities.push(scheduleItem);
-                        }
-                    });
-                }
+                (activities as any[]).forEach((item) => {
+                    const startHour = parseInt(item.time.split('-')[0].split(':')[0], 10);
+                    const scheduleItem = { time: item.time, subject: item.activity };
+
+                    if (startHour < 14) morningActivities.push(scheduleItem);
+                    else afternoonActivities.push(scheduleItem);
+                });
 
                 if (morningActivities.length > 0) morningSchedule[day] = morningActivities;
                 if (afternoonActivities.length > 0) afternoonSchedule[day] = afternoonActivities;
@@ -77,11 +60,33 @@ export default function TimeTable() {
             }));
         };
 
-    const currentClassInfo: ClassInfo = {
+    const currentClassInfo = {
         name: `Lớp ${currentClassData.class}`,
         teacher: 'Cô Linh',
         year: '2024 - 2025',
     };
+
+    useEffect(() => {
+        const userStr = localStorage.getItem("user");
+        if (!userStr) return;
+
+        const user = JSON.parse(userStr);
+        const parentId = user._id;
+
+        const fetchStudents = async () => {
+            try {
+                const res = await getStudentsByParentId(parentId);
+                if (res.students && res.students.length > 0) {
+                    setChildrenList(res.students);
+                    setSelectedChildId(res.students[0].id);
+                }
+            } catch (err) {
+                console.error("Failed to load students:", err);
+            }
+        };
+
+        fetchStudents();
+    }, []);
 
     return (
         <Box sx={{ p: 4, minHeight: '100vh', bgcolor: '#f5f7fb' }}>
@@ -93,6 +98,9 @@ export default function TimeTable() {
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
                 currentClassInfo={currentClassInfo}
+                childrenList={childrenList}
+                selectedChildId={selectedChildId}
+                onChildChange={(id: string) => setSelectedChildId(id)}
             />
 
             <Schedules

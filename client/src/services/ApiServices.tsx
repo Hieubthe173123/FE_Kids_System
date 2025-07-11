@@ -8,8 +8,10 @@ export const getWeeklyMenuByDate = async (weekStart: string) => {
     const response = await axiosInstance.get("/weeklyMenu", {
       params: { weekStart }, // ví dụ: "2025-06-30"
     });
+    console.log("🚀 ~ getWeeklyMenuByDate ~ response:", response)
 
     const allMenus = response.data.data || [];
+    console.log("🚀 ~ getWeeklyMenuByDate ~ allMenus:", allMenus)
 
     const matchedWeek = allMenus.find((menu: any) =>
       dayjs(menu.weekStart).isSame(weekStart, "day")
@@ -73,8 +75,10 @@ export const getWeeklyMenuById = async (id: string) => {
 };
 
 export const createWeeklyMenu = async (menuData: any) => {
+  console.log("🚀 ~ createWeeklyMenu ~ menuData:", menuData)
   try {
     const response = await axiosInstance.post("/weeklyMenu", menuData);
+    console.log("🚀 ~ createWeeklyMenu ~ response:", response)
     return response.data;
   } catch (error) {
     console.error("Lỗi tạo thực đơn:", error);
