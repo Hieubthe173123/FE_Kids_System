@@ -5,8 +5,8 @@ import ClassIcon from '@mui/icons-material/Class';
 import SchoolIcon from '@mui/icons-material/School';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
-import MenuBookIcon from '@mui/icons-material/MenuBook'; // cho thực đơn
-import PeopleIcon from '@mui/icons-material/People'; // cho phụ huynh
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import PeopleIcon from '@mui/icons-material/People';
 
 import {
     AppProvider,
@@ -25,26 +25,20 @@ import {
 import { logout } from '../redux/auth/authAPI';
 
 const NAVIGATION: Navigation = [
-    // set tittle 
+    {
+        segment: 'process-enroll',
+        title: 'Quản lý đăng kí nhập học',
+        icon: <EventNoteIcon />,
+    },
     {
         segment: 'class-management',
         title: 'Quản lý lớp học',
         icon: <ClassIcon />,
     },
     {
-        segment: 'curriculum-management',
-        title: 'Quản lý khung chương trình',
-        icon: <HistoryEduIcon />,
-    },
-    {
-        segment: 'process-enroll',
-        title: 'Xử lý đăng kí nhập học',
-        icon: <EventNoteIcon />,
-    },
-    {
-        segment: 'menu-dailyWeekly',
-        title: 'Thực đơn theo tuần',
-        icon: <MenuBookIcon />,
+        segment: 'students-management',
+        title: 'Quản lý học sinh',
+        icon: <SchoolIcon />,
     },
     {
         segment: 'parent-management',
@@ -52,10 +46,15 @@ const NAVIGATION: Navigation = [
         icon: <PeopleIcon />,
     },
     {
-        segment: 'students-management',
-        title: 'Quản lý học sinh',
-        icon: <SchoolIcon />,
+        segment: 'curriculum-management',
+        title: 'Quản lý khung chương trình',
+        icon: <HistoryEduIcon />,
     },
+    {
+        segment: 'menu-dailyWeekly',
+        title: 'Thực đơn theo tuần',
+        icon: <MenuBookIcon />,
+    }
 ];
 
 const demoTheme = createTheme({
@@ -79,10 +78,17 @@ export default function PrincipalHome() {
     const navigate = useNavigate();
     const navigationType = useNavigationType();
     const pathname = location.pathname.replace('/principal-home', '') || '/';
+    React.useEffect(() => {
+        if (pathname === '/') {
+            navigate('/principal-home/process-enroll', { replace: true });
+        }
+    }, [pathname, navigate]);
 
     const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
+    console.log(setIsMenuExpanded);
+
     const [loading, setLoading] = React.useState<boolean>(true);
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const session: Session = {

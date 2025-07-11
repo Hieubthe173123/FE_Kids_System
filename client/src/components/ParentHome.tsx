@@ -62,6 +62,11 @@ export default function ParentHome() {
     const navigate = useNavigate();
     const navigationType = useNavigationType();
     const pathname = location.pathname.replace('/parent-home', '') || '/';
+    React.useEffect(() => {
+        if (pathname === '/') {
+            navigate('/parent-home/time-table', { replace: true });
+        }
+    }, [pathname, navigate]);
 
     const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
