@@ -70,7 +70,7 @@ export default function Information({
         <>
             <Grid container spacing={2} alignItems="flex-start" my={2}>
                 <Grid item xs={12} sm={6} md={6} {...({} as any)}>
-                    <FormControl fullWidth variant="outlined" size="small" sx={{ minWidth: 180 }}>
+                    <FormControl fullWidth variant="outlined" size="small" sx={{ minWidth: 230 }}>
                         <InputLabel id="select-child-label">👶 Chọn con</InputLabel>
                         <Select
                             labelId="select-child-label"
