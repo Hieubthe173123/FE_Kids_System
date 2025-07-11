@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Typography,
@@ -10,8 +10,6 @@ import {
     TableHead,
     TableRow,
     styled,
-    IconButton,
-    Tooltip,
     Grid,
     useTheme,
     useMediaQuery,
@@ -22,12 +20,10 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import Brightness6Icon from '@mui/icons-material/Brightness6';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import { getWeeklyMenuByDateNow } from "../../services/ApiServices";
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 
 type MealType = {
     sáng: string;
@@ -47,9 +43,10 @@ const mealTypes = [
 
 const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
 
-const getWeekDays = (baseDate: Date) => {
+// Hàm này giờ không cần tham số, nó sẽ luôn lấy tuần hiện tại
+const getWeekDays = () => {
     const weekDays = [];
-    const today = new Date(baseDate);
+    const today = new Date();
     const currentDayOfWeek = today.getDay();
     const diff = today.getDate() - currentDayOfWeek + (currentDayOfWeek === 0 ? -6 : 1);
     const monday = new Date(today.setDate(diff));
@@ -60,7 +57,7 @@ const getWeekDays = (baseDate: Date) => {
         weekDays.push({
             name: dayNames[day.getDay()],
             date: `${String(day.getDate()).padStart(2, '0')}/${String(day.getMonth() + 1).padStart(2, '0')}`,
-            fullDate: day.toDateString()
+            fullDate: day.toISOString().split('T')[0]
         });
     }
     return weekDays;
@@ -88,16 +85,7 @@ type StatCardProps = {
 
 const StatCard = ({ title, value, icon, color }: StatCardProps) => (
     <Paper elevation={2} sx={{ p: 2, display: 'flex', alignItems: 'center', borderRadius: 3, height: '100%' }}>
-        <Box sx={{
-            mr: 2,
-            p: 1.5,
-            borderRadius: '50%',
-            backgroundColor: `${color}.main`,
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-        }}>
+        <Box sx={{ mr: 2, p: 1.5, borderRadius: '50%', backgroundColor: `${color}.main`, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {icon}
         </Box>
         <Box>
@@ -110,52 +98,66 @@ const StatCard = ({ title, value, icon, color }: StatCardProps) => (
 export default function WeeklyMealSchedule() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-    const [currentDate, setCurrentDate] = useState(new Date());
     const [menuData, setMenuData] = useState<MenuDataType>({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchMenu = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const response = await getWeeklyMenuByDateNow();
-                if (response && response.data) {
-                    setMenuData(response.data);
-                } else {
-                    setMenuData({});
-                }
-            } catch (err) {
-                setError("Không thể tải thực đơn. Vui lòng thử lại sau.");
+    const weekDays = getWeekDays();
+
+    const fetchMenu = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            // API trả về trực tiếp mảng dailyMenus
+            const dailyMenus = await getWeeklyMenuByDateNow();
+
+            if (dailyMenus && Array.isArray(dailyMenus) && dailyMenus.length > 0) {
+                const mappedMenu: MenuDataType = {};
+                dailyMenus.forEach((day: {
+                    date: string;
+                    breakfast: { dishName: string }[];
+                    lunch: { dishName: string }[];
+                    dinner: { dishName: string }[];
+                }) => {
+                    const dateObj = new Date(day.date);
+                    const dateKey = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+                    mappedMenu[dateKey] = {
+                        sáng: day.breakfast?.map(d => d.dishName).join(', ') || '–',
+                        trưa: day.lunch?.map(d => d.dishName).join(', ') || '–',
+                        chiều: day.dinner?.map(d => d.dishName).join(', ') || '–',
+                    };
+                });
+                setMenuData(mappedMenu);
+            } else {
                 setMenuData({});
-                console.error(err);
-            } finally {
-                setIsLoading(false);
             }
-        };
+        } catch (err) {
+            setError("Không thể tải thực đơn. Vui lòng thử lại sau.");
+            setMenuData({});
+            console.error('Lỗi lấy thực đơn:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
+    // useEffect chỉ chạy một lần khi component được mount
+    useEffect(() => {
         fetchMenu();
-    }, [currentDate]);
+    }, [fetchMenu]);
 
-    const handlePrevWeek = () => {
-        setCurrentDate(prev => new Date(prev.setDate(prev.getDate() - 7)));
-    };
+    const totalDishes = Object.values(menuData).reduce((acc, day) => {
+        return acc + Object.values(day).filter(meal => meal !== '–').length;
+    }, 0);
 
-    const handleNextWeek = () => {
-        setCurrentDate(prev => new Date(prev.setDate(prev.getDate() + 7)));
-    };
-
-    const weekDays = getWeekDays(currentDate);
-    const totalDishes = Object.values(menuData).reduce((acc, day) => acc + Object.keys(day).length, 0);
-    const todayName = dayNames[new Date().getDay()];
-    const todaySpecial = menuData[todayName]?.trưa || 'Nghỉ ngơi';
+    const today = new Date();
+    const todayKey = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}`;
+    const todaySpecial = menuData[todayKey]?.trưa || 'Chưa cập nhật';
 
     const headerCellStyle = {
         backgroundColor: '#4194cb',
         color: '#ffffff',
         fontWeight: 'bold',
-        textAlign: 'center',
+        textAlign: 'center' as const,
         borderRight: '1px solid rgba(255, 255, 255, 0.2)',
         '&:last-child': { borderRight: 'none' }
     };
@@ -166,6 +168,9 @@ export default function WeeklyMealSchedule() {
         }
         if (error) {
             return <Alert severity="error">{error}</Alert>;
+        }
+        if (Object.keys(menuData).length === 0 && !isLoading) {
+            return <Alert severity="info">Chưa có dữ liệu thực đơn cho tuần này.</Alert>;
         }
         return isMobile ? <MobileCardList /> : <DesktopTable />;
     };
@@ -193,7 +198,7 @@ export default function WeeklyMealSchedule() {
                                 </StyledTableCell>
                                 {weekDays.map((day) => (
                                     <StyledTableCell key={`${day.fullDate}-${mealType.key}`} align="center">
-                                        {menuData?.[day.name]?.[mealType.key as keyof MealType] || '–'}
+                                        {menuData?.[day.date]?.[mealType.key as keyof MealType] || '–'}
                                     </StyledTableCell>
                                 ))}
                             </StyledTableRow>
@@ -214,7 +219,7 @@ export default function WeeklyMealSchedule() {
                             <Box sx={{ width: '110px', fontWeight: '600', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                                 {mealType.icon} {mealType.label}
                             </Box>
-                            <Typography variant="body2" sx={{ flexGrow: 1, textAlign: 'left' }}>{menuData?.[day.name]?.[mealType.key as keyof MealType] || '–'}</Typography>
+                            <Typography variant="body2" sx={{ flexGrow: 1, textAlign: 'left' }}>{menuData?.[day.date]?.[mealType.key as keyof MealType] || '–'}</Typography>
                         </Box>
                     ))}
                 </Paper>
@@ -223,8 +228,8 @@ export default function WeeklyMealSchedule() {
     );
 
     return (
-        <Box mt={4} p={{ xs: 2, sm: 3 }} bgcolor="#f5f7fb" minHeight="100vh">
-            <Grid container spacing={3} mb={4} {...({} as any)}>
+        <Box mt={4} p={{ xs: 2, sm: 3 }} bgcolor="#f5f7fb" height="100vh" sx={{ overflow: 'hidden' }}>
+            <Grid container spacing={3} mb={4}>
                 <Grid item xs={12} sm={6} md={4} {...({} as any)}>
                     <StatCard title="Món đặc biệt hôm nay" value={todaySpecial} icon={<StarBorderIcon />} color="warning" />
                 </Grid>
@@ -238,12 +243,8 @@ export default function WeeklyMealSchedule() {
 
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h6" fontWeight="700" color="#333" display="flex" alignItems="center" gap={1}>
-                    <CalendarTodayIcon /> Tuần này
+                    <CalendarTodayIcon /> Thực đơn tuần này
                 </Typography>
-                <Box>
-                    <Tooltip title="Tuần trước"><IconButton onClick={handlePrevWeek} disabled={isLoading}><ChevronLeftIcon /></IconButton></Tooltip>
-                    <Tooltip title="Tuần sau"><IconButton onClick={handleNextWeek} disabled={isLoading}><ChevronRightIcon /></IconButton></Tooltip>
-                </Box>
             </Box>
 
             <MainContent />

@@ -1,17 +1,16 @@
 import dayjs from "dayjs";
 import axiosInstance from "../helper/axiosInstance";
-
-
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 export const getWeeklyMenuByDate = async (weekStart: string) => {
   try {
     const response = await axiosInstance.get("/weeklyMenu", {
       params: { weekStart }, // ví dụ: "2025-06-30"
     });
-    console.log("🚀 ~ getWeeklyMenuByDate ~ response:", response)
 
     const allMenus = response.data.data || [];
-    console.log("🚀 ~ getWeeklyMenuByDate ~ allMenus:", allMenus)
+
     const matchedWeek = allMenus.find((menu: any) =>
       dayjs(menu.weekStart).isSame(weekStart, "day")
     );
@@ -25,19 +24,13 @@ export const getWeeklyMenuByDate = async (weekStart: string) => {
 
 export const getWeeklyMenuByDateNow = async () => {
   try {
-    const weekStart = dayjs().startOf("week").add(1, "day").format("YYYY-MM-DD");
+    const weekStart = dayjs().startOf("week").add(1, "day").utc();
 
-    const response = await axiosInstance.get("/weeklyMenu", {
-      params: { weekStart },
-    });
-
-    console.log("🚀 ~ getWeeklyMenuByDate ~ response:", response);
-
+    const response = await axiosInstance.get("/weeklyMenu");
     const allMenus = response.data.data || [];
 
-    // 👉 Tìm thực đơn có đúng tuần đó
     const matchedWeek = allMenus.find((menu: any) =>
-      dayjs(menu.weekStart).isSame(weekStart, "day")
+      dayjs(menu.weekStart).utc().isSame(weekStart, "day")
     );
 
     return matchedWeek?.dailyMenus || [];
@@ -46,6 +39,28 @@ export const getWeeklyMenuByDateNow = async () => {
     throw error;
   }
 };
+
+// export const getWeeklyMenuByDateNow = async (date: Date) => {
+//   try {
+//     // Tính toán ngày đầu tuần (Thứ 2) dựa trên `date` được truyền vào
+//     const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
+
+//     const response = await axiosInstance.get("/weeklyMenu");
+//     const allMenus = response.data.data || [];
+
+//     // Tìm kiếm tuần khớp với `weekStart` đã tính
+//     const matchedWeek = allMenus.find((menu: any) =>
+//       dayjs(menu.weekStart).utc().isSame(weekStart, "day")
+//     );
+
+//     return matchedWeek?.dailyMenus || [];
+//   } catch (error) {
+//     console.error("Lỗi lấy thực đơn theo tuần:", error);
+//     throw error;
+//   }
+// };
+
+
 
 export const getWeeklyMenuById = async (id: string) => {
   try {
@@ -208,11 +223,8 @@ export const deleteStudent = async (id: string) => {
 };
 
 export const getAllStudentNoParent = async () => {
-  console.log("23214323");
-
   try {
     const response = await axiosInstance.get("/student/no-parent");
-    console.log("🚀 ~ getAllStudentNoParent ~ response:", response.data)
     return response.data;
   } catch (error) {
     console.error("Lỗi lấy danh sách học sinh:", error);
