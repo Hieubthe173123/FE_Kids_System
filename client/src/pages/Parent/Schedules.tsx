@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { styled } from '@mui/material/styles';
+import { useMemo } from 'react';
 
 const StyledAccordion = styled(Accordion)(({ theme }) => ({
     borderRadius: '12px',
@@ -43,19 +44,37 @@ const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
     },
 }));
 
+interface ScheduleItem {
+    time: string;
+    subject: string;
+}
+
+import dayjs from 'dayjs';
+
 interface Props {
     title: string;
     panelKey: string;
     expanded: boolean;
-    onChange: (panel: string) => (_e: React.SyntheticEvent, isExpanded: boolean) => void;
-    scheduleData: {
-        time: string;
-        subject: string;
-        feedback?: string;
-    }[];
+    onChange: (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => void;
+    scheduleData: { [key: string]: ScheduleItem[] };
+    startOfWeekDate: string;
 }
 
-export default function ScheduleAccordion({ title, panelKey, expanded, onChange, scheduleData }: Props) {
+export default function Schedules({ title, panelKey, expanded, onChange, scheduleData, startOfWeekDate }: Props) {
+    const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    const startOfWeek = dayjs(startOfWeekDate);
+    const weekDates = weekDays.map((_, idx) => startOfWeek.add(idx, 'day'));
+
+    const timeSlots = useMemo(() => {
+        const allTimes = new Set<string>();
+        Object.values(scheduleData).forEach(dayActivities => {
+            dayActivities.forEach(activity => {
+                allTimes.add(activity.time);
+            });
+        });
+        return Array.from(allTimes).sort();
+    }, [scheduleData]);
+
     return (
         <StyledAccordion expanded={expanded} onChange={onChange(panelKey)}>
             <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -75,33 +94,36 @@ export default function ScheduleAccordion({ title, panelKey, expanded, onChange,
                     <Table>
                         <TableHead>
                             <TableRow sx={{ bgcolor: '#4194cb' }}>
-                                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>⏰ Thời gian</TableCell>
-                                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>📚 Hoạt động</TableCell>
-                                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>💬 Nhận xét</TableCell>
+                                <TableCell sx={{ color: '#fff', fontWeight: 700, minWidth: 110, textAlign: 'center', verticalAlign: 'middle' }}>⏰ Thời gian</TableCell>
+                                {weekDays.map((day, idx) => (
+                                    <TableCell
+                                        key={day}
+                                        sx={{
+                                            color: '#fff', fontWeight: 700, textAlign: 'center', verticalAlign: 'middle', padding: '8px 4px',
+                                        }}
+                                    >
+                                        <div style={{ fontSize: 13, color: '#e3f1fa', fontWeight: 600, lineHeight: 1.1 }}>
+                                            {weekDates[idx].date().toString().padStart(2, '0')}/{(weekDates[idx].month() + 1).toString().padStart(2, '0')}
+                                        </div>
+                                        <div style={{ fontSize: 16, color: '#fff', fontWeight: 700, lineHeight: 1.2 }}>
+                                            {day}
+                                        </div>
+                                    </TableCell>
+                                ))}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {scheduleData.map((item, index) => (
-                                <TableRow
-                                    key={index}
-                                    hover
-                                    sx={{
-                                        '&:nth-of-type(even)': { backgroundColor: '#eaf6fd' },
-                                        '&:nth-of-type(odd)': { backgroundColor: '#ffffff' },
-                                    }}
-                                >
-                                    <TableCell sx={{ fontWeight: 500, borderBottom: '1px solid #d1eaf5' }}>{item.time}</TableCell>
-                                    <TableCell sx={{ whiteSpace: 'pre-line', borderBottom: '1px solid #d1eaf5' }}>{item.subject}</TableCell>
-                                    <TableCell
-                                        sx={{
-                                            borderBottom: '1px solid #d1eaf5',
-                                            color: '#e6687a',
-                                            fontStyle: 'italic',
-                                            fontWeight: 500,
-                                        }}
-                                    >
-                                        {item.feedback || '-'}
-                                    </TableCell>
+                            {timeSlots.map((time, index) => (
+                                <TableRow key={time} sx={{ backgroundColor: index % 2 === 0 ? '#eaf6fd' : '#ffffff' }}>
+                                    <TableCell sx={{ fontWeight: 500, borderBottom: '1px solid #d1eaf5', textAlign: 'center' }}>{time}</TableCell>
+                                    {weekDays.map(day => {
+                                        const activity = scheduleData[day]?.find(item => item.time === time);
+                                        return (
+                                            <TableCell key={`${day}-${time}`} sx={{ borderBottom: '1px solid #d1eaf5', textAlign: 'center', fontWeight: 500, color: '#0d47a1' }}>
+                                                {activity ? activity.subject : '—'}
+                                            </TableCell>
+                                        );
+                                    })}
                                 </TableRow>
                             ))}
                         </TableBody>

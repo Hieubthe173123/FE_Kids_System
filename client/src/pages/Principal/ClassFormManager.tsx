@@ -7,7 +7,8 @@ import {
 } from '@mui/material';
 import {
     Class as ClassIcon, Save as SaveIcon, ChildCare, MeetingRoom,
-    Edit as EditIcon, School as SchoolIcon, Search as SearchIcon, InfoOutlined
+    Edit as EditIcon, School as SchoolIcon, Search as SearchIcon, InfoOutlined,
+    CheckCircle as CheckCircleIcon, Block as BlockIcon
 } from '@mui/icons-material';
 import {
     getAllClassBySchoolYear,
@@ -291,38 +292,46 @@ export default function ClassCreateTable() {
                         <TableContainer
                             component={Paper}
                             sx={{
-                                borderRadius: 3,
+                                borderRadius: 4,
                                 maxHeight: 'calc(100vh - 420px)',
                                 overflowY: 'auto',
                                 border: 'none',
-                                boxShadow: '0px 4px 20px rgba(0,0,0,0.05)',
+                                boxShadow: '0px 8px 32px rgba(65,148,203,0.10)',
                                 '&::-webkit-scrollbar': { width: '8px' },
-                                '&::-webkit-scrollbar-thumb': { backgroundColor: '#bbb', borderRadius: '4px' },
+                                '&::-webkit-scrollbar-thumb': { backgroundColor: '#b3d8f6', borderRadius: '4px' },
                             }}
                         >
                             <Table stickyHeader>
                                 <TableHead>
                                     <TableRow
                                         sx={{
-                                            backgroundColor: '#f5faff',
+                                            background: 'linear-gradient(90deg, #e3f2fd 0%, #f5faff 100%)',
                                             '& th': {
-                                                fontWeight: 'bold',
-                                                fontSize: '15px',
+                                                fontWeight: 700,
+                                                fontSize: '16px',
                                                 color: '#1976d2',
                                                 borderBottom: '2px solid #e0e0e0',
+                                                letterSpacing: 0.2,
                                             },
                                         }}
                                     >
-                                        <TableCell align="left" sx={{ width: 200 }}>Tên lớp</TableCell>
-                                        <TableCell align="left" sx={{ width: 160 }}>Độ tuổi</TableCell>
-                                        <TableCell align="left" sx={{ width: 180 }}>Phòng</TableCell>
-                                        <TableCell align="center" sx={{ width: 150 }}>Trạng thái</TableCell>
+                                        <TableCell align="center" sx={{ width: 200 }}>Tên lớp</TableCell>
+                                        <TableCell align="center" sx={{ width: 140 }}>Độ tuổi</TableCell>
+                                        <TableCell align="center" sx={{ width: 160 }}>Phòng</TableCell>
+                                        <TableCell align="center" sx={{ width: 170 }}>Trạng thái</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {filteredRows.map(row => (
-                                        <TableRow key={row.id || row.className} hover>
-                                            <TableCell>
+                                    {filteredRows.map((row, idx) => (
+                                        <TableRow
+                                            key={row.id || row.className}
+                                            hover
+                                            sx={{
+                                                backgroundColor: idx % 2 === 0 ? '#fafdff' : '#f3f8fc',
+                                                transition: 'background 0.2s',
+                                            }}
+                                        >
+                                            <TableCell align="center">
                                                 <Box display="flex" alignItems="center" minHeight="40px">
                                                     {editingCell === row.id ? (
                                                         <TextField
@@ -334,16 +343,17 @@ export default function ClassCreateTable() {
                                                             onChange={e => handleChange(row.id, 'className', e.target.value)}
                                                             onKeyDown={handleKeyDown}
                                                             onBlur={() => setEditingCell(null)}
+                                                            sx={{ borderRadius: 2, bgcolor: '#fff' }}
                                                         />
                                                     ) : (
                                                         <>
-                                                            <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                                                            <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600, fontSize: 15 }}>
                                                                 {row.className}
                                                             </Typography>
                                                             <Tooltip title="Sửa tên lớp">
                                                                 <IconButton
                                                                     size="small"
-                                                                    sx={{ ml: 1 }}
+                                                                    sx={{ ml: 1, color: '#1976d2' }}
                                                                     onClick={() => handleEditClassName(row.id)}
                                                                 >
                                                                     <EditIcon fontSize="small" />
@@ -353,13 +363,13 @@ export default function ClassCreateTable() {
                                                     )}
                                                 </Box>
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell align="center">
                                                 <Select
                                                     size="small"
                                                     value={row.age}
                                                     onChange={e => handleChange(row.id, 'age', e.target.value)}
                                                     fullWidth
-                                                    sx={{ borderRadius: 2 }}
+                                                    sx={{ borderRadius: 2, bgcolor: '#fff' }}
                                                 >
                                                     {AGE_OPTIONS.map(age => (
                                                         <MenuItem key={age} value={age}>
@@ -368,13 +378,13 @@ export default function ClassCreateTable() {
                                                     ))}
                                                 </Select>
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell align="center">
                                                 <Select
                                                     size="small"
                                                     value={row.room}
                                                     onChange={e => handleChange(row.id, 'room', e.target.value)}
                                                     fullWidth
-                                                    sx={{ borderRadius: 2 }}
+                                                    sx={{ borderRadius: 2, bgcolor: '#fff' }}
                                                 >
                                                     {roomOptions
                                                         .filter(room => !usedRooms.has(room._id) || row.room === room._id)
@@ -386,7 +396,7 @@ export default function ClassCreateTable() {
                                                 </Select>
                                             </TableCell>
                                             <TableCell align="center">
-                                                <Box display="flex" alignItems="center" justifyContent="center">
+                                                <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
                                                     <Switch
                                                         checked={row.status}
                                                         onChange={(e) => {
@@ -398,17 +408,31 @@ export default function ClassCreateTable() {
                                                             handleChange(row.id, 'status', Boolean(e.target.checked));
                                                         }}
                                                         color={row.status ? 'success' : 'default'}
+                                                        sx={{
+                                                            '& .MuiSwitch-thumb': { boxShadow: '0 2px 8px 0 rgba(34,197,94,0.15)' },
+                                                        }}
                                                     />
-                                                    <Box ml={1} width={60} textAlign="left">
-                                                        <Typography
-                                                            variant="caption"
-                                                            sx={{
-                                                                color: row.status ? 'success.main' : 'text.secondary',
-                                                                fontWeight: 500,
-                                                            }}
-                                                        >
-                                                            {row.status ? 'Active' : 'Inactive'}
-                                                        </Typography>
+                                                    <Box
+                                                        display="flex"
+                                                        alignItems="center"
+                                                        px={1.2}
+                                                        py={0.3}
+                                                        borderRadius={2}
+                                                        sx={{
+                                                            bgcolor: row.status ? '#e6f9ed' : '#f3f4f6',
+                                                            color: row.status ? '#22c55e' : '#64748b',
+                                                            minWidth: 110,
+                                                            fontWeight: 600,
+                                                            fontSize: 13,
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    >
+                                                        {row.status ? (
+                                                            <CheckCircleIcon sx={{ fontSize: 18, mr: 0.5, color: '#22c55e' }} />
+                                                        ) : (
+                                                            <BlockIcon sx={{ fontSize: 18, mr: 0.5, color: '#64748b' }} />
+                                                        )}
+                                                        {row.status ? 'Đang hoạt động' : 'Ngừng hoạt động'}
                                                     </Box>
                                                 </Box>
                                             </TableCell>

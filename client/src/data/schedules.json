@@ -1,0 +1,57 @@
+[
+    {
+        "class": "1A",
+        "schedule": {
+            "Monday": [
+                {
+                    "time": "08:30-09:00",
+                    "activity": "Physical activity"
+                },
+                {
+                    "time": "14:30-15:00",
+                    "activity": "Sensory exploration"
+                }
+            ],
+            "Tuesday": [
+                {
+                    "time": "08:30-09:00",
+                    "activity": "Language development"
+                },
+                {
+                    "time": "14:30-15:00",
+                    "activity": "Music & movement"
+                }
+            ],
+            "Wednesday": [
+                {
+                    "time": "08:30-09:00",
+                    "activity": "Physical activity"
+                },
+                {
+                    "time": "14:30-15:00",
+                    "activity": "Sensory exploration"
+                }
+            ],
+            "Thursday": [
+                {
+                    "time": "08:30-09:00",
+                    "activity": "Language development"
+                },
+                {
+                    "time": "14:30-15:00",
+                    "activity": "Music & movement"
+                }
+            ],
+            "Friday": [
+                {
+                    "time": "08:30-09:00",
+                    "activity": "Physical activity"
+                },
+                {
+                    "time": "14:30-15:00",
+                    "activity": "Outdoor play"
+                }
+            ]
+        }
+    }
+]

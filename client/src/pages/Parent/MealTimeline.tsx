@@ -1,100 +1,249 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Typography,
     Paper,
-    Card,
-    CardContent
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    styled,
+    Grid,
+    useTheme,
+    useMediaQuery,
+    CircularProgress,
+    Alert
 } from '@mui/material';
-import Timeline from '@mui/lab/Timeline';
-import TimelineItem from '@mui/lab/TimelineItem';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
-import TimelineConnector from '@mui/lab/TimelineConnector';
-import TimelineContent from '@mui/lab/TimelineContent';
-import TimelineDot from '@mui/lab/TimelineDot';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import Brightness6Icon from '@mui/icons-material/Brightness6';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import { getWeeklyMenuByDateNow } from "../../services/ApiServices";
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 
-interface Meal {
-    time: string;
-    content: string;
-}
+type MealType = {
+    sáng: string;
+    trưa: string;
+    chiều: string;
+};
 
-export default function MealTimeline() {
-    const meals: Meal[] = [
-        { time: '7:30', content: 'Sữa tươi' },
-        { time: '10:30', content: 'Cơm + Thịt kho + Canh rau ngót' },
-        { time: '14:30', content: 'Bánh flan' },
-    ];
+type MenuDataType = {
+    [key: string]: MealType;
+};
+
+const mealTypes = [
+    { key: 'sáng', label: 'Bữa sáng', icon: <Brightness6Icon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
+    { key: 'trưa', label: 'Bữa trưa', icon: <FastfoodIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
+    { key: 'chiều', label: 'Bữa chiều', icon: <RestaurantIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
+];
+
+const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+
+// Hàm này giờ không cần tham số, nó sẽ luôn lấy tuần hiện tại
+const getWeekDays = (weekStart: string) => {
+    if (!weekStart || isNaN(Date.parse(weekStart))) return [];
+    const weekDays = [];
+    const monday = new Date(weekStart);
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(monday);
+        day.setDate(monday.getDate() + i);
+        weekDays.push({
+            name: dayNames[day.getDay()],
+            date: `${String(day.getDate()).padStart(2, '0')}/${String(day.getMonth() + 1).padStart(2, '0')}`,
+            fullDate: day.toISOString().split('T')[0]
+        });
+    }
+    return weekDays;
+};
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    padding: '12px 16px',
+    fontSize: '0.9rem',
+}));
+
+const StyledTableRow = styled(TableRow)(() => ({
+    '&:hover': {
+        backgroundColor: 'rgba(65, 148, 203, 0.1)',
+        transition: 'background-color 0.2s ease-in-out',
+    },
+}));
+
+type StatCardProps = {
+    title: string;
+    value: string | number;
+    icon: React.ReactNode;
+    color: 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
+};
+
+const StatCard = ({ title, value, icon, color }: StatCardProps) => (
+    <Paper elevation={2} sx={{ p: 2, display: 'flex', alignItems: 'center', borderRadius: 3, height: '100%' }}>
+        <Box sx={{ mr: 2, p: 1.5, borderRadius: '50%', backgroundColor: `${color}.main`, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {icon}
+        </Box>
+        <Box>
+            <Typography variant="h6" fontWeight="bold">{value}</Typography>
+            <Typography variant="body2" color="text.secondary">{title}</Typography>
+        </Box>
+    </Paper>
+);
+
+export default function WeeklyMealSchedule() {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [menuData, setMenuData] = useState<MenuDataType>({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const [weekDays, setWeekDays] = useState<{ name: string; date: string; fullDate: string }[]>([]);
+
+    const fetchMenu = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const res = await getWeeklyMenuByDateNow();
+            const { weekStart, dailyMenus } = res;
+            setWeekDays(getWeekDays(weekStart));
+            if (dailyMenus && Array.isArray(dailyMenus) && dailyMenus.length > 0) {
+                const mappedMenu: MenuDataType = {};
+                dailyMenus.forEach((day: {
+                    date: string;
+                    breakfast: { dishName: string }[];
+                    lunch: { dishName: string }[];
+                    dinner: { dishName: string }[];
+                }) => {
+                    const dateObj = new Date(day.date);
+                    const dateKey = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+                    mappedMenu[dateKey] = {
+                        sáng: day.breakfast?.map(d => d.dishName).join(', ') || '–',
+                        trưa: day.lunch?.map(d => d.dishName).join(', ') || '–',
+                        chiều: day.dinner?.map(d => d.dishName).join(', ') || '–',
+                    };
+                });
+                setMenuData(mappedMenu);
+            } else {
+                setMenuData({});
+            }
+        } catch (err) {
+            setError("Không thể tải thực đơn. Vui lòng thử lại sau.");
+            setMenuData({});
+            console.error('Lỗi lấy thực đơn:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchMenu();
+    }, [fetchMenu]);
+
+    const totalDishes = Object.values(menuData).reduce((acc, day) => {
+        return acc + Object.values(day).filter(meal => meal !== '–').length;
+    }, 0);
+
+    const today = new Date();
+    const todayKey = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}`;
+    const todaySpecial = menuData[todayKey]?.trưa || 'Chưa cập nhật';
+
+    const headerCellStyle = {
+        backgroundColor: '#4194cb',
+        color: '#ffffff',
+        fontWeight: 'bold',
+        textAlign: 'center' as const,
+        borderRight: '1px solid rgba(255, 255, 255, 0.2)',
+        '&:last-child': { borderRight: 'none' }
+    };
+
+    const MainContent = () => {
+        if (isLoading) {
+            return <Box display="flex" justifyContent="center" alignItems="center" sx={{ height: 300 }}><CircularProgress /></Box>;
+        }
+        if (error) {
+            return <Alert severity="error">{error}</Alert>;
+        }
+        if (Object.keys(menuData).length === 0 && !isLoading) {
+            return <Alert severity="info">Chưa có dữ liệu thực đơn cho tuần này.</Alert>;
+        }
+        return isMobile ? <MobileCardList /> : <DesktopTable />;
+    };
+
+    const DesktopTable = () => (
+        <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden', width: '100%' }}>
+            <TableContainer>
+                <Table stickyHeader aria-label="weekly meal table">
+                    <TableHead>
+                        <TableRow>
+                            <StyledTableCell sx={{ ...headerCellStyle, textAlign: 'left', width: '15%' }}>Bữa</StyledTableCell>
+                            {weekDays.map((day) => (
+                                <StyledTableCell key={day.fullDate} align="center" sx={{ ...headerCellStyle, width: '12%' }}>
+                                    <Typography variant="subtitle1" fontWeight="700" color="inherit">{day.name}</Typography>
+                                    <Typography variant="caption" color="inherit" sx={{ opacity: 0.85 }}>{day.date}</Typography>
+                                </StyledTableCell>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {mealTypes.map((mealType) => (
+                            <StyledTableRow key={mealType.key}>
+                                <StyledTableCell component="th" scope="row" sx={{ fontWeight: '600' }}>
+                                    {mealType.icon} {mealType.label}
+                                </StyledTableCell>
+                                {weekDays.map((day) => (
+                                    <StyledTableCell key={`${day.fullDate}-${mealType.key}`} align="center">
+                                        {menuData?.[day.date]?.[mealType.key as keyof MealType] || '–'}
+                                    </StyledTableCell>
+                                ))}
+                            </StyledTableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Paper>
+    );
+
+    const MobileCardList = () => (
+        <Box>
+            {weekDays.map(day => (
+                <Paper key={day.fullDate} elevation={2} sx={{ mb: 2, borderRadius: 3, p: 2 }}>
+                    <Typography variant="h6" fontWeight="700" color="#4194cb" gutterBottom>{day.name} - {day.date}</Typography>
+                    {mealTypes.map(mealType => (
+                        <Box key={mealType.key} sx={{ display: 'flex', alignItems: 'center', mb: 1, borderBottom: '1px solid #eee', pb: 1, '&:last-child': { border: 0, mb: 0, pb: 0 } }}>
+                            <Box sx={{ width: '110px', fontWeight: '600', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                {mealType.icon} {mealType.label}
+                            </Box>
+                            <Typography variant="body2" sx={{ flexGrow: 1, textAlign: 'left' }}>{menuData?.[day.date]?.[mealType.key as keyof MealType] || '–'}</Typography>
+                        </Box>
+                    ))}
+                </Paper>
+            ))}
+        </Box>
+    );
 
     return (
-        <Box mt={6} p={4} minHeight="100vh" bgcolor="#f5f7fb">
-            <Typography
-                variant="h5"
-                gutterBottom
-                sx={{ fontWeight: 700, color: '#e6687a', display: 'flex', alignItems: 'center', gap: 1 }}
-            >
-                🥗 Thực đơn hôm nay
-            </Typography>
-            <Paper
-                elevation={4}
-                sx={{
-                    p: 4,
-                    borderRadius: 4,
-                    bgcolor: '#fefefe',
-                    backgroundImage: 'linear-gradient(to bottom right, #f0faff, #ffffff)',
-                }}
-            >
-                <Timeline position="alternate">
-                    {meals.map((meal, index) => (
-                        <TimelineItem key={index}>
-                            <TimelineSeparator>
-                                <TimelineDot sx={{ bgcolor: '#46a2da' }}>
-                                    <RestaurantIcon sx={{ color: 'white', fontSize: 18 }} />
-                                </TimelineDot>
-                                {index < meals.length - 1 && (
-                                    <TimelineConnector sx={{ bgcolor: '#4194cb' }} />
-                                )}
-                            </TimelineSeparator>
-                            <TimelineContent>
-                                <Card
-                                    elevation={2}
-                                    sx={{
-                                        borderLeft: '6px solid #e6687a',
-                                        borderRadius: 3,
-                                        p: 2,
-                                        mb: 1,
-                                        bgcolor: '#fdfcff',
-                                        transition: 'transform 0.2s ease',
-                                        '&:hover': {
-                                            transform: 'scale(1.02)',
-                                            boxShadow: 4,
-                                        },
-                                    }}
-                                >
-                                    <CardContent sx={{ p: 0 }}>
-                                        <Typography
-                                            variant="subtitle2"
-                                            sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 1,
-                                                color: '#0d47a1',
-                                                fontWeight: 600,
-                                            }}
-                                        >
-                                            <AccessTimeIcon sx={{ fontSize: 18 }} />
-                                            {meal.time}
-                                        </Typography>
-                                        <Typography sx={{ mt: 0.5, fontSize: 16, fontWeight: 500 }}>
-                                            {meal.content}
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </TimelineContent>
-                        </TimelineItem>
-                    ))}
-                </Timeline>
-            </Paper>
+        <Box mt={4} p={{ xs: 2, sm: 3 }} bgcolor="#f5f7fb" height="100vh" sx={{ overflow: 'hidden' }}>
+            <Grid container spacing={3} mb={4}>
+                <Grid item xs={12} sm={6} md={4} {...({} as any)}>
+                    <StatCard title="Món đặc biệt hôm nay" value={todaySpecial} icon={<StarBorderIcon />} color="warning" />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} {...({} as any)}>
+                    <StatCard title="Tổng số món trong tuần" value={isLoading ? '...' : `${totalDishes} món`} icon={<MenuBookIcon />} color="info" />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} {...({} as any)}>
+                    <StatCard title="Năng lượng trung bình" value="~750 Kcal" icon={<LocalFireDepartmentIcon />} color="error" />
+                </Grid>
+            </Grid>
+
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6" fontWeight="700" color="#333" display="flex" alignItems="center" gap={1}>
+                    <CalendarTodayIcon /> Thực đơn tuần này
+                </Typography>
+            </Box>
+
+            <MainContent />
         </Box>
     );
 }

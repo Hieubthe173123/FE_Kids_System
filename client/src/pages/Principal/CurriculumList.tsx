@@ -13,10 +13,6 @@ import {
   Button,
   FormGroup,
   Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   MenuItem as MuiMenuItem,
 } from "@mui/material";
 import {
@@ -38,6 +34,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import CurriculumForm from "./CurriculumForm";
 import CurriculumTimeForm from "./CurriculumTimeForm"
+import Swal from "sweetalert2";
 import {
   getAllCurriculums,
   createCurriculums,
@@ -92,11 +89,9 @@ export default function CurriculumManager() {
   );
   const [openSetTimeDialog, setOpenSetTimeDialog] = useState(false);
   const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingActivityId, setEditingActivityId] = useState<string | null>(
     null
   );
-  const [curriculumToDelete, setCurriculumToDelete] = useState<any>(null);
   const [newActivity, setNewActivity] = useState({
     activityName: "",
     activityFixed: false,
@@ -131,7 +126,7 @@ export default function CurriculumManager() {
 
       setCurriculums(data);
     } catch (err) {
-      toast.error("Lỗi tải danh sách chương trình học!");
+      toast.error("Không thể tải danh sách chương trình học. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -161,10 +156,10 @@ export default function CurriculumManager() {
     setOpenSetTimeDialog(true);
   };
 
-const handleCloseSetTimeDialog = () => {
-  setOpenSetTimeDialog(false);
-  setUpdatedActivities([]); 
-};
+  const handleCloseSetTimeDialog = () => {
+    setOpenSetTimeDialog(false);
+    setUpdatedActivities([]);
+  };
 
 
   const handleCloseAddDialog = () => {
@@ -189,12 +184,12 @@ const handleCloseSetTimeDialog = () => {
           toast.error(message);
         }
       } else {
-        toast.error("Lỗi tại máy chủ");
+        toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
       }
       return;
     }
 
-    toast.success("Đã tạo hoạt động mới thành công!");
+    toast.success("Đã tạo hoạt động mới thành công.");
     handleCloseAddDialog();
     fetchCurriculums();
   };
@@ -224,39 +219,37 @@ const handleCloseSetTimeDialog = () => {
           toast.error(message);
         }
       } else {
-        toast.error("Lỗi tại máy chủ");
+        toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
       }
       return;
     }
 
-    toast.success("Đã cập nhật hoạt động thành công!");
+    toast.success("Đã cập nhật hoạt động thành công.");
     handleCloseAddDialog();
     fetchCurriculums();
   };
 
   //Xóa
-  const handleDelete = (row: any) => {
-    setCurriculumToDelete(row);
-    setDeleteDialogOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!curriculumToDelete) return;
-    try {
-      await deleteCurriculum(curriculumToDelete._id);
-      toast.success("Xoá chương trình học thành công!");
-      fetchCurriculums();
-    } catch {
-      toast.error("Lỗi khi xoá chương trình học!");
-    } finally {
-      setDeleteDialogOpen(false);
-      setCurriculumToDelete(null);
+  const handleDelete = async (row: any) => {
+    const result = await Swal.fire({
+      title: "Bạn có chắc chắn muốn xoá chương trình học này?",
+      text: `Hoạt động: ${row.activityName}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xoá",
+      cancelButtonText: "Huỷ"
+    });
+    if (result.isConfirmed) {
+      try {
+        await deleteCurriculum(row._id);
+        toast.success("Đã xoá chương trình học thành công.");
+        fetchCurriculums();
+      } catch {
+        toast.error("Xoá chương trình học thất bại. Vui lòng thử lại.");
+      }
     }
-  };
-
-  const cancelDelete = () => {
-    setDeleteDialogOpen(false);
-    setCurriculumToDelete(null);
   };
 
   //Xử lý thời gian
@@ -289,18 +282,17 @@ const handleCloseSetTimeDialog = () => {
 
     if (res.error) {
       const { errorList } = res.error;
-      console.log("🚀 ~ handleUpdate ~ errorList:", errorList);
       if (errorList && errorList.length > 0) {
         for (const error of errorList) {
           const { message } = error;
           toast.error(message);
         }
       } else {
-        toast.error("Lỗi tại máy chủ");
+        toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
       }
       return;
     } else {
-      toast.success("Đã cập nhật giờ thành công!");
+      toast.success("Đã cập nhật giờ thành công.");
       setOpenSetTimeDialog(false);
       setUpdatedActivities([]);
       fetchCurriculums();
@@ -327,9 +319,24 @@ const handleCloseSetTimeDialog = () => {
     { field: "activityName", headerName: "Tên hoạt động", flex: 1.5 },
     {
       field: "activityFixed",
-      headerName: "Cố định",
+      headerName: "Loại hoạt động",
       flex: 1.2,
-      renderCell: (params: any) => (params.value ? "Có" : "Không"),
+      renderCell: (params: any) => (
+        <Box display="flex" alignItems="center" gap={1} width="100%" mt={2}>
+          {params.value ? (
+            <>
+              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
+              <Typography variant="body2" sx={{ fontWeight: 600, color: '#22c55e' }}>Cố định</Typography>
+            </>
+          ) : (
+            <>
+              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#64748b' }} />
+              <Typography variant="body2" sx={{ fontWeight: 600, color: '#64748b' }}>Thông thường
+              </Typography>
+            </>
+          )}
+        </Box>
+      ),
     },
     { field: "age", headerName: "Độ tuổi", flex: 1 },
     { field: "activityNumber", headerName: "Số tiết học", flex: 1 },
@@ -367,7 +374,7 @@ const handleCloseSetTimeDialog = () => {
   );
 
   return (
-    <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, minHeight: "100vh" }}>
+    <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, height: "90vh" }}>
       <Typography variant="h5" fontWeight="bold" color={PRIMARY_COLOR} mb={3}>
         Quản lý chương trình học
       </Typography>
@@ -550,38 +557,7 @@ const handleCloseSetTimeDialog = () => {
         setNewActivity={setNewActivity}
       />
 
-      {/* Dialog delete */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={cancelDelete}
-        slotProps={{
-          paper: {
-            sx: {
-              position: "absolute",
-              top: "-2%",
-              left: "50%",
-              width: "700px",
-              transform: "translateX(-50%)",
-            },
-          },
-        }}
-      >
-        <DialogTitle>Xác nhận xoá</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Bạn có chắc chắn muốn xoá chương trình học{" "}
-            <strong>{curriculumToDelete?.activityName}</strong>?
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={cancelDelete} variant="outlined">
-            Huỷ
-          </Button>
-          <Button onClick={confirmDelete} variant="contained" color="error">
-            Xoá
-          </Button>
-        </DialogActions>
-      </Dialog>
+
 
       {/* Dialog time */}
       <CurriculumTimeForm
