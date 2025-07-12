@@ -23,7 +23,7 @@ import dayjs from 'dayjs';
 import isoWeek from "dayjs/plugin/isoWeek";
 dayjs.extend(isoWeek);
 import { useState, useEffect, type JSX } from "react";
-import { getWeeklyMenuByDate } from "../../services/ApiServices";
+import { getWeeklyMenuByDate } from "../../services/PrincipalApi";
 import { useNavigate } from "react-router-dom";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 

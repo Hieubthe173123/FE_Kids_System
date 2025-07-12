@@ -32,7 +32,7 @@ import {
   deleteWeeklyMenu,
   createWeeklyMenu,
   updateWeeklyMenu,
-} from "../../services/ApiServices";
+} from "../../services/PrincipalApi";
 import { toast } from "react-toastify";
 import { MenuItem, Select } from "@mui/material";
 

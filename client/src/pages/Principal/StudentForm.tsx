@@ -13,7 +13,7 @@ import {
     getStudentById,
     createStudent,
     updateStudent,
-} from "../../services/ApiServices";
+} from "../../services/PrincipalApi";
 
 const defaultForm = {
     studentCode: "",
