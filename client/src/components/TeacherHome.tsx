@@ -18,28 +18,28 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
-import { Feedback, Home } from '@mui/icons-material';
+import { Book, ControlCamera, Feedback, Home } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
     {
-        segment: 'home',
+        segment: '',
         title: 'Trang chủ',
         icon: <Home />,
     },
+    // {
+    //     segment: 'time-table',
+    //     title: 'Lịch học',
+    //     icon: <CalendarMonthIcon />,
+    // },
+    // {
+    //     segment: 'class-management',
+    //     title: 'Quản lý lớp',
+    //     icon: <SchoolIcon />,
+    // },
     {
-        segment: 'time-table',
-        title: 'Lịch học',
-        icon: <CalendarMonthIcon />,
-    },
-    {
-        segment: 'class-management',
-        title: 'Quản lý lớp',
-        icon: <SchoolIcon />,
-    },
-    {
-        segment: 'feedback',
-        title: 'Phản hồi',
-        icon: <Feedback />,
+        segment: 'teacher-control',
+        title: 'Thông tin dạy học',
+        icon: <Book />,
     },
   
 ];
@@ -69,7 +69,6 @@ export default function TeacherHome() {
     const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
-    console.log(setIsMenuExpanded)
     const [loading, setLoading] = React.useState<boolean>(true);
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const session: Session = {

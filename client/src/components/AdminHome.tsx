@@ -16,14 +16,20 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
-import { AdminPanelSettings, BarChart } from '@mui/icons-material';
+import { AdminPanelSettings, BarChart, Home } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
+    {
+        segment: '',
+        title: 'Trang chủ',
+        icon: <Home />,
+    },
     {
         segment: 'account-management',
         title: 'Quản lý tài khoản',
         icon: <AdminPanelSettings />,
     },
+ 
     {
         segment: 'statistics',
         title: 'Thống kê',

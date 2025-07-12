@@ -1,6 +1,6 @@
 // pages/admin/accounts/index.tsx
 import { useEffect, useState } from "react";
-import { TextField, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, InputLabel, Link } from "@mui/material";
+import { TextField, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, InputLabel } from "@mui/material";
 import type { AccountListItem } from "../../../model/Interface";
 import { getAccounts } from "../../../services/admin.service";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +11,6 @@ export default function AccountHomePage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filterRole, setFilterRole] = useState("all");
-  const [accountDetail, setAccountDetail] = useState<AccountListItem | null>(null);
 
   useEffect(() => {
     const fetchAccounts = async () => {
