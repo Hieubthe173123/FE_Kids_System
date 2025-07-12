@@ -1,5 +1,37 @@
+import axios from "axios";
 import axiosInstance from "../helper/axiosInstance";
 import dayjs from "dayjs";
+
+
+export const getLocationProvinces = async () => {
+    try{
+        const response = await axios.get("https://open.oapi.vn/location/provinces");
+        return response.data.data;
+    }catch(error){
+        console.log("Failed to fetch getLocationProvinces:", error);
+        throw error;
+    }
+}
+
+export const getLocationDistrict = async (provinceId: any) => {
+      try{
+        const response = await axios.get(`https://open.oapi.vn/location/districts/${provinceId}`);
+         return response.data.data;
+    }catch(error){
+        console.log("Failed to fetch getLocationDistrict:", error);
+        throw error;
+    }
+}
+
+export const getLocationWards = async (districtId: any) => {
+      try{
+        const response = await axios.get(`https://open.oapi.vn/location/wards/${districtId}`);
+        return response.data.data;
+    }catch(error){
+        console.log("Failed to fetch getLocationWards:", error);
+        throw error;
+    }
+}
 
 
 export const getAllTeachers = async () => {
