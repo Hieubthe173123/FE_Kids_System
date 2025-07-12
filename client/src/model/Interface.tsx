@@ -119,10 +119,3 @@ export interface EnrollItem {
   note: string;
   state: string;
 }
-
-export interface StatItem {
-  _id: string; 
-  totalStudents: number;
-  totalClasses: number;
-  totalTeachers: number;
-}

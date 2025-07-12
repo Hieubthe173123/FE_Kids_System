@@ -1,35 +1,6 @@
 import axiosInstance from "../helper/axiosInstance";
 import dayjs from "dayjs";
 
-
-export const getStatisticSchoolYear = async () => {
-    try{
-        const response = await axiosInstance.get("/class/schoolyear/statistic");
-        return response.data;
-    }catch(error){
-        console.log("Failed to fetch schoolyear:", error);
-        throw error;
-    }
-}
-
-export const createNewSchoolYear = async (schoolYear: any) => {
-  try {
-    const response = await axiosInstance.post("/class/schoolyear/create-schoolyear", schoolYear);
-    return {
-      data: response.data,
-      error: null,
-    };
-  } catch (error: any) {
-    const errorList = error.response?.data;
-    return {
-      data: null,
-      error: {
-        errorList: errorList,
-      },
-    };
-  }
-};
-
 export const getAllClass = async () => {
     try {
         const response = await axiosInstance.get("/class");
