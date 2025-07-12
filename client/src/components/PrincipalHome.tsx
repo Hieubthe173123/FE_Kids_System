@@ -86,7 +86,7 @@ export default function PrincipalHome() {
     const pathname = location.pathname.replace('/principal-home', '') || '/';
     React.useEffect(() => {
         if (pathname === '/') {
-            navigate('/principal-home/process-enroll', { replace: true });
+            navigate('/principal-home/schoolYear-management', { replace: true });
         }
     }, [pathname, navigate]);
 
