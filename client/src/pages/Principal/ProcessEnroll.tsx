@@ -14,6 +14,10 @@ import {
   Button,
   FormGroup,
 } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 import {
   DataGrid,
   GridFooterContainer,
@@ -102,7 +106,7 @@ export default function ProcessEnroll() {
   };
 
   const handleProcessEnroll = async () => {
-    const { data, error } = await accessProcessEnroll();
+    const { error } = await accessProcessEnroll();
     if (error) {
       toast.error("Không tìm thấy trạng thái Chờ xác nhận hoặc Xử lý lỗi");
     } else {
@@ -182,7 +186,51 @@ export default function ProcessEnroll() {
     { field: "email", headerName: "Email", flex: 1.5 },
     { field: "relationship", headerName: "Mối quan hệ", flex: 1.2 },
     { field: "note", headerName: "Tình trạng sức khỏe", flex: 1.5 },
-    { field: "state", headerName: "Trạng thái", flex: 1.2 },
+    {
+      field: "state",
+      headerName: "Trạng thái",
+      flex: 1.2,
+      renderCell: (params: any) => {
+        let color = "#64748b";
+        let bg = "#f3f4f6";
+        let icon = <HourglassEmptyIcon sx={{ fontSize: 18, mr: 1, color }} />;
+        let label = params.value;
+        if (params.value === "Chờ xử lý") {
+          color = "#f59e42";
+          bg = "#fff7e6";
+          icon = <HourglassEmptyIcon sx={{ fontSize: 18, mr: 1, color }} />;
+        } else if (params.value === "Chờ xác nhận") {
+          color = "#3b82f6";
+          bg = "#e6f0ff";
+          icon = <CheckCircleIcon sx={{ fontSize: 18, mr: 1, color }} />;
+        } else if (params.value === "Xử lý lỗi") {
+          color = "#ef4444";
+          bg = "#ffeaea";
+          icon = <ErrorOutlineIcon sx={{ fontSize: 18, mr: 1, color }} />;
+        } else if (params.value === "Hoàn thành") {
+          color = "#22c55e";
+          bg = "#e6f9ed";
+          icon = <DoneAllIcon sx={{ fontSize: 18, mr: 1, color }} />;
+        }
+        return (
+          <Box display="flex" alignItems="center" sx={{
+            bgcolor: bg,
+            color: color,
+            fontWeight: 600,
+            fontSize: 13,
+            borderRadius: 2,
+            px: 1.2,
+            py: 0.3,
+            minWidth: 110,
+            justifyContent: 'center',
+            width: '100%',
+          }}>
+            {icon}
+            {label}
+          </Box>
+        );
+      },
+    },
     {
       field: "createdAt",
       headerName: "Ngày tạo",
@@ -195,7 +243,7 @@ export default function ProcessEnroll() {
   const columns = allColumns.filter((col) => visibleColumns.includes(col.field));
 
   return (
-    <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, minHeight: "100vh" }}>
+    <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, height: "90vh" }}>
       <Box
         sx={{
           mb: 3,

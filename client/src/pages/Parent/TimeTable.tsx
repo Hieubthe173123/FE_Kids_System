@@ -1,76 +1,62 @@
-import {
-    Box,
-    Typography,
-} from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { Box, Typography } from '@mui/material';
+import dayjs from 'dayjs';
 import Schedules from './Schedules';
 import Information from './Information';
+import scheduleData from "../../data/schedules.json";
+import { getStudentsByParentId, getStudentClassInfo } from '../../services/ParentApi';
 
-
-type ScheduleItem = {
-    time: string;
-    subject: string;
-    feedback?: string;
-};
-
-type Student = {
-    id: number;
+interface Student {
+    id: string;
     name: string;
-    class: string;
-    teacher: string;
-    year: string;
-    schedule: {
-        morning: ScheduleItem[];
-        afternoon: ScheduleItem[];
-    };
-    meals: { time: string; content: string }[];
-};
-
-const mockStudents: Student[] = [
-    {
-        id: 1,
-        name: 'Bé An',
-        class: 'Mầm 2',
-        teacher: 'Cô Linh',
-        year: '2024 - 2025',
-        schedule: {
-            morning: [
-                { time: '7:30 - 7:45', subject: 'Đón trẻ & Thể dục sáng', feedback: 'Bé hợp tác tốt' },
-                { time: '7:45 - 8:15', subject: 'Ăn sáng', feedback: 'Ăn hết suất, vui vẻ' },
-                { time: '8:15 - 8:45', subject: 'Hoạt động ngoài trời', feedback: 'Tham gia năng động' },
-                { time: '8:45 - 9:15', subject: 'Hoạt động tập thể', feedback: 'Tích cực phát biểu' },
-                { time: '9:15 - 9:45', subject: 'Tiếng Việt - C5 Bài 8', feedback: 'Đọc rõ ràng, viết đẹp' },
-                { time: '9:45 - 10:15', subject: 'Phonics', feedback: 'Phát âm đúng, nhớ bài' },
-            ],
-            afternoon: [
-                { time: '10:15 - 10:45', subject: 'Ăn nhẹ' },
-                { time: '10:45 - 11:15', subject: 'Hoạt động tự chọn' },
-                { time: '11:15 - 11:45', subject: 'Hoạt động ngoài trời' },
-                { time: '11:45 - 12:15', subject: 'Ăn trưa' },
-                { time: '12:15 - 14:00', subject: 'Ngủ trưa' },
-                { time: '14:00 - 14:30', subject: 'Thức dậy & Vệ sinh cá nhân' },
-                { time: '14:30 - 15:00', subject: 'Ăn xế' },
-                { time: '15:00 - 16:00', subject: 'Hoạt động tự chọn' },
-            ],
-        },
-        meals: [
-            { time: '7:45 - 8:15', content: 'Ăn sáng: Cháo thịt bằm, sữa tươi' },
-            { time: '10:15 - 10:45', content: 'Ăn nhẹ: Bánh quy, nước cam' },
-            { time: '11:45 - 12:15', content: 'Ăn trưa: Cơm, canh rau, thịt kho' },
-            { time: '14:30 - 15:00', content: 'Ăn xế: Sữa chua, trái cây' },
-        ]
-    },
-];
+    age: number;
+}
 
 export default function TimeTable() {
-    const [selectedStudentId, setSelectedStudentId] = useState(1);
+    const currentClassData = scheduleData[0];
+
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({
-        morning: false,
-        afternoon: false,
+        morning: true,
+        afternoon: true,
     });
 
-    const student = mockStudents.find((s) => s.id === selectedStudentId);
+    const [childrenList, setChildrenList] = useState<Student[]>([]);
+    const [selectedChildId, setSelectedChildId] = useState<string>("");
+
+    const [currentClassInfo, setCurrentClassInfo] = useState<{
+        name: string;
+        teacher: string;
+        year: string;
+    } | undefined>(undefined);
+
+    const selectedDayjs = dayjs(selectedDate);
+    const startOfWeek = selectedDayjs.startOf('isoWeek');
+
+    const weeklySchedules = useMemo(() => {
+        const morningSchedule: any = {};
+        const afternoonSchedule: any = {};
+
+        if (currentClassData?.schedule) {
+            for (const [day, activities] of Object.entries(currentClassData.schedule)) {
+                const morningActivities: any[] = [];
+                const afternoonActivities: any[] = [];
+
+                (activities as any[]).forEach((item) => {
+                    const startHour = parseInt(item.time.split('-')[0].split(':')[0], 10);
+                    const scheduleItem = { time: item.time, subject: item.activity };
+
+                    if (startHour < 14) morningActivities.push(scheduleItem);
+                    else afternoonActivities.push(scheduleItem);
+                });
+
+                if (morningActivities.length > 0) morningSchedule[day] = morningActivities;
+                if (afternoonActivities.length > 0) afternoonSchedule[day] = afternoonActivities;
+            }
+        }
+
+        return { morningSchedule, afternoonSchedule };
+    }, [currentClassData]);
 
     const handleAccordionChange =
         (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -80,19 +66,62 @@ export default function TimeTable() {
             }));
         };
 
+    useEffect(() => {
+        const userStr = localStorage.getItem("user");
+        if (!userStr) return;
+
+        const user = JSON.parse(userStr);
+        const parentId = user._id;
+
+        const fetchStudents = async () => {
+            try {
+                const res = await getStudentsByParentId(parentId);
+                if (res.students && res.students.length > 0) {
+                    setChildrenList(res.students);
+                    setSelectedChildId(res.students[0].id);
+                }
+            } catch (err) {
+                console.error("Failed to load students:", err);
+            }
+        };
+
+        fetchStudents();
+    }, []);
+
+    useEffect(() => {
+        const fetchClassInfo = async () => {
+            if (!selectedChildId) return;
+
+            try {
+                const res = await getStudentClassInfo(selectedChildId);
+                setCurrentClassInfo({
+                    name: res.className || "Chưa có lớp",
+                    teacher: res.teacher || "Chưa có giáo viên",
+                    year: res.schoolYear || "Chưa rõ",
+                });
+            } catch (error) {
+                console.error("Không lấy được thông tin lớp học:", error);
+                setCurrentClassInfo(undefined);
+            }
+        };
+
+        fetchClassInfo();
+    }, [selectedChildId]);
+
+
     return (
         <Box sx={{ p: 4, minHeight: '100vh', bgcolor: '#f5f7fb' }}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: '#0d47a1' }}>
-                📘 Lịch học của bé
+                📘 Thời khóa biểu Lớp {currentClassData.class}
             </Typography>
 
             <Information
-                students={mockStudents}
-                selectedStudentId={selectedStudentId}
-                onStudentChange={setSelectedStudentId}
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
-                currentStudent={student}
+                currentClassInfo={currentClassInfo}
+                childrenList={childrenList}
+                selectedChildId={selectedChildId}
+                onChildChange={(id: string) => setSelectedChildId(id)}
             />
 
             <Schedules
@@ -100,16 +129,17 @@ export default function TimeTable() {
                 panelKey="morning"
                 expanded={expanded['morning']}
                 onChange={handleAccordionChange}
-                scheduleData={student?.schedule.morning || []}
+                scheduleData={weeklySchedules.morningSchedule}
+                startOfWeekDate={startOfWeek.format('YYYY-MM-DD')}
             />
             <Schedules
                 title="🌙 Buổi chiều"
                 panelKey="afternoon"
                 expanded={expanded['afternoon']}
                 onChange={handleAccordionChange}
-                scheduleData={student?.schedule.afternoon || []}
+                scheduleData={weeklySchedules.afternoonSchedule}
+                startOfWeekDate={startOfWeek.format('YYYY-MM-DD')}
             />
-
         </Box>
     );
 }

@@ -12,6 +12,7 @@ import {
 } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DemoProvider } from '@toolpad/core/internal';
+import { logout } from "../redux/auth/authAPI"
 
 import {
     Outlet,
@@ -37,13 +38,7 @@ const NAVIGATION: Navigation = [
         segment: 'feedback',
         title: 'Đánh giá học sinh',
         icon: <FeedbackIcon />,
-    },
-
-    {
-        segment: 'test-auth',
-        title: 'Test auth',
-        icon: <FastfoodIcon />,
-    },
+    }
 ];
 
 const demoTheme = createTheme({
@@ -67,6 +62,11 @@ export default function ParentHome() {
     const navigate = useNavigate();
     const navigationType = useNavigationType();
     const pathname = location.pathname.replace('/parent-home', '') || '/';
+    React.useEffect(() => {
+        if (pathname === '/') {
+            navigate('/parent-home/time-table', { replace: true });
+        }
+    }, [pathname, navigate]);
 
     const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
@@ -87,7 +87,10 @@ export default function ParentHome() {
 
     const authentication = {
         signIn: () => { },
-        signOut: () => { },
+        signOut: async () => {
+            await logout();
+            window.location.href = '/sign-in';
+        },
     };
 
     React.useEffect(() => {

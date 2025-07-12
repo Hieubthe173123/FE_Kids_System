@@ -1,15 +1,16 @@
 import dayjs from "dayjs";
 import axiosInstance from "../helper/axiosInstance";
-
-
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 export const getWeeklyMenuByDate = async (weekStart: string) => {
   try {
     const response = await axiosInstance.get("/weeklyMenu", {
-      params: { weekStart }, // ví dụ: "2025-06-30"
+      params: { weekStart },
     });
 
     const allMenus = response.data.data || [];
+
     const matchedWeek = allMenus.find((menu: any) =>
       dayjs(menu.weekStart).isSame(weekStart, "day")
     );
@@ -20,6 +21,46 @@ export const getWeeklyMenuByDate = async (weekStart: string) => {
     throw error;
   }
 };
+
+// export const getWeeklyMenuByDateNow = async () => {
+//   try {
+//     const weekStart = dayjs().startOf("week").add(1, "day").utc();
+
+//     const response = await axiosInstance.get("/weeklyMenu");
+//     const allMenus = response.data.data || [];
+
+//     const matchedWeek = allMenus.find((menu: any) =>
+//       dayjs(menu.weekStart).utc().isSame(weekStart, "day")
+//     );
+
+//     return matchedWeek?.dailyMenus || [];
+//   } catch (error) {
+//     console.error("Lỗi lấy thực đơn theo tuần:", error);
+//     throw error;
+//   }
+// };
+
+export const getWeeklyMenuByDateNow = async (date: Date) => {
+  try {
+    // Tính toán ngày đầu tuần (Thứ 2) dựa trên `date` được truyền vào
+    const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
+
+    const response = await axiosInstance.get("/weeklyMenu");
+    const allMenus = response.data.data || [];
+
+    // Tìm kiếm tuần khớp với `weekStart` đã tính
+    const matchedWeek = allMenus.find((menu: any) =>
+      dayjs(menu.weekStart).utc().isSame(weekStart, "day")
+    );
+
+    return matchedWeek?.dailyMenus || [];
+  } catch (error) {
+    console.error("Lỗi lấy thực đơn theo tuần:", error);
+    throw error;
+  }
+};
+
+
 
 export const getWeeklyMenuById = async (id: string) => {
   try {
@@ -121,6 +162,16 @@ export const deleteParent = async (id: string) => {
   }
 };
 
+export const getParentById = async (id: string) => {
+  try {
+    const response = await axiosInstance.get(`/parent/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy phụ huynh theo ID:", error);
+    throw error;
+  }
+};
+
 export const getAllStudents = async () => {
   try {
     const response = await axiosInstance.get("/student");
@@ -137,6 +188,16 @@ export const createStudent = async (studentData: any) => {
     return response.data;
   } catch (error) {
     console.error("Lỗi tạo học sinh:", error);
+    throw error;
+  }
+};
+
+export const getStudentById = async (id: string) => {
+  try {
+    const response = await axiosInstance.get(`/student/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy học sinh theo ID:", error);
     throw error;
   }
 };
@@ -162,11 +223,8 @@ export const deleteStudent = async (id: string) => {
 };
 
 export const getAllStudentNoParent = async () => {
-  console.log("23214323");
-  
   try {
     const response = await axiosInstance.get("/student/no-parent");
-    console.log("🚀 ~ getAllStudentNoParent ~ response:", response.data)
     return response.data;
   } catch (error) {
     console.error("Lỗi lấy danh sách học sinh:", error);

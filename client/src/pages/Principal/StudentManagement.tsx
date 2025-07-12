@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Box, Typography, TextField, IconButton, Tooltip,
-  Paper, Button, Dialog, DialogTitle, DialogContent,
-  DialogActions, Grid, MenuItem
+  Paper
 } from "@mui/material";
 import {
   DataGrid, GridFooterContainer, GridPagination
@@ -10,13 +9,13 @@ import {
 import { Add, Edit, Delete, Refresh, Search } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 import {
   getAllStudents,
-  createStudent,
-  updateStudent,
   deleteStudent,
 } from "../../services/ApiServices";
+import Swal from "sweetalert2";
 
 type Student = {
   _id: string;
@@ -45,26 +44,14 @@ function CustomFooter({ count }: { count: number }) {
 export default function StudentManagement() {
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const [form, setForm] = useState<Omit<Student, "_id">>({
-    studentCode: "",
-    fullName: "",
-    dob: "",
-    gender: "",
-    address: "",
-    age: 0,
-    status: true,
-    image: "",
-    note: "",
-  });
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
       const res = await getAllStudents();
       setStudents(res.data);
     } catch {
-      toast.error("Lỗi khi tải danh sách học sinh");
+      toast.error("Không thể tải danh sách học sinh. Vui lòng thử lại.");
     }
   };
 
@@ -72,43 +59,24 @@ export default function StudentManagement() {
     fetchData();
   }, []);
 
-  const handleSave = async () => {
-    try {
-      if (editingStudent) {
-        await updateStudent(editingStudent._id, form);
-        toast.success("Cập nhật thành công");
-      } else {
-        await createStudent(form);
-        toast.success("Tạo mới học sinh thành công");
-      }
-
-      setForm({
-        studentCode: "",
-        fullName: "",
-        dob: "",
-        gender: "",
-        address: "",
-        age: 0,
-        status: true,
-        image: "",
-        note: "",
-      });
-      setEditingStudent(null);
-      setOpenDialog(false);
-      fetchData();
-    } catch {
-      toast.error("Có lỗi xảy ra");
-    }
-  };
-
   const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xoá?")) {
+    const result = await Swal.fire({
+      title: "Bạn có chắc chắn muốn xoá học sinh này?",
+      text: "Thao tác này sẽ không thể hoàn tác!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xoá",
+      cancelButtonText: "Huỷ"
+    });
+    if (result.isConfirmed) {
       try {
         await deleteStudent(id);
-        toast.success("Xoá học sinh thành công");
+        toast.success("Đã xoá học sinh thành công.");
         fetchData();
       } catch {
-        toast.error("Lỗi khi xoá học sinh");
+        toast.error("Xoá học sinh thất bại. Vui lòng thử lại.");
       }
     }
   };
@@ -144,14 +112,7 @@ export default function StudentManagement() {
       renderCell: (params: any) => (
         <>
           <Tooltip title="Sửa">
-            <IconButton
-              color="primary"
-              onClick={() => {
-                setEditingStudent(params.row);
-                setForm(params.row);
-                setOpenDialog(true);
-              }}
-            >
+            <IconButton color="primary" onClick={() => navigate(`/principal-home/students-edit/${params.row._id}`)}>
               <Edit />
             </IconButton>
           </Tooltip>
@@ -178,23 +139,7 @@ export default function StudentManagement() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Thêm học sinh mới">
-            <IconButton
-              onClick={() => {
-                setEditingStudent(null);
-                setForm({
-                  studentCode: "",
-                  fullName: "",
-                  dob: "",
-                  gender: "",
-                  address: "",
-                  age: 0,
-                  status: true,
-                  image: "",
-                  note: "",
-                });
-                setOpenDialog(true);
-              }}
-            >
+            <IconButton onClick={() => navigate("/principal-home/students-create")}>
               <Add />
             </IconButton>
           </Tooltip>
@@ -211,7 +156,7 @@ export default function StudentManagement() {
         />
       </Box>
 
-      <Paper sx={{ height: 550, p: 2 }}>
+      <Paper sx={{ height: 460, p: 2 }}>
         <DataGrid
           rows={filteredStudents.map((s) => ({ ...s, id: s._id }))}
           columns={columns}
@@ -220,86 +165,6 @@ export default function StudentManagement() {
           slots={{ footer: () => <CustomFooter count={filteredStudents.length} /> }}
         />
       </Paper>
-
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="sm">
-        <DialogTitle>{editingStudent ? "Cập nhật học sinh" : "Thêm học sinh mới"}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Mã học sinh"
-                value={form.studentCode}
-                onChange={(e) => setForm({ ...form, studentCode: e.target.value })}
-                fullWidth
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Họ tên"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                fullWidth
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={6}>
-              <TextField
-                label="Ngày sinh"
-                type="date"
-                value={form.dob}
-                onChange={(e) => setForm({ ...form, dob: e.target.value })}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={6}>
-              <TextField
-                label="Tuổi"
-                type="number"
-                value={form.age}
-                onChange={(e) => setForm({ ...form, age: parseInt(e.target.value) })}
-                fullWidth
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Giới tính"
-                select
-                fullWidth
-                value={form.gender}
-                onChange={(e) => setForm({ ...form, gender: e.target.value })}
-              >
-                <MenuItem value="male">Nam</MenuItem>
-                <MenuItem value="female">Nữ</MenuItem>
-                <MenuItem value="other">Khác</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Địa chỉ"
-                fullWidth
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-              />
-            </Grid>
-            <Grid {...({} as any)} item xs={12}>
-              <TextField
-                label="Ghi chú"
-                fullWidth
-                value={form.note}
-                onChange={(e) => setForm({ ...form, note: e.target.value })}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} color="error">
-            Hủy
-          </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
-            Lưu
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <ToastContainer position="top-right" autoClose={3000} />
     </Box>

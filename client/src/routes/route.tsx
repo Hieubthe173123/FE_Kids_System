@@ -14,7 +14,9 @@ import ClassMannager from "../pages/Principal/ClassMannager";
 import CurriculimList from "../pages/Principal/CurriculumList";
 import ParentManagement from "../pages/Principal/ParentManager";
 import StudentManagement from "../pages/Principal/StudentManagement";
+import AddParentModal from "../pages/Principal/AddParentModal";
 import MealTimeline from "../pages/Parent/MealTimeline";
+import StudentForm from "../pages/Principal/StudentForm";
 
 export const routesParent = [
     {
@@ -98,11 +100,27 @@ export const routesSchoolPrincipal = [
             },
             {
                 path: "curriculum-management",
-                component: CurriculimList,  
+                component: CurriculimList,
             },
             {
                 path: "parent-management",
                 component: ParentManagement,
+            },
+            {
+                path: "parent-create",
+                component: AddParentModal,
+            },
+            {
+                path: "parent-edit/:id",
+                component: AddParentModal,
+            },
+            {
+                path: "students-create",
+                component: StudentForm,
+            },
+            {
+                path: "students-edit/:id",
+                component: StudentForm,
             },
             {
                 path: "students-management",

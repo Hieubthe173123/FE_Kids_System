@@ -6,45 +6,27 @@ import {
   IconButton,
   Tooltip,
   Paper,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Grid, // ✅ layout Grid từ MUI
-  MenuItem,
+  Box as MuiBox,
 } from "@mui/material";
-
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import BlockIcon from "@mui/icons-material/Block";
 import {
-  DataGrid as MuiDataGrid, // ✅ Đổi tên để không bị trùng
+  DataGrid as MuiDataGrid,
   GridFooterContainer,
   GridPagination,
 } from "@mui/x-data-grid";
-
 import type { GridColDef } from "@mui/x-data-grid";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  Person,
-  Email,
-  Phone,
-  Badge,
-  Home,
-  Cake,
-  Wc,
-  AccountBox,
-} from "@mui/icons-material"
+import { useNavigate } from "react-router-dom";
 import {
   getAllParents,
-  createParent,
-  updateParent,
   deleteParent,
-  getAccountParentUnused,
-  getAllStudentNoParent,
 } from "../../services/ApiServices";
+import Swal from "sweetalert2";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -59,7 +41,7 @@ type Parent = {
   address: string;
   status: boolean;
   account?: string;
-  student?: [];
+  student?: any[];
 };
 
 function CustomFooter({ count }: { count: number }) {
@@ -76,29 +58,7 @@ function CustomFooter({ count }: { count: number }) {
 export default function ParentManagement() {
   const [parents, setParents] = useState<Parent[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [editingParent, setEditingParent] = useState<Parent | null>(null);
-  const [studentList, setStudentList] = useState<
-    { _id: string; fullName: string }[]
-  >([]);
-  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
-  const [form, setForm] = useState<Omit<Parent, "_id"> & { account?: string }>({
-    fullName: "",
-    dob: "",
-    phoneNumber: "",
-    email: "",
-    IDCard: "",
-    gender: "",
-    address: "",
-    status: true,
-    account: "",
-    student: []
-  });
-  console.log("form: ", form);
-
-  const [accountList, setAccountList] = useState<
-    { _id: string; username: string }[]
-  >([]);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
@@ -111,60 +71,27 @@ export default function ParentManagement() {
 
   useEffect(() => {
     fetchData();
-    getAccountParentUnused()
-      .then((res) => setAccountList(res.data))
-      .catch(() => toast.error("Lỗi khi tải tài khoản chưa sử dụng"));
-
-    getAllStudentNoParent()
-      .then((res) => setStudentList(res))
-      .catch(() => toast.error("Lỗi khi tải danh sách học sinh chưa có phụ huynh"));
   }, []);
 
-
-  const handleSave = async () => {
-    try {
-      const payload = {
-        ...form,
-        student: selectedStudents,
-      };
-
-      if (editingParent) {
-        await updateParent(editingParent._id, payload);
-        toast.success("Cập nhật thành công");
-      } else {
-        await createParent(payload);
-        toast.success("Thêm mới thành công");
+  const handleDelete = async (id: string) => {
+    const result = await Swal.fire({
+      title: "Bạn có chắc chắn muốn xoá phụ huynh này?",
+      text: "Thao tác này sẽ không thể hoàn tác!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xoá",
+      cancelButtonText: "Huỷ"
+    });
+    if (result.isConfirmed) {
+      try {
+        await deleteParent(id);
+        toast.success("Đã xoá phụ huynh thành công.");
+        fetchData();
+      } catch {
+        toast.error("Xoá phụ huynh thất bại. Vui lòng thử lại.");
       }
-
-      // ✅ Reset form state sau khi lưu
-      setForm({
-        fullName: "",
-        dob: "",
-        phoneNumber: "",
-        email: "",
-        IDCard: "",
-        gender: "",
-        address: "",
-        status: true,
-        account: "",
-        student: [],
-      });
-      setSelectedStudents([]);
-      setEditingParent(null);
-      setOpenDialog(false);
-
-      // ✅ Refresh data
-      fetchData();
-      getAccountParentUnused()
-        .then((res) => setAccountList(res.data))
-        .catch(() => toast.error("Lỗi khi tải lại tài khoản chưa dùng"));
-
-      getAllStudentNoParent()
-        .then((res) => setStudentList(res))
-        .catch(() => toast.error("Lỗi khi tải danh sách học sinh chưa có phụ huynh"));
-
-    } catch (err) {
-      toast.error("Có lỗi xảy ra");
     }
   };
 
@@ -184,17 +111,6 @@ export default function ParentManagement() {
     return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1)
       .toString()
       .padStart(2, "0")}/${date.getFullYear()}`;
-  };
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xoá?")) {
-      try {
-        await deleteParent(id);
-        toast.success("Đã xoá thành công");
-        fetchData();
-      } catch {
-        toast.error("Lỗi khi xoá");
-      }
-    }
   };
 
   const filteredParents = parents.filter(
@@ -230,6 +146,39 @@ export default function ParentManagement() {
     },
     { field: "address", headerName: "Địa chỉ", flex: 1.5 },
     {
+      field: "status",
+      headerName: "Trạng thái",
+      minWidth: 110,
+      flex: 0.7,
+      renderCell: (params) => (
+        params.value ? (
+          <MuiBox display="flex" alignItems="center" sx={{
+            color: '#16a34a',
+            fontWeight: 600,
+            fontSize: 13,
+            minWidth: 90,
+            justifyContent: 'center',
+            gap: 0.5
+          }}>
+            <CheckCircleIcon sx={{ fontSize: 18, color: '#16a34a', mr: 0.5 }} />
+            Hoạt động
+          </MuiBox>
+        ) : (
+          <MuiBox display="flex" alignItems="center" sx={{
+            color: '#64748b',
+            fontWeight: 600,
+            fontSize: 13,
+            minWidth: 110,
+            justifyContent: 'center',
+            gap: 0.5
+          }}>
+            <BlockIcon sx={{ fontSize: 18, color: '#64748b', mr: 0.5 }} />
+            Không hoạt động
+          </MuiBox>
+        )
+      ),
+    },
+    {
       field: "actions",
       headerName: "Hành động",
       sortable: false,
@@ -239,14 +188,7 @@ export default function ParentManagement() {
           <Tooltip title="Sửa">
             <IconButton
               color="primary"
-              onClick={() => {
-                setEditingParent(params.row);
-                setForm(params.row);
-                setSelectedStudents(
-                  params.row.student?.map((s: any) => s._id) || []
-                );
-                setOpenDialog(true);
-              }}
+              onClick={() => navigate(`/principal-home/parent-edit/${params.row._id}`)}
             >
               <EditIcon />
             </IconButton>
@@ -262,25 +204,10 @@ export default function ParentManagement() {
         </>
       ),
     },
-    {
-      field: "status",
-      headerName: "Trạng thái",
-      flex: 0.8,
-      renderCell: (params) => (
-        <Typography
-          sx={{
-            color: params.value ? "green" : "red",
-            fontWeight: "bold",
-          }}
-        >
-          {params.value ? "Active" : "Inactive"}
-        </Typography>
-      ),
-    },
   ];
 
   return (
-    <Box p={3} bgcolor="#fefefe">
+    <Box p={3} bgcolor="#fefefe" sx={{ width: '100%', boxSizing: 'border-box' }}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" fontWeight="bold" sx={{ color: "#46a2da" }}>
           Quản lý phụ huynh
@@ -291,25 +218,8 @@ export default function ParentManagement() {
               <RefreshIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Thêm phụ huynh mới" >
-            <IconButton
-              onClick={async () => {
-                setEditingParent(null);
-                setForm({
-                  fullName: "",
-                  dob: "",
-                  phoneNumber: "",
-                  email: "",
-                  IDCard: "",
-                  gender: "",
-                  address: "",
-                  status: true,
-                  account: "",
-                });
-                setOpenDialog(true);
-                setSelectedStudents([]); // ✅ thêm dòng này
-              }}
-            >
+          <Tooltip title="Thêm phụ huynh mới">
+            <IconButton onClick={() => navigate("/principal-home/parent-create")}>
               <AddIcon />
             </IconButton>
           </Tooltip>
@@ -328,241 +238,33 @@ export default function ParentManagement() {
         />
       </Box>
 
-      <Paper
-        sx={{
-          height: 550,
-          borderRadius: 2,
-          p: 2,
-          mt: 2,
-          border: "1px solid #ddd",
-          boxShadow: "0px 2px 6px rgba(0,0,0,0.1)",
-        }}
-      >
-        <MuiDataGrid
-          rows={filteredParents.map((p) => ({ ...p, id: p._id }))}
-          columns={columns}
-          pagination
-          pageSizeOptions={[10, 20, 50]}
-          slots={{ footer: () => <CustomFooter count={filteredParents.length} /> }}
-        />
-      </Paper>
-
-      ;
-
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{
-          sx: {
-            backgroundColor: "#f4fbff",
-            borderRadius: "20px",
-            border: "3px solid #4194cb",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-          },
-        }}
-      >
-        <DialogTitle
+      <Box sx={{ width: '100%', overflowX: 'auto', mt: 2 }}>
+        <Paper
           sx={{
-            textAlign: "center",
-            fontWeight: "bold",
-            fontSize: "24px",
-            color: "#3982b8",
-            fontFamily: "Comic Sans MS",
+            height: 460,
+            borderRadius: 2,
+            p: 2,
+            border: "1px solid #ddd",
+            boxShadow: "0px 2px 6px rgba(0,0,0,0.1)",
+            width: '100%',
+            minWidth: 0,
+            overflowX: 'auto',
+            transition: 'width 0.2s',
           }}
         >
-          {editingParent ? "Cập nhật thông tin phụ huynh" : "Thêm phụ huynh mới"}
-          <IconButton
-            edge="end"
-            color="inherit"
-            onClick={() => setOpenDialog(false)}
-            sx={{ position: "absolute", right: 8, top: 8 }}
-          >
-            ❌
-          </IconButton>
-        </DialogTitle>
-
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} {...({} as any)}>
-              <TextField
-                label="Họ tên"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                fullWidth
-                InputProps={{
-                  startAdornment: <Person sx={{ color: "#4194cb", mr: 1 }} />,
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} {...({} as any)}>
-              <TextField
-                label="Ngày sinh"
-                type="date"
-                value={form.dob}
-                onChange={(e) => setForm({ ...form, dob: e.target.value })}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                InputProps={{
-                  startAdornment: <Cake sx={{ color: "#4194cb", mr: 1 }} />,
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} {...({} as any)}>
-              <TextField
-                label="Số điện thoại"
-                value={form.phoneNumber}
-                onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-                fullWidth
-                InputProps={{
-                  startAdornment: <Phone sx={{ color: "#4194cb", mr: 1 }} />,
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} {...({} as any)}>
-              <TextField
-                label="Email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                fullWidth
-                InputProps={{
-                  startAdornment: <Email sx={{ color: "#4194cb", mr: 1 }} />,
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} {...({} as any)}>
-              <TextField
-                label="CMND/CCCD"
-                value={form.IDCard}
-                onChange={(e) => setForm({ ...form, IDCard: e.target.value })}
-                fullWidth
-                InputProps={{
-                  startAdornment: <Badge sx={{ color: "#4194cb", mr: 1 }} />,
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} {...({} as any)}>
-              <TextField
-                label="Giới tính"
-                select
-                value={form.gender}
-                onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                fullWidth
-                InputProps={{
-                  startAdornment: <Wc sx={{ color: "#4194cb", mr: 1 }} />,
-                }}
-              >
-                <MenuItem value="male">Nam 👦</MenuItem>
-                <MenuItem value="female">Nữ 👧</MenuItem>
-                <MenuItem value="other">Khác 🌈</MenuItem>
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} {...({} as any)}>
-              <TextField
-                label="Tài khoản"
-                select
-                value={form.account || "11111111"}
-                onChange={(e) => setForm({ ...form, account: e.target.value })}
-                fullWidth
-                InputProps={{
-                  startAdornment: <AccountBox sx={{ color: "#4194cb", mr: 1 }} />,
-                }}
-              >
-                {accountList.map((acc) => (
-                  <MenuItem key={acc._id} value={acc._id}>
-                    {acc.username}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} {...({} as any)}>
-              <TextField
-                label="Thêm học sinh"
-                select
-                fullWidth
-                SelectProps={{ multiple: true }}
-                value={selectedStudents}
-                onChange={(e) =>
-                  setSelectedStudents(
-                    typeof e.target.value === "string"
-                      ? e.target.value.split(",")
-                      : e.target.value
-                  )
-                }
-                InputProps={{
-                  startAdornment: <Person sx={{ color: "#4194cb", mr: 1 }} />,
-                }}
-              >
-                {studentList.map((student) => (
-                  <MenuItem key={student._id} value={student._id}>
-                    {student.fullName}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} {...({} as any)}>
-              <TextField
-                label="Địa chỉ"
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                fullWidth
-                multiline
-                rows={2}
-                InputProps={{
-                  startAdornment: <Home sx={{ color: "#4194cb", mr: 1 }} />,
-                }}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-
-        <DialogActions sx={{ justifyContent: "flex-end", pr: 3, pb: 2 }}>
-          <Button
-            onClick={() => setOpenDialog(false)}
-            sx={{
-              backgroundColor: "#e6687a",
-              color: "white",
-              borderRadius: "30px",
-              fontWeight: "bold",
-              px: 4,
-              py: 1,
-              "&:hover": {
-                backgroundColor: "rgb(230,104,122)",
-              },
+          <MuiDataGrid
+            rows={filteredParents.map((p) => ({ ...p, id: p._id }))}
+            columns={columns}
+            pagination
+            pageSizeOptions={[10, 20, 50]}
+            slots={{
+              footer: () => <CustomFooter count={filteredParents.length} />,
             }}
-          >
-            ❌ Hủy
-          </Button>
-          <Button
-            onClick={handleSave}
-            sx={{
-              backgroundColor: "#4194cb",
-              color: "white",
-              borderRadius: "30px",
-              fontWeight: "bold",
-              px: 4,
-              py: 1,
-              ml: 2,
-              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-              "&:hover": {
-                backgroundColor: "#3982b8",
-              },
-            }}
-          >
-            💾 Lưu
-          </Button>
-        </DialogActions>
-      </Dialog>
-
+            sx={{ width: '100%', minWidth: 0 }}
+            autoHeight={false}
+          />
+        </Paper>
+      </Box>
 
       <ToastContainer position="top-right" autoClose={3000} />
     </Box>

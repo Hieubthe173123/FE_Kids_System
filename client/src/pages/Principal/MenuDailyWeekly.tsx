@@ -19,12 +19,12 @@ import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 import isoWeek from "dayjs/plugin/isoWeek";
 dayjs.extend(isoWeek);
 import { useState, useEffect, type JSX } from "react";
 import { getWeeklyMenuByDate } from "../../services/ApiServices";
-import { useNavigate } from "react-router-dom"; // thêm ở đầu file
+import { useNavigate } from "react-router-dom";
 
 interface MealItem {
   dishName: string;
@@ -43,7 +43,8 @@ interface DailyMenu {
 }
 
 export default function WeeklyMenuPage() {
-  const [weekStart, setWeekStart] = useState(dayjs().startOf("week").add(1, "day"));
+  // const [weekStart, setWeekStart] = useState(dayjs().startOf("week").add(1, "day"));
+  const [weekStart, setWeekStart] = useState(dayjs().isoWeekday(1));
   const [menuData, setMenuData] = useState<DailyMenu[]>([]);
   const navigate = useNavigate(); // thêm trong component
   useEffect(() => {
@@ -133,7 +134,7 @@ export default function WeeklyMenuPage() {
               label="Chọn ngày trong tuần"
               value={weekStart}
               onChange={(newValue) => {
-                if (newValue) setWeekStart(newValue.startOf("week").add(1, "day"));
+                if (dayjs.isDayjs(newValue)) setWeekStart(newValue.startOf("week").add(1, "day"));
               }}
               format="DD/MM/YYYY"
             />
