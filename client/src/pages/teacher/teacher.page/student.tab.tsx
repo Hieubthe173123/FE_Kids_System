@@ -55,31 +55,31 @@ const StudentsTab = ({ students, setSelectedStudent, setOpenModal }: StudentsTab
   return (
     <Box mt={3}>
       <TextField
-        placeholder="Search"
+        placeholder="Tìm kiếm học sinh..."
         variant="outlined"
         fullWidth
-        sx={{ maxWidth: 400, mb: 2 }}
+        sx={{ maxWidth: 400, mb: 2, bgcolor: 'white', borderRadius: 2 }}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, bgcolor: '#f9fbfc', boxShadow: 2 }}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Ảnh</TableCell>
-              <TableCell>Họ tên</TableCell>
-              <TableCell>Mã học sinh</TableCell>
-              <TableCell>Tuổi</TableCell>
-              <TableCell>Giới tính</TableCell>
-              <TableCell>Địa chỉ</TableCell>
-              <TableCell>Lưu ý</TableCell>
-              <TableCell>Phụ huynh</TableCell>
-              <TableCell>Thông tin phụ huynh</TableCell>
+            <TableRow sx={{ bgcolor: '#4194cb' }}>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Ảnh</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Họ tên</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Mã học sinh</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Tuổi</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Giới tính</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Địa chỉ</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Lưu ý</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Phụ huynh</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Thông tin phụ huynh</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredStudents.map((student) => (
-              <TableRow key={student._id}>
+            {filteredStudents.map((student, idx) => (
+              <TableRow key={student._id} sx={{ backgroundColor: idx % 2 === 0 ? '#eaf6fd' : '#ffffff' }}>
                 <TableCell>
                   <Avatar src={student.image || ""} />
                 </TableCell>
@@ -92,6 +92,8 @@ const StudentsTab = ({ students, setSelectedStudent, setOpenModal }: StudentsTab
                 <TableCell>{student.parent?.fullName || "Không có"}</TableCell>
                 <TableCell>
                   <Button
+                    variant="outlined"
+                    sx={{ borderRadius: 2, color: '#4194cb', borderColor: '#4194cb', fontWeight: 600 }}
                     onClick={() => {
                       setSelectedStudent(student);
                       setOpenModal(true);

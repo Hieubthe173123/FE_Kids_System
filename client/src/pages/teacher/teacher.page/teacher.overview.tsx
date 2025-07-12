@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Tabs, Tab, Typography } from "@mui/material";
+import { Box, Tabs, Tab, Typography, Paper } from "@mui/material";
 import { getTeacherClasses, getStudentsInClass } from "../../../services/teacher.service";
 import ScheduleTab from "./schedule.tab";
 import StudentsTab from "./student.tab";
@@ -120,34 +120,40 @@ const TeacherOverviewPage = () => {
   const handleTabChange = (_: any, newValue: number) => setTab(newValue);
 
   return (
-    <Box p={3}>
+    <Box sx={{ p: 4, minHeight: '100vh', bgcolor: '#f5f7fb' }}>
       {selectedClass && (
-        <Typography variant="h6" gutterBottom>
-          Lớp dạy: {selectedClass.className} - Năm học: {selectedClass.schoolYear}
-        </Typography>
+        <Paper elevation={2} sx={{ borderRadius: 3, p: 3, mb: 3, bgcolor: '#f9fbfc' }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: '#4194cb' }}>
+            👨‍🏫 Lớp dạy: {selectedClass.className} - Năm học: {selectedClass.schoolYear}
+          </Typography>
+        </Paper>
       )}
-      <Tabs value={tab} onChange={handleTabChange}>
-        <Tab label="Lịch dạy" />
-        <Tab label="Học sinh dạy" />
-        <Tab label="Danh sách lớp" />
-      </Tabs>
-      {tab === 0 && (
-        <ScheduleTab
-          selectedYear={selectedYear}
-          selectedWeek={selectedWeek}
-          setSelectedYear={setSelectedYear}
-          setSelectedWeek={setSelectedWeek}
-          weekOptions={weekOptions}
-        />
-      )}
-      {tab === 1 && (
-        <StudentsTab
-          students={students}
-          setSelectedStudent={setSelectedStudent}
-          setOpenModal={setOpenModal}
-        />
-      )}
-      {tab === 2 && <ClassesTab classes={classes} />}
+      <Paper elevation={2} sx={{ borderRadius: 3, p: 2, mb: 3, bgcolor: '#f9fbfc' }}>
+        <Tabs value={tab} onChange={handleTabChange} textColor="primary" indicatorColor="primary">
+          <Tab label="Lịch dạy" sx={{ fontWeight: 700, color: tab === 0 ? '#4194cb' : '#0d47a1' }} />
+          <Tab label="Học sinh dạy" sx={{ fontWeight: 700, color: tab === 1 ? '#4194cb' : '#0d47a1' }} />
+          <Tab label="Danh sách lớp" sx={{ fontWeight: 700, color: tab === 2 ? '#4194cb' : '#0d47a1' }} />
+        </Tabs>
+      </Paper>
+      <Box>
+        {tab === 0 && (
+          <ScheduleTab
+            selectedYear={selectedYear}
+            selectedWeek={selectedWeek}
+            setSelectedYear={setSelectedYear}
+            setSelectedWeek={setSelectedWeek}
+            weekOptions={weekOptions}
+          />
+        )}
+        {tab === 1 && (
+          <StudentsTab
+            students={students}
+            setSelectedStudent={setSelectedStudent}
+            setOpenModal={setOpenModal}
+          />
+        )}
+        {tab === 2 && <ClassesTab classes={classes} />}
+      </Box>
       <ParentInfoDialog
         open={openModal}
         onClose={() => setOpenModal(false)}

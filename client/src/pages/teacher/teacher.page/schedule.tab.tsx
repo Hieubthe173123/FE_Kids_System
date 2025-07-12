@@ -59,7 +59,7 @@ const ScheduleTab = ({
   return (
     <Box mt={3}>
       <Stack direction="row" spacing={2} mb={2}>
-        <FormControl>
+        <FormControl sx={{ minWidth: 120, bgcolor: 'white', borderRadius: 2 }}>
           <Select
             value={selectedYear}
             onChange={(e) => {
@@ -68,6 +68,7 @@ const ScheduleTab = ({
               setSelectedWeek("1");
             }}
             displayEmpty
+            sx={{ bgcolor: 'white', borderRadius: 2 }}
           >
             <MenuItem value="" disabled>
               Chọn năm
@@ -79,11 +80,12 @@ const ScheduleTab = ({
             ))}
           </Select>
         </FormControl>
-        <FormControl>
+        <FormControl sx={{ minWidth: 180, bgcolor: 'white', borderRadius: 2 }}>
           <Select
             value={selectedWeek}
             onChange={(e) => setSelectedWeek(e.target.value)}
             displayEmpty
+            sx={{ bgcolor: 'white', borderRadius: 2 }}
           >
             <MenuItem value="" disabled>
               Chọn tuần
@@ -96,21 +98,21 @@ const ScheduleTab = ({
           </Select>
         </FormControl>
       </Stack>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, bgcolor: '#f9fbfc', boxShadow: 2 }}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Môn</TableCell>
-              <TableCell>Thứ</TableCell>
-              <TableCell>Ca</TableCell>
-              <TableCell>Phòng</TableCell>
-              <TableCell>Thời gian</TableCell>
-              <TableCell>Sĩ số</TableCell>
+            <TableRow sx={{ bgcolor: '#4194cb' }}>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Môn</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Thứ</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Ca</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Phòng</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Thời gian</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Sĩ số</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {schedules.map((item) => (
-              <TableRow key={item._id}>
+            {schedules.map((item, idx) => (
+              <TableRow key={item._id} sx={{ backgroundColor: idx % 2 === 0 ? '#eaf6fd' : '#ffffff' }}>
                 <TableCell>{item.subject}</TableCell>
                 <TableCell>{item.dayOfWeek}</TableCell>
                 <TableCell>{item.timeSlot}</TableCell>
