@@ -8,6 +8,7 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PeopleIcon from '@mui/icons-material/People';
 import DateRangeIcon from '@mui/icons-material/DateRange';
+import Groups3Icon from '@mui/icons-material/Groups3';
 import {
     AppProvider,
     type Session,
@@ -49,6 +50,11 @@ const NAVIGATION: Navigation = [
         segment: 'parent-management',
         title: 'Quản lý phụ huynh',
         icon: <PeopleIcon />,
+    },
+    {
+        segment: 'teacher-management',
+        title: 'Quản lý giáo viên',
+        icon: <Groups3Icon />,
     },
     {
         segment: 'curriculum-management',

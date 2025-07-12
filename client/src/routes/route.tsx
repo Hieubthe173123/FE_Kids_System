@@ -20,6 +20,7 @@ import AddParentModal from "../pages/Principal/AddParentModal";
 import MealTimeline from "../pages/Parent/MealTimeline";
 import StudentForm from "../pages/Principal/StudentForm";
 import SchoolYearList from "../pages/Principal/SchoolYearList";
+import TeacherManagement from "../pages/Principal/TeacherList";
 
 export const routesParent = [
     {
@@ -135,6 +136,10 @@ export const routesSchoolPrincipal = [
             {
                 path: "students-management",
                 component: StudentManagement,
+            },
+            {
+                path: "teacher-management",
+                component: TeacherManagement,
             }
 
         ],
