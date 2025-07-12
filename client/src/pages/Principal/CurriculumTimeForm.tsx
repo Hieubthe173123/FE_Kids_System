@@ -119,8 +119,9 @@ export default function CurriculumTimeForm({
             sx={{
               px: 4,
               py: 3,
-              maxHeight: "65vh",
+              height: "65vh",
               overflowY: "auto",
+              pr: 1,
               display: "flex",
               flexDirection: "column",
               gap: 2,
