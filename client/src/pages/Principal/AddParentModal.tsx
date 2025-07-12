@@ -9,12 +9,12 @@ import {
   Paper,
 } from "@mui/material";
 import {
-  getAllStudentNoParent,
+  // getAllStudentNoParent,
   getParentById,
   createParent,
   updateParent,
-  getAccountParentUnused,
-} from "../../services/ApiServices";
+  // getAccountParentUnused,
+} from "../../services/PrincipalApi";
 import { toast, ToastContainer } from "react-toastify";
 
 export default function ParentFormPage() {
@@ -30,15 +30,15 @@ export default function ParentFormPage() {
     gender: "",
     address: "",
     status: true,
-    account: "",
+    // account: [],
     student: [],
   });
-  type Student = {
-    _id: string;
-    fullName: string;
-  };
-  const [accountList, setAccountList] = useState([]);
-  const [studentList, setStudentList] = useState<Student[]>([]);
+  // type Student = {
+  //   _id: string;
+  //   fullName: string;
+  // };
+  // const [accountList, setAccountList] = useState([]);
+  // const [studentList, setStudentList] = useState<Student[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
   useEffect(() => {
@@ -49,17 +49,19 @@ export default function ParentFormPage() {
       });
     }
 
-    getAccountParentUnused()
-      .then((res) => setAccountList(res.data))
-      .catch(() => toast.error("Lỗi tải tài khoản"));
+    // getAccountParentUnused()
+    //   .then((res) => setAccountList(res.data))
+    //   .catch(() => toast.error("Lỗi tải tài khoản"));
 
-    getAllStudentNoParent()
-      .then((res) => setStudentList(res))
-      .catch(() => toast.error("Lỗi tải học sinh"));
+    // getAllStudentNoParent()
+    //   .then((res) => setStudentList(res))
+    //   .catch(() => toast.error("Lỗi tải học sinh"));
   }, [id]);
 
   const handleSave = async () => {
-    if (!form.fullName || !form.dob || !form.phoneNumber || !form.email || !form.IDCard || !form.gender || !form.address || !form.account) {
+    console.log("form", form);
+    
+    if (!form.fullName || !form.dob || !form.phoneNumber || !form.email || !form.IDCard || !form.gender || !form.address) {
       toast.warning("Vui lòng nhập đầy đủ thông tin bắt buộc");
       return;
     }
@@ -117,7 +119,7 @@ export default function ParentFormPage() {
               <MenuItem value="female">Nữ</MenuItem>
             </TextField>
             <TextField id="standard-address" label="Địa chỉ" variant="standard" fullWidth value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} sx={{ mt: 2 }} />
-            <TextField id="standard-account" label="Tài khoản" select variant="standard" fullWidth value={form.account} onChange={(e) => setForm({ ...form, account: e.target.value })} sx={{ mt: 2 }}>
+            {/* <TextField id="standard-account" label="Tài khoản" select variant="standard" fullWidth value={form.account} onChange={(e) => setForm({ ...form, account: e.target.value })} sx={{ mt: 2 }}>
               {accountList.map((acc: any) => (
                 <MenuItem key={acc._id} value={acc._id}>
                   {acc.username}
@@ -130,7 +132,7 @@ export default function ParentFormPage() {
                   {student.fullName}
                 </MenuItem>
               ))}
-            </TextField>
+            </TextField> */}
           </Box>
         </Box>
         <Box mt={3} display="flex" justifyContent="flex-end">
