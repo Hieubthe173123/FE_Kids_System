@@ -10,6 +10,8 @@ import {
     TableHead,
     TableRow,
     styled,
+    IconButton,
+    Tooltip,
     Grid,
     useTheme,
     useMediaQuery,
@@ -20,10 +22,19 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import Brightness6Icon from '@mui/icons-material/Brightness6';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import { getWeeklyMenuByDateNow } from "../../services/ApiServices";
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import { getWeeklyMenuByDateNow } from "../../services/ApiServices";
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(weekOfYear);
 
 type MealType = {
     sáng: string;
@@ -43,11 +54,13 @@ const mealTypes = [
 
 const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
 
-// Hàm này giờ không cần tham số, nó sẽ luôn lấy tuần hiện tại
-const getWeekDays = (weekStart: string) => {
-    if (!weekStart || isNaN(Date.parse(weekStart))) return [];
+const getWeekDays = (baseDate: Date) => {
     const weekDays = [];
-    const monday = new Date(weekStart);
+    const today = new Date(baseDate);
+    const currentDayOfWeek = today.getDay();
+    const diff = today.getDate() - currentDayOfWeek + (currentDayOfWeek === 0 ? -6 : 1);
+    const monday = new Date(today.setDate(diff));
+
     for (let i = 0; i < 7; i++) {
         const day = new Date(monday);
         day.setDate(monday.getDate() + i);
@@ -82,11 +95,11 @@ type StatCardProps = {
 
 const StatCard = ({ title, value, icon, color }: StatCardProps) => (
     <Paper elevation={2} sx={{ p: 2, display: 'flex', alignItems: 'center', borderRadius: 3, height: '100%' }}>
-        <Box sx={{ mr: 2, p: 1.5, borderRadius: '50%', backgroundColor: `${color}.main`, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ mr: 2, p: 1.5, borderRadius: '50%', backgroundColor: `${color}.main`, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {icon}
         </Box>
         <Box>
-            <Typography variant="h6" fontWeight="bold">{value}</Typography>
+            <Typography variant="h6" fontWeight="bold" sx={{ wordBreak: 'break-word' }}>{value}</Typography>
             <Typography variant="body2" color="text.secondary">{title}</Typography>
         </Box>
     </Paper>
@@ -95,19 +108,17 @@ const StatCard = ({ title, value, icon, color }: StatCardProps) => (
 export default function WeeklyMealSchedule() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [currentDate, setCurrentDate] = useState(new Date());
     const [menuData, setMenuData] = useState<MenuDataType>({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [weekDays, setWeekDays] = useState<{ name: string; date: string; fullDate: string }[]>([]);
-
-    const fetchMenu = useCallback(async () => {
+    const fetchMenu = useCallback(async (date: Date) => {
         setIsLoading(true);
         setError(null);
         try {
-            const res = await getWeeklyMenuByDateNow();
-            const { weekStart, dailyMenus } = res;
-            setWeekDays(getWeekDays(weekStart));
+            const dailyMenus = await getWeeklyMenuByDateNow(date);
+
             if (dailyMenus && Array.isArray(dailyMenus) && dailyMenus.length > 0) {
                 const mappedMenu: MenuDataType = {};
                 dailyMenus.forEach((day: {
@@ -138,16 +149,52 @@ export default function WeeklyMealSchedule() {
     }, []);
 
     useEffect(() => {
-        fetchMenu();
-    }, [fetchMenu]);
+        fetchMenu(currentDate);
+    }, [currentDate, fetchMenu]);
+
+    const handlePrevWeek = () => {
+        setCurrentDate(prev => {
+            const newDate = new Date(prev);
+            newDate.setDate(newDate.getDate() - 7);
+            return newDate;
+        });
+    };
+
+    const handleNextWeek = () => {
+        setCurrentDate(prev => {
+            const newDate = new Date(prev);
+            newDate.setDate(newDate.getDate() + 7);
+            return newDate;
+        });
+    };
+
+    const weekDays = getWeekDays(currentDate);
+    const isCurrentWeek = dayjs(currentDate).isSame(new Date(), 'week');
+
+    const weekDisplay = weekDays.length > 0
+        ? `${weekDays[0].date} — ${weekDays[6].date}`
+        : '';
 
     const totalDishes = Object.values(menuData).reduce((acc, day) => {
-        return acc + Object.values(day).filter(meal => meal !== '–').length;
+        return acc + Object.values(day).filter(meal => meal !== '–' && meal !== '').length;
     }, 0);
 
-    const today = new Date();
-    const todayKey = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}`;
-    const todaySpecial = menuData[todayKey]?.trưa || 'Chưa cập nhật';
+    let todaySpecial = '–';
+    const todayKey = `${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+    const todayMenu = menuData[todayKey];
+
+    if (todayMenu) {
+        const allTodayDishes = [
+            ...(todayMenu.sáng !== '–' ? todayMenu.sáng.split(', ') : []),
+            ...(todayMenu.trưa !== '–' ? todayMenu.trưa.split(', ') : []),
+            ...(todayMenu.chiều !== '–' ? todayMenu.chiều.split(', ') : [])
+        ].filter(dish => dish);
+
+        if (allTodayDishes.length > 0) {
+            const randomIndex = Math.floor(Math.random() * allTodayDishes.length);
+            todaySpecial = allTodayDishes[randomIndex];
+        }
+    }
 
     const headerCellStyle = {
         backgroundColor: '#4194cb',
@@ -156,19 +203,6 @@ export default function WeeklyMealSchedule() {
         textAlign: 'center' as const,
         borderRight: '1px solid rgba(255, 255, 255, 0.2)',
         '&:last-child': { borderRight: 'none' }
-    };
-
-    const MainContent = () => {
-        if (isLoading) {
-            return <Box display="flex" justifyContent="center" alignItems="center" sx={{ height: 300 }}><CircularProgress /></Box>;
-        }
-        if (error) {
-            return <Alert severity="error">{error}</Alert>;
-        }
-        if (Object.keys(menuData).length === 0 && !isLoading) {
-            return <Alert severity="info">Chưa có dữ liệu thực đơn cho tuần này.</Alert>;
-        }
-        return isMobile ? <MobileCardList /> : <DesktopTable />;
     };
 
     const DesktopTable = () => (
@@ -223,24 +257,72 @@ export default function WeeklyMealSchedule() {
         </Box>
     );
 
+    const MainContent = () => {
+        if (isLoading && Object.keys(menuData).length === 0) {
+            return <Box display="flex" justifyContent="center" alignItems="center" sx={{ height: 300 }}><CircularProgress /></Box>;
+        }
+        if (error) {
+            return <Alert severity="error">{error}</Alert>;
+        }
+        if (Object.keys(menuData).length === 0 && !isLoading) {
+            return <Alert severity="info">Không có dữ liệu thực đơn cho tuần này.</Alert>;
+        }
+
+        return (
+            <Box sx={{ position: 'relative' }}>
+                {isLoading && (
+                    <Box sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 10,
+                        borderRadius: '12px'
+                    }}>
+                        <CircularProgress />
+                    </Box>
+                )}
+                {isMobile ? <MobileCardList /> : <DesktopTable />}
+            </Box>
+        );
+    };
+
     return (
         <Box mt={4} p={{ xs: 2, sm: 3 }} bgcolor="#f5f7fb" height="100vh" sx={{ overflow: 'hidden' }}>
             <Grid container spacing={3} mb={4}>
-                <Grid item xs={12} sm={6} md={4} {...({} as any)}>
+                <Grid item xs={12} sm={6} md={3} {...({} as any)}>
+                    <StatCard title="Tuần đang xem" value={isLoading && !weekDisplay ? '...' : weekDisplay} icon={<DateRangeIcon />} color="success" />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3} {...({} as any)}>
                     <StatCard title="Món đặc biệt hôm nay" value={todaySpecial} icon={<StarBorderIcon />} color="warning" />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} {...({} as any)}>
-                    <StatCard title="Tổng số món trong tuần" value={isLoading ? '...' : `${totalDishes} món`} icon={<MenuBookIcon />} color="info" />
+                <Grid item xs={12} sm={6} md={3} {...({} as any)}>
+                    <StatCard title="Tổng số món trong tuần" value={isLoading && totalDishes === 0 ? '...' : `${totalDishes} món`} icon={<MenuBookIcon />} color="info" />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} {...({} as any)}>
+                <Grid item xs={12} sm={6} md={3} {...({} as any)}>
                     <StatCard title="Năng lượng trung bình" value="~750 Kcal" icon={<LocalFireDepartmentIcon />} color="error" />
                 </Grid>
             </Grid>
 
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h6" fontWeight="700" color="#333" display="flex" alignItems="center" gap={1}>
-                    <CalendarTodayIcon /> Thực đơn tuần này
+                    <CalendarTodayIcon /> Lịch thực đơn
                 </Typography>
+                <Box>
+                    <Tooltip title="Tuần trước"><IconButton onClick={handlePrevWeek} disabled={isLoading}><ChevronLeftIcon /></IconButton></Tooltip>
+                    <Tooltip title={isCurrentWeek ? "Bạn đang ở tuần hiện tại" : "Tuần sau"}>
+                        <span>
+                            <IconButton onClick={handleNextWeek} disabled={isLoading || isCurrentWeek}>
+                                <ChevronRightIcon />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+                </Box>
             </Box>
 
             <MainContent />

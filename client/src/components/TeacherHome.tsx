@@ -10,6 +10,7 @@ import {
 } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DemoProvider } from '@toolpad/core/internal';
+import { logout } from "../redux/auth/authAPI"
 
 import {
     Outlet,
@@ -81,7 +82,10 @@ export default function TeacherHome() {
 
     const authentication = {
         signIn: () => { },
-        signOut: () => { },
+        signOut: async () => {
+            await logout();
+            window.location.href = '/sign-in';
+        },
     };
 
     React.useEffect(() => {

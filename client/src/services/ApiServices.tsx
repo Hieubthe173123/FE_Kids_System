@@ -10,7 +10,7 @@ export const getWeeklyMenuByDate = async (weekStart: string) => {
     });
 
     const allMenus = response.data.data || [];
-    
+
     const matchedWeek = allMenus.find((menu: any) =>
       dayjs(menu.weekStart).isSame(weekStart, "day")
     );
@@ -22,33 +22,13 @@ export const getWeeklyMenuByDate = async (weekStart: string) => {
   }
 };
 
-export const getWeeklyMenuByDateNow = async () => {
-  try {
-    const weekStart = dayjs().startOf("week").add(1, "day").utc();
-
-    const response = await axiosInstance.get("/weeklyMenu");
-    const allMenus = response.data.data || [];
-
-    const matchedWeek = allMenus.find((menu: any) =>
-      dayjs(menu.weekStart).utc().isSame(weekStart, "day")
-    );
-
-    return matchedWeek?.dailyMenus || [];
-  } catch (error) {
-    console.error("Lỗi lấy thực đơn theo tuần:", error);
-    throw error;
-  }
-};
-
-// export const getWeeklyMenuByDateNow = async (date: Date) => {
+// export const getWeeklyMenuByDateNow = async () => {
 //   try {
-//     // Tính toán ngày đầu tuần (Thứ 2) dựa trên `date` được truyền vào
-//     const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
+//     const weekStart = dayjs().startOf("week").add(1, "day").utc();
 
 //     const response = await axiosInstance.get("/weeklyMenu");
 //     const allMenus = response.data.data || [];
 
-//     // Tìm kiếm tuần khớp với `weekStart` đã tính
 //     const matchedWeek = allMenus.find((menu: any) =>
 //       dayjs(menu.weekStart).utc().isSame(weekStart, "day")
 //     );
@@ -59,6 +39,26 @@ export const getWeeklyMenuByDateNow = async () => {
 //     throw error;
 //   }
 // };
+
+export const getWeeklyMenuByDateNow = async (date: Date) => {
+  try {
+    // Tính toán ngày đầu tuần (Thứ 2) dựa trên `date` được truyền vào
+    const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
+
+    const response = await axiosInstance.get("/weeklyMenu");
+    const allMenus = response.data.data || [];
+
+    // Tìm kiếm tuần khớp với `weekStart` đã tính
+    const matchedWeek = allMenus.find((menu: any) =>
+      dayjs(menu.weekStart).utc().isSame(weekStart, "day")
+    );
+
+    return matchedWeek?.dailyMenus || [];
+  } catch (error) {
+    console.error("Lỗi lấy thực đơn theo tuần:", error);
+    throw error;
+  }
+};
 
 
 
