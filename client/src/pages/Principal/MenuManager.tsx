@@ -34,16 +34,20 @@ import {
   updateWeeklyMenu,
 } from "../../services/ApiServices";
 import { toast } from "react-toastify";
+import { MenuItem, Select } from "@mui/material";
+
 
 export default function WeeklyMenuCRUD() {
   const [menus, setMenus] = useState<any[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [editData, setEditData] = useState<any>(null);
   const [weekStart, setWeekStart] = useState("");
+  const [ageCategory, setAgeCategory] = useState(""); // ✅ Thêm state độ tuổi
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [dailyMenus, setDailyMenus] = useState<any[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
+  const isPast = dayjs(dailyMenus[selectedDayIndex]?.date).isBefore(dayjs(), "day");
 
   const getStartOfWeek = (dateStr: string) => {
     return dayjs(dateStr).isoWeekday(1).format("YYYY-MM-DD");
@@ -83,23 +87,22 @@ export default function WeeklyMenuCRUD() {
 
   const handleSave = async () => {
     try {
-      // if (dayjs(weekStart).isBefore(dayjs(), "day") && !editData) {
-      //   setErrorMsg("Không thể tạo thực đơn cho tuần đã trôi qua.");
-      //   return;
-      // }
+      if (!ageCategory) {
+        setErrorMsg("⛔ Vui lòng chọn độ tuổi.");
+        return;
+      }
 
-      // const startOfThisWeek = dayjs().startOf('week').add(1, 'day'); // nếu tuần bắt đầu từ Thứ 2
-      // if (dayjs(weekStart).isBefore(startOfThisWeek) && !editData) {
       const startOfSelectedWeek = dayjs(weekStart).startOf('week');
       const startOfCurrentWeek = dayjs().startOf('week');
 
-      // Nếu tuần được chọn < tuần hiện tại → chặn
       if (startOfSelectedWeek.isBefore(startOfCurrentWeek, 'week')) {
         setErrorMsg("Không thể tạo hoặc sửa thực đơn cho tuần đã trôi qua.");
         return;
       }
+
       const payload = {
         weekStart,
+        ageCategory: Number(ageCategory),
         dailyMenus: dailyMenus.map((d) => ({
           date: d.date,
           breakfast: parseDishes(d.breakfast),
@@ -111,8 +114,10 @@ export default function WeeklyMenuCRUD() {
       if (editData) {
         await updateWeeklyMenu(editData._id, payload);
       } else {
+        // ✅ Kiểm tra trùng tuần & độ tuổi
         const existing = menus.find((m) =>
-          dayjs(m.weekStart).isSame(weekStart, "day")
+          dayjs(m.weekStart).isSame(weekStart, "day") &&
+          String(m.ageCategory) === String(ageCategory)
         );
         if (existing) {
           await updateWeeklyMenu(existing._id, payload);
@@ -120,6 +125,7 @@ export default function WeeklyMenuCRUD() {
           await createWeeklyMenu(payload);
         }
       }
+
       setOpenDialog(false);
       setEditData(null);
       setErrorMsg("");
@@ -150,9 +156,9 @@ export default function WeeklyMenuCRUD() {
             setOpenDialog(true);
             setEditData(null);
             setErrorMsg("");
-            // const defaultStart = dayjs().startOf("week").add(1, "day").format("YYYY-MM-DD");
-            const defaultStart = dayjs().startOf("isoWeek").format("YYYY-MM-DD"); // luôn là thứ Hai
+            const defaultStart = dayjs().startOf("isoWeek").format("YYYY-MM-DD");
             setWeekStart(defaultStart);
+            setAgeCategory(""); // ✅ Reset độ tuổi
             setDailyMenus(
               Array.from({ length: 7 }, (_, i) => {
                 const date = dayjs(defaultStart).add(i, "day").format("YYYY-MM-DD");
@@ -178,53 +184,64 @@ export default function WeeklyMenuCRUD() {
           <TableHead sx={{ backgroundColor: "#d5f0ff" }}>
             <TableRow>
               <TableCell><strong>STT</strong></TableCell>
+              <TableCell><strong>Tuần thứ</strong></TableCell>
               <TableCell><strong>Ngày bắt đầu tuần</strong></TableCell>
+              <TableCell><strong>Ngày kết thúc tuần</strong></TableCell>
+              <TableCell><strong>Độ tuổi</strong></TableCell>
               <TableCell><strong>Hành động</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {menus.map((menu, index) => (
-              <TableRow key={menu._id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{dayjs(menu.weekStart).format("DD/MM/YYYY")}</TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={() => {
-                      const selectedWeek = dayjs(menu.weekStart).startOf('week'); // tuần bắt đầu
-                      const currentWeekStart = dayjs().startOf('week'); // đầu tuần hiện tại
+            {menus.map((menu, index) => {
+              const start = dayjs(menu.weekStart);
+              const end = start.add(6, "day");
+              const weekNumber = start.isoWeek(); // tuần ISO
+              return (
+                <TableRow key={menu._id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>Tuần {weekNumber}</TableCell>
+                  <TableCell>{start.format("DD/MM/YYYY")}</TableCell>
+                  <TableCell>{end.format("DD/MM/YYYY")}</TableCell>
+                  <TableCell>{menu.ageCategory || "-"}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      onClick={() => {
+                        const selectedWeek = start.startOf('week');
+                        const currentWeekStart = dayjs().startOf('week');
 
-                      if (selectedWeek.isBefore(currentWeekStart)) {
-                        toast.error("⛔ Không thể chỉnh sửa thực đơn của tuần đã trôi qua.");
-                        return;
-                      }
-
-                      setEditData(menu);
-                      const newStart = dayjs(menu.weekStart).format("YYYY-MM-DD");
-                      setWeekStart(newStart);
-                      setDailyMenus(
-                        menu.dailyMenus.map((d: any) => ({
-                          date: dayjs(d.date).format("YYYY-MM-DD"),
-                          breakfast: d.breakfast.map((m: any) => m.dishName).join(", "),
-                          lunch: d.lunch.map((m: any) => m.dishName).join(", "),
-                          dinner: d.dinner.map((m: any) => m.dishName).join(", "),
-                        }))
-                      );
-                      setOpenDialog(true);
-                    }}
-                  >
-                    <EditIcon color="primary" />
-                  </IconButton>
-                  <IconButton onClick={() => handleDelete(menu._id)}>
-                    <DeleteIcon color="error" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+                        if (selectedWeek.isBefore(currentWeekStart)) {
+                          toast.error("⛔ Không thể chỉnh sửa thực đơn của tuần đã trôi qua.");
+                          return;
+                        }
+                        setErrorMsg("");
+                        setEditData(menu);
+                        setWeekStart(start.format("YYYY-MM-DD"));
+                        setAgeCategory(menu.ageCategory || "");
+                        setDailyMenus(
+                          menu.dailyMenus.map((d: any) => ({
+                            date: dayjs(d.date).format("YYYY-MM-DD"),
+                            breakfast: d.breakfast.map((m: any) => m.dishName).join(", "),
+                            lunch: d.lunch.map((m: any) => m.dishName).join(", "),
+                            dinner: d.dinner.map((m: any) => m.dishName).join(", "),
+                          }))
+                        );
+                        setOpenDialog(true);
+                      }}
+                    >
+                      <EditIcon color="primary" />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(menu._id)}>
+                      <DeleteIcon color="error" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* --- Custom Styled Dialog --- */}
+      {/* --- Dialog --- */}
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
@@ -254,23 +271,53 @@ export default function WeeklyMenuCRUD() {
             </Alert>
           )}
 
+          <Select
+            value={ageCategory}
+            onChange={(e) => {
+              const newAge = e.target.value;
+              setAgeCategory(newAge);
+
+              // ✅ Nếu đã chọn ngày, kiểm tra trùng tuần + độ tuổi
+              if (weekStart) {
+                const exists = menus.find((m) =>
+                  dayjs(m.weekStart).isoWeek() === dayjs(weekStart).isoWeek() &&
+                  dayjs(m.weekStart).year() === dayjs(weekStart).year() &&
+                  Number(m.ageCategory) === Number(newAge)
+                );
+                if (exists && !editData) {
+                  setErrorMsg("⛔ Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
+                } else {
+                  setErrorMsg("");
+                }
+              }
+            }}
+            fullWidth
+            displayEmpty
+            sx={{ mb: 2, backgroundColor: "white", borderRadius: 1 }}
+            renderValue={(selected) => selected ? `🎯 Độ tuổi: ${selected}` : "🎯 Chọn độ tuổi"}
+          >
+            {[1, 2, 3, 4, 5].map((age) => (
+              <MenuItem key={age} value={age.toString()}>
+                {age} tuổi
+              </MenuItem>
+            ))}
+          </Select>
+
           <TextField
             type="date"
             label="📅 Ngày bắt đầu tuần"
-            value={dayjs(weekStart).format("YYYY-MM-DD")}
+            value={weekStart}
             onChange={(e) => {
-              const newStart = getStartOfWeek(e.target.value); // ⬅️ Luôn về thứ Hai
-
+              const newStart = getStartOfWeek(e.target.value);
               const exists = menus.find((m) =>
                 dayjs(m.weekStart).isoWeek() === dayjs(newStart).isoWeek() &&
-                dayjs(m.weekStart).year() === dayjs(newStart).year()
+                dayjs(m.weekStart).year() === dayjs(newStart).year() &&
+                Number(m.ageCategory) == Number(ageCategory)
               );
-
               if (exists && !editData) {
-                setErrorMsg("⛔ Tuần này đã có thực đơn. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
+                setErrorMsg("⛔ Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
                 return;
               }
-
               setErrorMsg("");
               setWeekStart(newStart);
               setSelectedDayIndex(0);
@@ -318,8 +365,10 @@ export default function WeeklyMenuCRUD() {
                 }
                 fullWidth
                 multiline
+                disabled={isPast}
                 sx={{ mb: 2, backgroundColor: "#fff", borderRadius: 1 }}
               />
+
               <TextField
                 label="🍽️ Món trưa"
                 value={dailyMenus[selectedDayIndex].lunch}
@@ -328,8 +377,10 @@ export default function WeeklyMenuCRUD() {
                 }
                 fullWidth
                 multiline
+                disabled={isPast}
                 sx={{ mb: 2, backgroundColor: "#fff", borderRadius: 1 }}
               />
+
               <TextField
                 label="💤 Món chiều"
                 value={dailyMenus[selectedDayIndex].dinner}
@@ -338,6 +389,7 @@ export default function WeeklyMenuCRUD() {
                 }
                 fullWidth
                 multiline
+                disabled={isPast}
                 sx={{ backgroundColor: "#fff", borderRadius: 1 }}
               />
             </Box>

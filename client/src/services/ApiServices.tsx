@@ -3,7 +3,7 @@ import axiosInstance from "../helper/axiosInstance";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 
-export const getWeeklyMenuByDate = async (weekStart: string) => {
+export const getWeeklyMenuByDate = async (weekStart: string, age: Number) => {
   try {
     const response = await axiosInstance.get("/weeklyMenu", {
       params: { weekStart },
@@ -12,7 +12,7 @@ export const getWeeklyMenuByDate = async (weekStart: string) => {
     const allMenus = response.data.data || [];
 
     const matchedWeek = allMenus.find((menu: any) =>
-      dayjs(menu.weekStart).isSame(weekStart, "day")
+      dayjs(menu.weekStart).isSame(weekStart, "day") && menu.ageCategory == age
     );
 
     return matchedWeek?.dailyMenus || [];
@@ -123,6 +123,7 @@ export const getAllParents = async () => {
 };
 
 export const createParent = async (parentData: any) => {
+      console.log("🚀 ~ createParent ~ parentData:", parentData)
   try {
     const response = await axiosInstance.post("/parent", parentData);
     return response.data;

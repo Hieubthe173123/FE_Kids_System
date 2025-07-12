@@ -25,6 +25,7 @@ dayjs.extend(isoWeek);
 import { useState, useEffect, type JSX } from "react";
 import { getWeeklyMenuByDate } from "../../services/ApiServices";
 import { useNavigate } from "react-router-dom";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 interface MealItem {
   dishName: string;
@@ -46,11 +47,13 @@ export default function WeeklyMenuPage() {
   // const [weekStart, setWeekStart] = useState(dayjs().startOf("week").add(1, "day"));
   const [weekStart, setWeekStart] = useState(dayjs().isoWeekday(1));
   const [menuData, setMenuData] = useState<DailyMenu[]>([]);
+  const [ageCategory, setAgeCategory] = useState<number>(1); // mặc định tuổi 1
   const navigate = useNavigate(); // thêm trong component
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const menus = await getWeeklyMenuByDate(weekStart.format("YYYY-MM-DD"));
+        const menus = await getWeeklyMenuByDate(weekStart.format("YYYY-MM-DD"), ageCategory);
         setMenuData(menus);
       } catch (error) {
         console.error("Lỗi tải thực đơn:", error);
@@ -59,7 +62,7 @@ export default function WeeklyMenuPage() {
     };
 
     fetchData();
-  }, [weekStart]);
+  }, [weekStart, ageCategory]); // ✅ thêm ageCategory ở đây
 
   const getMeal = (date: string, meal: keyof DailyMenu): JSX.Element => {
     const day = menuData.find((d) => dayjs(d.date).isSame(date, "day"));
@@ -140,6 +143,22 @@ export default function WeeklyMenuPage() {
             />
           </LocalizationProvider>
         </Box>
+        <FormControl sx={{ minWidth: 120 }}>
+          <InputLabel id="age-label">Độ tuổi</InputLabel>
+          <Select
+            labelId="age-label"
+            id="age-select"
+            value={ageCategory}
+            label="Độ tuổi"
+            onChange={(e) => setAgeCategory(Number(e.target.value))}
+          >
+            {[1, 2, 3, 4, 5].map((age) => (
+              <MenuItem key={age} value={age}>
+                Tuổi {age}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <Button
           variant="contained"
           sx={{ backgroundColor: "#4194cb", color: "#fff", whiteSpace: "nowrap" }}
