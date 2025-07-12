@@ -19,6 +19,11 @@ import StudentManagement from "../pages/Principal/StudentManagement";
 import AddParentModal from "../pages/Principal/AddParentModal";
 import MealTimeline from "../pages/Parent/MealTimeline";
 import StudentForm from "../pages/Principal/StudentForm";
+import TeacherTimetable from "../pages/teacher/teacher.timetable/teacher.timetable";
+import TeacherClass from "../pages/teacher/teacher.class/teacher.class";
+import TeacherStudent from "../pages/teacher/teacher.class/teacher.student";
+import TeacherFeedback from "../pages/teacher/teacher.feedback/teacher.feedback";
+import TeacherDashboard from "../pages/teacher/teacher.dashboard/teacher.dashboard";
 
 export const routesParent = [
     {
@@ -69,8 +74,12 @@ export const routesTeacher = [
         path: '/teacher-home',
         component: TeacherHome,
         children: [
-            { index: true, component: () => <Navigate to="teacher-home" replace /> },
-            { path: 'Home', component: TeacherHome },
+            { index: true, component: () => <Navigate to="home" replace /> },
+            { path: 'home', component: TeacherDashboard },
+            { path: 'time-table', component: TeacherTimetable },
+            { path: 'class-management', component: TeacherClass },
+            { path: 'feedback', component: TeacherFeedback },
+            { path: 'class-management/:id', component: TeacherStudent },
         ],
     },
 ];

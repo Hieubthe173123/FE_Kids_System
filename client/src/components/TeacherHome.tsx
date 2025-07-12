@@ -17,13 +17,30 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
+import { Feedback, Home } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
     {
+        segment: 'home',
+        title: 'Trang chủ',
+        icon: <Home />,
+    },
+    {
         segment: 'time-table',
-        title: 'Lịch học của bé',
+        title: 'Lịch học',
         icon: <CalendarMonthIcon />,
-    }
+    },
+    {
+        segment: 'class-management',
+        title: 'Quản lý lớp',
+        icon: <SchoolIcon />,
+    },
+    {
+        segment: 'feedback',
+        title: 'Phản hồi',
+        icon: <Feedback />,
+    },
+  
 ];
 
 const demoTheme = createTheme({
