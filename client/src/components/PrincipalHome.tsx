@@ -7,7 +7,8 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PeopleIcon from '@mui/icons-material/People';
-
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import {
     AppProvider,
     type Session,
@@ -34,6 +35,11 @@ const NAVIGATION: Navigation = [
         segment: 'class-management',
         title: 'Quản lý lớp học',
         icon: <ClassIcon />,
+    },
+         {
+        segment: 'schoolYear-management',
+        title: 'Quản lý năm học',
+        icon: <DateRangeIcon />,
     },
     {
         segment: 'students-management',
