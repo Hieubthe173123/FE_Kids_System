@@ -142,3 +142,10 @@ export interface AccountListItem {
     updatedAt?: Date;
 }
 
+export interface StatItem {
+    _id: string;
+    totalStudents: number;
+    totalClasses: number;
+    totalTeachers: number;
+}
+

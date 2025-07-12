@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -29,6 +29,7 @@ const PRIMARY_COLOR = "#4194cb";
 export default function ProcessEnroll() {
   const [stats, setStats] = useState<StatItem[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>("");
+  console.log("🚀 ~ ProcessEnroll ~ selectedYear:", selectedYear)
   const [schoolYear, setSchoolYear] = useState<string>("");
   const [openConfirm, setOpenConfirm] = useState(false);
 
