@@ -99,7 +99,7 @@ export default function ClassMannager() {
             return;
         }
 
-        const endYear = parseInt(selectedSchoolYear.split(' - ')[1], 10);
+        const endYear = parseInt(selectedSchoolYear.split(' - ')[0], 10);
         const currentYear = new Date().getFullYear();
 
         if (endYear < currentYear) {
