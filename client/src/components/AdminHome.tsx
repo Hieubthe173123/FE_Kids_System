@@ -1,9 +1,6 @@
 import * as React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import FastfoodIcon from '@mui/icons-material/Fastfood';
-import FeedbackIcon from '@mui/icons-material/Feedback';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SchoolIcon from '@mui/icons-material/School';
 import {
     AppProvider,
@@ -19,23 +16,20 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
+import { AdminPanelSettings, BarChart } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
     {
-        segment: 'time-table',
-        title: 'Lịch học của bé',
-        icon: <CalendarMonthIcon />,
+        segment: 'account-management',
+        title: 'Quản lý tài khoản',
+        icon: <AdminPanelSettings />,
     },
     {
-        segment: 'feedback',
-        title: 'Đánh giá học sinh',
-        icon: <FeedbackIcon />,
+        segment: 'statistics',
+        title: 'Thống kê',
+        icon: <BarChart />,
     },
-    {
-        segment: 'menu',
-        title: 'Thực đơn hàng ngày',
-        icon: <FastfoodIcon />,
-    },
+    
 ];
 
 const demoTheme = createTheme({

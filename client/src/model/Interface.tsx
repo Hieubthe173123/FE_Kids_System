@@ -103,26 +103,42 @@ export interface SchoolInformation {
 }
 
 export interface EnrollItem {
-  id: number;
-  enrollCode: string;
-  studentName: string;
-  studentAge: number;
-  studentDob: string | Date;
-  studentGender: "male" | "female" | "other";
-  parentName: string;
-  parentGender: "male" | "female" | "other";
-  IDCard: string;
-  parentDob: string | Date;
-  address: string;
-  email: string;
-  relationship: string;
-  note: string;
-  state: string;
+    id: number;
+    enrollCode: string;
+    studentName: string;
+    studentAge: number;
+    studentDob: string | Date;
+    studentGender: "male" | "female" | "other";
+    parentName: string;
+    parentGender: "male" | "female" | "other";
+    IDCard: string;
+    parentDob: string | Date;
+    address: string;
+    email: string;
+    relationship: string;
+    note: string;
+    state: string;
 }
 
-export interface StatItem {
-  _id: string; 
-  totalStudents: number;
-  totalClasses: number;
-  totalTeachers: number;
+export interface AccountListItem {
+    _id: string;
+    fullName: string;
+    dob: Date;
+    phoneNumber: number;
+    email: string;
+    IDCard: string | number;
+    gender: boolean;
+    role: 'parent' | 'teacher';
+    account: Partial<Account> | null;
+    address: string;
+    status: boolean;
+    image?: string; // Có thể là 'images' trong Teacher hoặc 'image' từ DB
+
+    // Chỉ có khi role === 'parent'
+    student?: Student[];
+
+    // Optional để dùng chung cho parent / teacher
+    createdAt?: Date;
+    updatedAt?: Date;
 }
+

@@ -10,6 +10,8 @@ import MenuManager from "../pages/Principal/MenuManager";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
 import ProcessEnroll from "../pages/Principal/ProcessEnroll"
 import TestAuth from "../components/Auth/TestAuth";
+import AdminHomePage from "../pages/admin/admin.home/AdminHome";
+import AccountDetail from "../pages/admin/admin.home/AccountDetail";
 import ClassMannager from "../pages/Principal/ClassMannager";
 import CurriculimList from "../pages/Principal/CurriculumList";
 import ParentManagement from "../pages/Principal/ParentManager";
@@ -54,8 +56,11 @@ export const routesAdmin = [
         path: '/admin-home',
         component: AdminHome,
         children: [
-            { index: true, component: () => <Navigate to="admin-home" replace /> },
-            { path: 'dashboard', component: AdminHome },
+            { index: true, component: () => <Navigate to="statistics" replace /> },
+            { path: '', component: AdminHomePage },
+            { path: 'account-management', component: AdminHomePage },
+            { path: 'account-management/:id', component: AccountDetail },
+
         ],
     },
 ];

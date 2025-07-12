@@ -114,7 +114,7 @@ export default function CurriculumForm({
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ px: 4, py: 2.5, bgcolor: "#f5f5f5" }}>
+      <DialogActions sx={{ px: 4, py: 2.5, bgcolor: "#eaeef1" }}>
         <Button onClick={onClose} variant="outlined">Huỷ</Button>
         <Button onClick={onSubmit} variant="contained" sx={{ backgroundColor: PRIMARY_COLOR }}>
           {editing ? "Cập nhật" : "Tạo mới"}
