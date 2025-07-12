@@ -2,6 +2,53 @@ import axiosInstance from "../helper/axiosInstance";
 import dayjs from "dayjs";
 
 
+export const getAllTeachers = async () => {
+     try{
+        const response = await axiosInstance.get("/teacher");
+        return response.data;
+    }catch(error){
+        console.log("Failed to fetch all teachers:", error);
+        throw error;
+    }
+}
+
+export const deleteTeacher = async (id: any) => {
+  try {
+    const response = await axiosInstance.put(`/teacher/delete-teacher/${id}`);
+    return response.data;
+  } catch (error: any) {
+    const errorList = error.response?.data;
+    return {
+      data: null,
+      error: {
+        errorList: errorList,
+      },
+    };
+  }
+};
+
+export const createTeacher = async (teacher: any) => {
+     try{
+        const response = await axiosInstance.post("/teacher", teacher);
+        return response.data;
+    }catch(error){
+        console.log("Failed to createTeacher", error);
+        throw error;
+    }
+}
+
+export const updateTeacher = async (teacher: any, id: any) => {
+     try{
+        const response = await axiosInstance.put(`/teacher/update-teacher/${id}`, teacher);
+        return response.data;
+    }catch(error){
+        console.log("Failed to updateTeacher:", error);
+        throw error;
+    }
+}
+
+
+
 export const getStatisticSchoolYear = async () => {
     try{
         const response = await axiosInstance.get("/class/schoolyear/statistic");
