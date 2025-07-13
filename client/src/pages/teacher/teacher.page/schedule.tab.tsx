@@ -13,21 +13,47 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { getTimeTable } from "../../../services/teacher.service";
+import { getScheduleByClassId } from "../../../services/teacher.service";
 
-interface Schedule {
+interface Curriculum {
   _id: string;
-  class: { className: string };
-  room: { roomName: string };
-  dayOfWeek: string;
-  timeSlot: string;
-  startTime: string;
-  endTime: string;
-  subject: string;
-  studentCount: number;
+  activityName: string;
+  activityFixed: boolean;
+  age: string;
+}
+
+interface Activity {
+  time: string;
+  fixed: boolean;
+  curriculum: Curriculum;
+}
+
+interface DaySchedule {
+  [key: string]: Activity[];
+}
+
+interface Room {
+  _id: string;
+  roomName: string;
+}
+
+interface ClassData {
+  _id: string;
+  className: string;
+  classAge: string;
+  schoolYear: string;
+  room: Room;
+}
+
+interface ScheduleData {
+  _id: string;
+  class: ClassData;
+  schedule: DaySchedule;
+  schoolYear: string;
 }
 
 interface ScheduleTabProps {
+  classId: string;
   selectedYear: string;
   selectedWeek: string;
   setSelectedYear: (year: string) => void;
@@ -35,31 +61,52 @@ interface ScheduleTabProps {
   weekOptions: { value: string; label: string }[];
 }
 
+const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const weekdayLabels: Record<string, string> = {
+  Monday: "Thứ 2",
+  Tuesday: "Thứ 3",
+  Wednesday: "Thứ 4",
+  Thursday: "Thứ 5",
+  Friday: "Thứ 6",
+};
+
 const ScheduleTab = ({
+  classId,
   selectedYear,
   selectedWeek,
   setSelectedYear,
   setSelectedWeek,
   weekOptions,
 }: ScheduleTabProps) => {
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [scheduleData, setScheduleData] = useState<ScheduleData | null>(null);
+  const [uniqueTimes, setUniqueTimes] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
-        const res = await getTimeTable({ year: selectedYear, week: selectedWeek });
-        setSchedules(res.data.schedules);
+        const res = await getScheduleByClassId(classId);
+        setScheduleData(res);
+
+        // Lấy ra các ca giờ duy nhất từ tất cả các ngày
+        const timeSet = new Set<string>();
+        weekdays.forEach((day) => {
+          res.schedule[day]?.forEach((activity: Activity) => {
+            timeSet.add(activity.time);
+          });
+        });
+
+        setUniqueTimes(Array.from(timeSet).sort());
       } catch (err) {
         console.error("Lỗi khi lấy lịch dạy", err);
       }
     };
-    if (selectedYear && selectedWeek) fetchSchedule();
-  }, [selectedYear, selectedWeek]);
+    if (classId) fetchSchedule();
+  }, [classId]);
 
   return (
-    <Box mt={3}>
+    <Box mt={3} paddingBottom={10} >
       <Stack direction="row" spacing={2} mb={2}>
-        <FormControl sx={{ minWidth: 120, bgcolor: 'white', borderRadius: 2 }}>
+        <FormControl sx={{ minWidth: 120, bgcolor: "white", borderRadius: 2 }}>
           <Select
             value={selectedYear}
             onChange={(e) => {
@@ -68,24 +115,22 @@ const ScheduleTab = ({
               setSelectedWeek("1");
             }}
             displayEmpty
-            sx={{ bgcolor: 'white', borderRadius: 2 }}
           >
             <MenuItem value="" disabled>
               Chọn năm
             </MenuItem>
-            {[2024, 2025, 2026].map((y) => (
-              <MenuItem key={y} value={y.toString()}>
+            {["2024", "2025", "2026"].map((y) => (
+              <MenuItem key={y} value={y}>
                 {y}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-        <FormControl sx={{ minWidth: 180, bgcolor: 'white', borderRadius: 2 }}>
+        <FormControl sx={{ minWidth: 180, bgcolor: "white", borderRadius: 2 }}>
           <Select
             value={selectedWeek}
             onChange={(e) => setSelectedWeek(e.target.value)}
             displayEmpty
-            sx={{ bgcolor: 'white', borderRadius: 2 }}
           >
             <MenuItem value="" disabled>
               Chọn tuần
@@ -98,27 +143,33 @@ const ScheduleTab = ({
           </Select>
         </FormControl>
       </Stack>
-      <TableContainer component={Paper} sx={{ borderRadius: 3, bgcolor: '#f9fbfc', boxShadow: 2 }}>
+
+      <TableContainer component={Paper} sx={{ borderRadius: 3, bgcolor: "#f9fbfc", boxShadow: 2 }}>
         <Table>
           <TableHead>
-            <TableRow sx={{ bgcolor: '#4194cb' }}>
-              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Môn</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Thứ</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Ca</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Phòng</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Thời gian</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Sĩ số</TableCell>
+            <TableRow sx={{ bgcolor: "#4194cb" }}>
+              <TableCell sx={{ width: "10%", color: "#fff", fontWeight: 700 }}>Thời gian</TableCell>
+              {weekdays.map((day) => (
+                <TableCell key={day} sx={{ width: "18%", color: "#fff", fontWeight: 700 }}>
+                  {weekdayLabels[day]}
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {schedules.map((item, idx) => (
-              <TableRow key={item._id} sx={{ backgroundColor: idx % 2 === 0 ? '#eaf6fd' : '#ffffff' }}>
-                <TableCell>{item.subject}</TableCell>
-                <TableCell>{item.dayOfWeek}</TableCell>
-                <TableCell>{item.timeSlot}</TableCell>
-                <TableCell>{item.room.roomName}</TableCell>
-                <TableCell>{item.startTime} - {item.endTime}</TableCell>
-                <TableCell>{item.studentCount}</TableCell>
+            {uniqueTimes.map((time) => (
+              <TableRow key={time}>
+                <TableCell sx={{ fontWeight: 600 }}>{time}</TableCell>
+                {weekdays.map((day) => {
+                  const activity = scheduleData?.schedule[day]?.find(
+                    (a) => a.time === time
+                  );
+                  return (
+                    <TableCell key={`${day}-${time}`}>
+                      {activity ? activity.curriculum.activityName : "-"}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))}
           </TableBody>

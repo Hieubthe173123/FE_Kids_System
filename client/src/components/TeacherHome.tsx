@@ -18,7 +18,7 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
-import { Book, ControlCamera, Feedback, Home } from '@mui/icons-material';
+import { Book, CheckCircle, ControlCamera, Feedback, Home } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
     {
@@ -40,6 +40,11 @@ const NAVIGATION: Navigation = [
         segment: 'teacher-control',
         title: 'Thông tin dạy học',
         icon: <Book />,
+    },
+    {
+        segment: 'attendance',
+        title: 'Điểm danh',
+        icon: <CheckCircle />,
     },
   
 ];

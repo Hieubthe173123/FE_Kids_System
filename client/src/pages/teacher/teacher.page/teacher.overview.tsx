@@ -84,7 +84,7 @@ const TeacherOverviewPage = () => {
         const res = await getTeacherClasses();
         const classes = res.data.classes || [];
         setClasses(classes);
-        const targetClasses = classes.filter((cls: any) => cls.schoolYear === "2025-2026");
+        const targetClasses = classes.filter((cls: any) => cls.schoolYear === "2024-2025");
         if (targetClasses.length > 0) {
           const firstClass = targetClasses[0];
           setSelectedClass(firstClass);
@@ -138,6 +138,7 @@ const TeacherOverviewPage = () => {
       <Box>
         {tab === 0 && (
           <ScheduleTab
+            classId={selectedClass?._id || ""}
             selectedYear={selectedYear}
             selectedWeek={selectedWeek}
             setSelectedYear={setSelectedYear}

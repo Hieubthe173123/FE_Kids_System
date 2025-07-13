@@ -22,8 +22,8 @@ import StudentForm from "../pages/Principal/StudentForm";
 import SchoolYearList from "../pages/Principal/SchoolYearList";
 import TeacherManagement from "../pages/Principal/TeacherList";
 import TeacherDashboard from "../pages/teacher/teacher.dashboard/teacher.dashboard";
-import TeacherOverview from "../pages/teacher/teacher.control/teacher.control";
 import TeacherOverviewPage from "../pages/teacher/teacher.page/teacher.overview";
+import AttendancePage from "../pages/teacher/teacher.attendance/teacher.attendance";
 
 export const routesParent = [
     {
@@ -80,6 +80,7 @@ export const routesTeacher = [
             // { path: 'time-table', component: TeacherTimetable },
             // { path: 'class-management', component: TeacherClass },
             { path: 'teacher-control', component: TeacherOverviewPage },
+            {path:'attendance', component: AttendancePage}
           //  { path: 'class-management/:id', component: TeacherStudent },
         ],
     },
