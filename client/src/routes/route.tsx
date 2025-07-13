@@ -10,6 +10,8 @@ import MenuManager from "../pages/Principal/MenuManager";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
 import ProcessEnroll from "../pages/Principal/ProcessEnroll";
 import TestAuth from "../components/Auth/TestAuth";
+import AdminHomePage from "../pages/admin/admin.home/AdminHome";
+import AccountDetail from "../pages/admin/admin.home/AccountDetail";
 import ClassMannager from "../pages/Principal/ClassMannager";
 import CurriculimList from "../pages/Principal/CurriculumList";
 import ParentManagement from "../pages/Principal/ParentManager";
@@ -18,6 +20,8 @@ import AddParentModal from "../pages/Principal/AddParentModal";
 import MealTimeline from "../pages/Parent/MealTimeline";
 import StudentForm from "../pages/Principal/StudentForm";
 import ScheduleManagement from "../pages/Principal/ScheduleManagement";
+import SchoolYearList from "../pages/Principal/SchoolYearList";
+import TeacherManagement from "../pages/Principal/TeacherList";
 
 export const routesParent = [
     {
@@ -55,6 +59,14 @@ export const routesAdmin = [
         children: [
             {
                 index: true,
+                component: () => <Navigate to="statistics" replace />,
+            },
+            { path: "", component: AdminHomePage },
+            { path: "account-management", component: AdminHomePage },
+            { path: "account-management/:id", component: AccountDetail },
+
+            {
+                index: true,
                 component: () => <Navigate to="admin-home" replace />,
             },
             { path: "dashboard", component: AdminHome },
@@ -89,6 +101,10 @@ export const routesSchoolPrincipal = [
             {
                 path: "class-management",
                 component: ClassMannager,
+            },
+            {
+                path: "schoolYear-management",
+                component: SchoolYearList,
             },
             {
                 path: "menu-dailyWeekly",
@@ -133,6 +149,10 @@ export const routesSchoolPrincipal = [
             {
                 path: "students-management",
                 component: StudentManagement,
+            },
+            {
+                path: "teacher-management",
+                component: TeacherManagement,
             },
             {
                 path: "schedule-management",

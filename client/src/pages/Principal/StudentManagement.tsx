@@ -17,7 +17,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-import { getAllStudents, deleteStudent } from "../../services/ApiServices";
+import { getAllStudents, deleteStudent } from "../../services/PrincipalApi";
 import Swal from "sweetalert2";
 
 type Student = {
