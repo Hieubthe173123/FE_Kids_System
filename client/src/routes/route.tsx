@@ -19,6 +19,8 @@ import StudentManagement from "../pages/Principal/StudentManagement";
 import AddParentModal from "../pages/Principal/AddParentModal";
 import MealTimeline from "../pages/Parent/MealTimeline";
 import StudentForm from "../pages/Principal/StudentForm";
+import SchoolYearList from "../pages/Principal/SchoolYearList";
+import TeacherManagement from "../pages/Principal/TeacherList";
 import TeacherDashboard from "../pages/teacher/teacher.dashboard/teacher.dashboard";
 import TeacherOverview from "../pages/teacher/teacher.control/teacher.control";
 import TeacherOverviewPage from "../pages/teacher/teacher.page/teacher.overview";
@@ -94,6 +96,10 @@ export const routesSchoolPrincipal = [
                 path: "class-management",
                 component: ClassMannager,
             },
+               {
+                path: "schoolYear-management",
+                component: SchoolYearList,
+            },
             {
                 path: "menu-dailyWeekly",
                 component: MenuManagerDaily,
@@ -138,6 +144,10 @@ export const routesSchoolPrincipal = [
             {
                 path: "students-management",
                 component: StudentManagement,
+            },
+            {
+                path: "teacher-management",
+                component: TeacherManagement,
             }
 
         ],

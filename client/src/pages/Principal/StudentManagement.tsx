@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import {
   getAllStudents,
   deleteStudent,
-} from "../../services/ApiServices";
+} from "../../services/PrincipalApi";
 import Swal from "sweetalert2";
 
 type Student = {

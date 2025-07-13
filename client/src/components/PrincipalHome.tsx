@@ -7,7 +7,8 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PeopleIcon from '@mui/icons-material/People';
-
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import Groups3Icon from '@mui/icons-material/Groups3';
 import {
     AppProvider,
     type Session,
@@ -25,6 +26,11 @@ import {
 import { logout } from '../redux/auth/authAPI';
 
 const NAVIGATION: Navigation = [
+    {
+        segment: 'schoolYear-management',
+        title: 'Quản lý năm học',
+        icon: <DateRangeIcon />,
+    },
     {
         segment: 'process-enroll',
         title: 'Quản lý đăng kí nhập học',
@@ -44,6 +50,11 @@ const NAVIGATION: Navigation = [
         segment: 'parent-management',
         title: 'Quản lý phụ huynh',
         icon: <PeopleIcon />,
+    },
+    {
+        segment: 'teacher-management',
+        title: 'Quản lý giáo viên',
+        icon: <Groups3Icon />,
     },
     {
         segment: 'curriculum-management',
@@ -80,7 +91,7 @@ export default function PrincipalHome() {
     const pathname = location.pathname.replace('/principal-home', '') || '/';
     React.useEffect(() => {
         if (pathname === '/') {
-            navigate('/principal-home/process-enroll', { replace: true });
+            navigate('/principal-home/schoolYear-management', { replace: true });
         }
     }, [pathname, navigate]);
 

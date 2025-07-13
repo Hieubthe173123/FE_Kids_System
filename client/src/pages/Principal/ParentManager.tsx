@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 import {
   getAllParents,
   deleteParent,
-} from "../../services/ApiServices";
+} from "../../services/PrincipalApi";
 import Swal from "sweetalert2";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
