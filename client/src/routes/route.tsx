@@ -8,7 +8,7 @@ import DailyFeedback from "../pages/Parent/DailyFeedback";
 import MenuManagerDaily from "../pages/Principal/MenuDailyWeekly";
 import MenuManager from "../pages/Principal/MenuManager";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
-import ProcessEnroll from "../pages/Principal/ProcessEnroll"
+import ProcessEnroll from "../pages/Principal/ProcessEnroll";
 import TestAuth from "../components/Auth/TestAuth";
 import ClassMannager from "../pages/Principal/ClassMannager";
 import CurriculimList from "../pages/Principal/CurriculumList";
@@ -17,6 +17,7 @@ import StudentManagement from "../pages/Principal/StudentManagement";
 import AddParentModal from "../pages/Principal/AddParentModal";
 import MealTimeline from "../pages/Parent/MealTimeline";
 import StudentForm from "../pages/Principal/StudentForm";
+import ScheduleManagement from "../pages/Principal/ScheduleManagement";
 
 export const routesParent = [
     {
@@ -41,42 +42,50 @@ export const routesParent = [
             },
             {
                 path: "test-auth",
-                component: TestAuth
-            }
+                component: TestAuth,
+            },
         ],
     },
 ];
 
-
 export const routesAdmin = [
     {
-        path: '/admin-home',
+        path: "/admin-home",
         component: AdminHome,
         children: [
-            { index: true, component: () => <Navigate to="admin-home" replace /> },
-            { path: 'dashboard', component: AdminHome },
+            {
+                index: true,
+                component: () => <Navigate to="admin-home" replace />,
+            },
+            { path: "dashboard", component: AdminHome },
         ],
     },
 ];
 
 export const routesTeacher = [
     {
-        path: '/teacher-home',
+        path: "/teacher-home",
         component: TeacherHome,
         children: [
-            { index: true, component: () => <Navigate to="teacher-home" replace /> },
-            { path: 'Home', component: TeacherHome },
+            {
+                index: true,
+                component: () => <Navigate to="teacher-home" replace />,
+            },
+            { path: "Home", component: TeacherHome },
         ],
     },
 ];
 
 export const routesSchoolPrincipal = [
     {
-        path: '/principal-home',
+        path: "/principal-home",
         component: PrincipalHome,
         children: [
-            { index: true, component: () => <Navigate to="principal-home" replace /> },
-            { path: 'Home', component: PrincipalHome },
+            {
+                index: true,
+                component: () => <Navigate to="principal-home" replace />,
+            },
+            { path: "Home", component: PrincipalHome },
             {
                 path: "class-management",
                 component: ClassMannager,
@@ -92,7 +101,6 @@ export const routesSchoolPrincipal = [
             {
                 path: "create-class",
                 component: ClassFormManager,
-
             },
             {
                 path: "process-enroll",
@@ -125,8 +133,11 @@ export const routesSchoolPrincipal = [
             {
                 path: "students-management",
                 component: StudentManagement,
-            }
-
+            },
+            {
+                path: "schedule-management",
+                component: ScheduleManagement,
+            },
         ],
     },
 ];
