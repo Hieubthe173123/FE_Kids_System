@@ -6,7 +6,7 @@ interface Student {
   fullName: string;
   parent?: {
     fullName: string;
-    phone?: string;
+    phoneNumber?: string;
     email?: string;
     address?: string;
     job?: string;
@@ -35,7 +35,7 @@ const ParentInfoDialog = ({ open, onClose, selectedStudent }: ParentInfoDialogPr
               <Grid item xs={12} md={6} {...({} as any)}>
                 <Box mb={3}>
                   <Typography fontSize={15} mb={2}><b>Họ tên:</b> {selectedStudent.parent.fullName}</Typography>
-                  <Typography fontSize={15} mb={2}><b>SĐT:</b> {selectedStudent.parent.phone}</Typography>
+                  <Typography fontSize={15} mb={2}><b>SĐT:</b> {selectedStudent.parent.phoneNumber}</Typography>
                   <Typography fontSize={15}><b>Email:</b> {selectedStudent.parent.email}</Typography>
                 </Box>
               </Grid>

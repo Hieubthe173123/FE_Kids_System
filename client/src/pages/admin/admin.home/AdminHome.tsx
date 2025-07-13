@@ -1,10 +1,9 @@
 // pages/admin/accounts/index.tsx
 import { useEffect, useState } from "react";
-import { TextField, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, InputLabel } from "@mui/material";
+import { TextField, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, InputLabel, Paper, Box, Typography, Stack } from "@mui/material";
 import type { AccountListItem } from "../../../model/Interface";
 import { getAccounts } from "../../../services/admin.service";
 import { useNavigate } from "react-router-dom";
-
 
 export default function AccountHomePage() {
   const [accounts, setAccounts] = useState<AccountListItem[]>([]);
@@ -21,11 +20,8 @@ export default function AccountHomePage() {
         console.error("Lỗi khi fetch account:", error);
       }
     };
-  
     fetchAccounts();
   }, []);
-  console.log('check accounts',accounts);
-  
 
   const filteredAccounts = accounts.filter(acc => {
     const searchMatch = acc.fullName.toLowerCase().includes(search.toLowerCase()) 
@@ -37,40 +33,58 @@ export default function AccountHomePage() {
   });
 
   return (
-    <div>
-      <h2>Quản lý tài khoản</h2>
-      <TextField label="Tìm kiếm" fullWidth onChange={e => setSearch(e.target.value)} />
-      <InputLabel>Vai trò</InputLabel>
-      <Select value={filterRole} onChange={e => setFilterRole(e.target.value)}>
-        <MenuItem value="all">Tất cả</MenuItem>
-        <MenuItem value="parent">Phụ huynh</MenuItem>
-        <MenuItem value="teacher">Giáo viên</MenuItem>
-
-      </Select>
-
-      <Table>
-        <TableHead>
-          <TableRow>
-         
-            <TableCell>Họ tên</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Vai trò</TableCell>
-            <TableCell>SĐT</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {filteredAccounts?.map(acc => (
-            <TableRow key={acc._id} >
-              <TableCell sx={{cursor: 'pointer'}} onClick={() => navigate(`/admin-home/account-management/${acc._id}`)}>
-                {acc.fullName}
-              </TableCell>
-              <TableCell>{acc.email}</TableCell>
-              <TableCell>{acc.role}</TableCell>
-              <TableCell>{acc.phoneNumber}</TableCell>
+    <Box sx={{ bgcolor: '#f5f7fb', minHeight: '100vh', py: 4 }}>
+      <Paper elevation={2} sx={{ borderRadius: 3, p: 4, maxWidth: 1500, mx: 'auto', bgcolor: '#fff' }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: '#4194cb', mb: 3 }}>
+          Quản lý tài khoản
+        </Typography>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={3}>
+          <TextField 
+            label="Tìm kiếm" 
+            fullWidth 
+            onChange={e => setSearch(e.target.value)} 
+            sx={{ bgcolor: 'white', borderRadius: 2 }}
+          />
+          <Box sx={{ minWidth: 150 }}>
+            
+            <Select 
+              value={filterRole} 
+              onChange={e => setFilterRole(e.target.value)} 
+              fullWidth
+              sx={{ bgcolor: 'white', borderRadius: 2 }}
+            >
+              <MenuItem value="all">Tất cả</MenuItem>
+              <MenuItem value="parent">Phụ huynh</MenuItem>
+              <MenuItem value="teacher">Giáo viên</MenuItem>
+            </Select>
+          </Box>
+        </Stack>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ bgcolor: '#4194cb' }}>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Họ tên</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Email</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Vai trò</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 700 }}>SĐT</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHead>
+          <TableBody>
+            {filteredAccounts?.map((acc, idx) => (
+              <TableRow key={acc._id} sx={{ backgroundColor: idx % 2 === 0 ? '#eaf6fd' : '#ffffff' }}>
+                <TableCell 
+                  sx={{ cursor: 'pointer', color: '#1976d2', fontWeight: 600, textDecoration: 'underline', '&:hover': { color: '#0d47a1', textDecoration: 'underline' } }}
+                  onClick={() => navigate(`/admin-home/account-management/${acc._id}`)}
+                >
+                  {acc.fullName}
+                </TableCell>
+                <TableCell>{acc.email}</TableCell>
+                <TableCell>{acc.role === "parent" ? "Phụ huynh" : "Giáo viên"}</TableCell>
+                <TableCell>{acc.phoneNumber}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
+    </Box>
   );
 }

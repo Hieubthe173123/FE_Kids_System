@@ -38,7 +38,6 @@ export const getTeacherClasses = async () => {
 export const getStudentsInClass = async (classId: string) => {
     try {
         const response = await axiosInstance.get(`/teacher/students/${classId}`);
-        console.log("Check getStudentsInClass:", response);
         return response.data;
     } catch (error) {
         console.error("Get students in class failed:", error);
