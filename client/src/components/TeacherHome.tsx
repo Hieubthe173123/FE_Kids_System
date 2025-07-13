@@ -18,7 +18,7 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
-import { Book, CheckCircle, ControlCamera, Feedback, Home } from '@mui/icons-material';
+import { Book, CheckCircle, ControlCamera, Feedback, History, Home } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
     {
@@ -46,6 +46,12 @@ const NAVIGATION: Navigation = [
         title: 'Điểm danh',
         icon: <CheckCircle />,
     },
+    {
+        segment: 'history-attendance',
+        title: 'Lịch sử điểm danh',
+        icon: <History />,
+    }
+
   
 ];
 

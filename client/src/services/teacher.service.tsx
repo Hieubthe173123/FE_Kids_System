@@ -69,6 +69,7 @@ export const getScheduleByClassId = async (classId: string) => {
 export const getAttendanceToday = async (classId: string) => {
     try {
         const response = await axiosInstance.get(`/teacher/attendance/${classId}`);
+        
         return response.data;
     } catch (error) {
         console.error("Get attendance today failed:", error);
@@ -82,6 +83,40 @@ export const getTeacherClass = async () => {
         return response.data;
     } catch (error) {
         console.error("Get teacher class failed:", error);
+        throw error;
+    }
+};
+
+
+export const bulkUpdateAttendance = async (data: any) => {
+    try {
+        const response = await axiosInstance.put(`/teacher/bulk-update`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Bulk update attendance failed:", error);
+        throw error;
+    }
+};
+
+
+export const getTeacherInClass = async (classId: string) => {
+    try {
+        const response = await axiosInstance.get(`/teacher/teacherinclass/${classId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Get teacher in class failed:", error);
+        throw error;
+    }
+};
+
+export const getAttendanceByDate = async (date: string , classId: string) => {
+    try {
+        const response = await axiosInstance.get(`/teacher/attendance/history/${classId}?date=${date}`);
+        console.log('cjeck response', response.data);
+        
+        return response.data;
+    } catch (error) {
+        console.error("Get attendance by date failed:", error);
         throw error;
     }
 };

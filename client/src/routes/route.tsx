@@ -24,6 +24,7 @@ import TeacherManagement from "../pages/Principal/TeacherList";
 import TeacherDashboard from "../pages/teacher/teacher.dashboard/teacher.dashboard";
 import TeacherOverviewPage from "../pages/teacher/teacher.page/teacher.overview";
 import AttendancePage from "../pages/teacher/teacher.attendance/teacher.attendance";
+import AttendanceHistoryPage from "../pages/teacher/teacher.attendance/history.attendance";
 
 export const routesParent = [
     {
@@ -80,7 +81,9 @@ export const routesTeacher = [
             // { path: 'time-table', component: TeacherTimetable },
             // { path: 'class-management', component: TeacherClass },
             { path: 'teacher-control', component: TeacherOverviewPage },
-            {path:'attendance', component: AttendancePage}
+            {path:'attendance', component: AttendancePage},
+            {path:'history-attendance', component: AttendanceHistoryPage},
+
           //  { path: 'class-management/:id', component: TeacherStudent },
         ],
     },
