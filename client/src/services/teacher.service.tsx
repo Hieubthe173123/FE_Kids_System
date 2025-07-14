@@ -55,10 +55,9 @@ export const getDashboard = async () => {
     }
 };
 
-export const getScheduleByClassId = async (classId: string) => {
+export const getScheduleByClassId = async (classId: string,year: string,week: string) => {
     try {
-        const response = await axiosInstance.get(`/teacher/schedule/${classId}`);
-        console.log("Check getScheduleByClassId:", response.data);
+        const response = await axiosInstance.get(`/teacher/schedule/${classId}?year=${year}&week=${week}`);
         return response.data;
     } catch (error) {
         console.error("Get schedule by class id failed:", error);
@@ -112,11 +111,32 @@ export const getTeacherInClass = async (classId: string) => {
 export const getAttendanceByDate = async (date: string , classId: string) => {
     try {
         const response = await axiosInstance.get(`/teacher/attendance/history/${classId}?date=${date}`);
-        console.log('cjeck response', response.data);
         
         return response.data;
     } catch (error) {
         console.error("Get attendance by date failed:", error);
+        throw error;
+    }
+};
+
+
+export const getTeacherSwappableSchedule = async ( classId: string, date: string) => {
+    try {
+        const response = await axiosInstance.get(`/teacher/schedule/day/${classId}?date=${date}`);
+        
+        return response.data;
+    } catch (error) {
+        console.error("Get teacher swappable schedule failed:", error);
+        throw error;
+    }
+};
+
+export const swapSchedule = async (data: any) => {
+    try {
+        const response = await axiosInstance.put(`/teacher/schedule/swap-day`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Swap schedule failed:", error);
         throw error;
     }
 };

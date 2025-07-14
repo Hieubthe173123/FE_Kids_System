@@ -26,6 +26,7 @@ import AttendancePage from "../pages/teacher/teacher.attendance/teacher.attendan
 import AttendanceHistoryPage from "../pages/teacher/teacher.attendance/history.attendance";
 import Attendance from "../pages/Parent/Attendance";
 import ParentProfile from "../pages/Parent/ParentProfile";
+import ScheduleSwapPage from "../pages/teacher/swap/teacher.swap.lecture";
 
 export const routesParent = [
     {
@@ -88,6 +89,7 @@ export const routesTeacher = [
             { path: 'teacher-control', component: TeacherOverviewPage },
             { path: 'attendance', component: AttendancePage },
             { path: 'history-attendance', component: AttendanceHistoryPage },
+            { path: 'swap-lecture', component: ScheduleSwapPage }
 
             //  { path: 'class-management/:id', component: TeacherStudent },
         ],
