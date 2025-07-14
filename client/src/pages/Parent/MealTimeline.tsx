@@ -29,6 +29,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import { getWeeklyMenuByDateNow } from "../../services/ApiServices";
+import { getStudentsByParentId } from "../../services/ParentApi";
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
@@ -47,9 +48,9 @@ type MenuDataType = {
 };
 
 const mealTypes = [
-    { key: 'sáng', label: 'Bữa sáng', icon: <Brightness6Icon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
-    { key: 'trưa', label: 'Bữa trưa', icon: <FastfoodIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
-    { key: 'chiều', label: 'Bữa chiều', icon: <RestaurantIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
+    { key: 'sáng', label: 'Bữa sáng', time: '06:30 - 07:00', icon: <Brightness6Icon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
+    { key: 'trưa', label: 'Bữa trưa', time: '11:00 - 12:00', icon: <FastfoodIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
+    { key: 'chiều', label: 'Bữa chiều', time: '15:30 - 16:00', icon: <RestaurantIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
 ];
 
 const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
@@ -75,8 +76,9 @@ const getWeekDays = (baseDate: Date) => {
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
-    padding: '12px 16px',
-    fontSize: '0.9rem',
+    padding: '6px 8px',
+    fontSize: '0.88rem',
+    lineHeight: 1.3,
 }));
 
 const StyledTableRow = styled(TableRow)(() => ({
@@ -109,47 +111,74 @@ export default function WeeklyMealSchedule() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [menuData, setMenuData] = useState<MenuDataType>({});
+    const [menuDataByAge, setMenuDataByAge] = useState<{ [ageCategory: number]: MenuDataType }>({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [childrenList, setChildrenList] = useState<any[]>([]);
 
-    const fetchMenu = useCallback(async (date: Date) => {
+    const mapAgeToCategory = (age: number): number => {
+        return age;
+    };
+
+    const fetchMenu = useCallback(async (date: Date, ageCategories: number[]) => {
         setIsLoading(true);
         setError(null);
         try {
-            const dailyMenus = await getWeeklyMenuByDateNow(date);
-
-            if (dailyMenus && Array.isArray(dailyMenus) && dailyMenus.length > 0) {
-                const mappedMenu: MenuDataType = {};
-                dailyMenus.forEach((day: {
-                    date: string;
-                    breakfast: { dishName: string }[];
-                    lunch: { dishName: string }[];
-                    dinner: { dishName: string }[];
-                }) => {
-                    const dateObj = new Date(day.date);
-                    const dateKey = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-                    mappedMenu[dateKey] = {
-                        sáng: day.breakfast?.map(d => d.dishName).join(', ') || '–',
-                        trưa: day.lunch?.map(d => d.dishName).join(', ') || '–',
-                        chiều: day.dinner?.map(d => d.dishName).join(', ') || '–',
-                    };
+            const weeklyMenus = await getWeeklyMenuByDateNow(date, ageCategories);
+            const menuByAge: { [ageCategory: number]: MenuDataType } = {};
+            if (Array.isArray(weeklyMenus)) {
+                ageCategories.forEach((ageCat: number) => {
+                    const foundMenu = weeklyMenus.find((menu: any) => menu.ageCategory === ageCat);
+                    if (foundMenu && Array.isArray(foundMenu.days)) {
+                        const mappedMenu: MenuDataType = {};
+                        foundMenu.days.forEach((day: any) => {
+                            const dateObj = new Date(day.date);
+                            const dateKey = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+                            mappedMenu[dateKey] = {
+                                sáng: day.breakfast?.map((d: any) => d.dishName).join(', ') || '–',
+                                trưa: day.lunch?.map((d: any) => d.dishName).join(', ') || '–',
+                                chiều: day.dinner?.map((d: any) => d.dishName).join(', ') || '–',
+                            };
+                        });
+                        menuByAge[ageCat] = mappedMenu;
+                    }
                 });
-                setMenuData(mappedMenu);
-            } else {
-                setMenuData({});
             }
+            setMenuDataByAge(menuByAge);
         } catch (err) {
             setError("Không thể tải thực đơn. Vui lòng thử lại sau.");
-            setMenuData({});
-            console.error('Lỗi lấy thực đơn:', err);
+            setMenuDataByAge({});
         } finally {
             setIsLoading(false);
         }
     }, []);
 
     useEffect(() => {
-        fetchMenu(currentDate);
+        const userStr = localStorage.getItem("user");
+        if (!userStr) return;
+        const user = JSON.parse(userStr);
+        const parentId = user._id;
+
+        const fetchStudents = async () => {
+            try {
+                const res = await getStudentsByParentId(parentId);
+                if (res.students && res.students.length > 0) {
+                    setChildrenList(res.students);
+                    const ageCategories: number[] = Array.from(
+                        new Set(res.students.map((stu: any) => mapAgeToCategory(stu.age)))
+                    );
+                    fetchMenu(currentDate, ageCategories);
+                } else {
+                    setChildrenList([]);
+                    setMenuDataByAge({});
+                }
+            } catch (err) {
+                console.error("Lỗi khi lấy học sinh:", err);
+                setError("Không thể tải danh sách học sinh.");
+            }
+        };
+
+        fetchStudents();
     }, [currentDate, fetchMenu]);
 
     const handlePrevWeek = () => {
@@ -170,31 +199,36 @@ export default function WeeklyMealSchedule() {
 
     const weekDays = getWeekDays(currentDate);
     const isCurrentWeek = dayjs(currentDate).isSame(new Date(), 'week');
-
     const weekDisplay = weekDays.length > 0
         ? `${weekDays[0].date} — ${weekDays[6].date}`
         : '';
 
-    const totalDishes = Object.values(menuData).reduce((acc, day) => {
-        return acc + Object.values(day).filter(meal => meal !== '–' && meal !== '').length;
-    }, 0);
+    const getTotalDishes = (menuData: MenuDataType) => {
+        if (!menuData) return 0;
+        return Object.values(menuData).reduce((acc, day) => {
+            return acc + Object.values(day).filter(meal => meal && meal !== '–').length;
+        }, 0);
+    };
 
-    let todaySpecial = '–';
-    const todayKey = `${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-    const todayMenu = menuData[todayKey];
+    const getTodaySpecial = (menuData: MenuDataType) => {
+        let todaySpecial = '–';
+        if (!menuData) return todaySpecial;
 
-    if (todayMenu) {
-        const allTodayDishes = [
-            ...(todayMenu.sáng !== '–' ? todayMenu.sáng.split(', ') : []),
-            ...(todayMenu.trưa !== '–' ? todayMenu.trưa.split(', ') : []),
-            ...(todayMenu.chiều !== '–' ? todayMenu.chiều.split(', ') : [])
-        ].filter(dish => dish);
-
-        if (allTodayDishes.length > 0) {
-            const randomIndex = Math.floor(Math.random() * allTodayDishes.length);
-            todaySpecial = allTodayDishes[randomIndex];
+        const todayKey = `${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+        const todayMenu = menuData[todayKey];
+        if (todayMenu) {
+            const allTodayDishes = [
+                ...(todayMenu.sáng && todayMenu.sáng !== '–' ? todayMenu.sáng.split(', ') : []),
+                ...(todayMenu.trưa && todayMenu.trưa !== '–' ? todayMenu.trưa.split(', ') : []),
+                ...(todayMenu.chiều && todayMenu.chiều !== '–' ? todayMenu.chiều.split(', ') : [])
+            ].filter(dish => dish);
+            if (allTodayDishes.length > 0) {
+                const randomIndex = Math.floor(Math.random() * allTodayDishes.length);
+                todaySpecial = allTodayDishes[randomIndex];
+            }
         }
-    }
+        return todaySpecial;
+    };
 
     const headerCellStyle = {
         backgroundColor: '#4194cb',
@@ -205,51 +239,63 @@ export default function WeeklyMealSchedule() {
         '&:last-child': { borderRight: 'none' }
     };
 
-    const DesktopTable = () => (
-        <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden', width: '100%' }}>
-            <TableContainer>
-                <Table stickyHeader aria-label="weekly meal table">
-                    <TableHead>
-                        <TableRow>
-                            <StyledTableCell sx={{ ...headerCellStyle, textAlign: 'left', width: '15%' }}>Bữa</StyledTableCell>
-                            {weekDays.map((day) => (
-                                <StyledTableCell key={day.fullDate} align="center" sx={{ ...headerCellStyle, width: '12%' }}>
-                                    <Typography variant="subtitle1" fontWeight="700" color="inherit">{day.name}</Typography>
-                                    <Typography variant="caption" color="inherit" sx={{ opacity: 0.85 }}>{day.date}</Typography>
-                                </StyledTableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {mealTypes.map((mealType) => (
-                            <StyledTableRow key={mealType.key}>
-                                <StyledTableCell component="th" scope="row" sx={{ fontWeight: '600' }}>
-                                    {mealType.icon} {mealType.label}
-                                </StyledTableCell>
+    const DesktopTable = ({ student, menuData }: { student: any, menuData: MenuDataType }) => (
+        <Box mb={3}>
+            <Typography variant="h6" fontWeight="bold" color="#4194cb" mb={0.5} sx={{ fontSize: '1.05rem' }}>
+                Thực đơn tuần cho học sinh: {student.name} - {student.age} Tuổi
+            </Typography>
+            <Paper elevation={2} sx={{ borderRadius: 2, overflow: 'hidden', width: '100%' }}>
+                <TableContainer>
+                    <Table stickyHeader aria-label="weekly meal table" size="small">
+                        <TableHead>
+                            <TableRow>
+                                <StyledTableCell sx={{ ...headerCellStyle, textAlign: 'left', width: 120, fontSize: '1em', padding: '8px 8px' }}>Bữa</StyledTableCell>
                                 {weekDays.map((day) => (
-                                    <StyledTableCell key={`${day.fullDate}-${mealType.key}`} align="center">
-                                        {menuData?.[day.date]?.[mealType.key as keyof MealType] || '–'}
+                                    <StyledTableCell key={day.fullDate} align="center" sx={{ ...headerCellStyle, width: 90, fontSize: '1em', padding: '8px 8px' }}>
+                                        <Typography variant="subtitle2" fontWeight="700" color="inherit" sx={{ fontSize: '1em' }}>{day.name}</Typography>
+                                        <Typography variant="caption" color="inherit" sx={{ opacity: 0.85, fontSize: '0.92em' }}>{day.date}</Typography>
                                     </StyledTableCell>
                                 ))}
-                            </StyledTableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Paper>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {mealTypes.map((mealType) => (
+                                <StyledTableRow key={mealType.key}>
+                                    <StyledTableCell component="th" scope="row" sx={{ fontWeight: 600, minWidth: 100, p: '6px 8px' }}>
+                                        <Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1em' }}>{mealType.icon} <span style={{ marginLeft: 4 }}>{mealType.label}</span></Box>
+                                            <Typography variant="caption" sx={{ color: '#4194cb', fontWeight: 400, display: 'block', mt: 0.2, fontSize: '0.85em' }}>{mealType.time}</Typography>
+                                        </Box>
+                                    </StyledTableCell>
+                                    {weekDays.map((day) => (
+                                        <StyledTableCell key={`${day.fullDate}-${mealType.key}`} align="center" sx={{ p: '6px 8px', fontSize: '0.97em' }}>
+                                            {menuData?.[day.date]?.[mealType.key as keyof MealType] || '–'}
+                                        </StyledTableCell>
+                                    ))}
+                                </StyledTableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Paper>
+        </Box>
     );
 
-    const MobileCardList = () => (
-        <Box>
+    const MobileCardList = ({ student, menuData }: { student: any, menuData: MenuDataType }) => (
+        <Box mb={4}>
+            <Typography variant="h6" fontWeight="bold" color="#4194cb" mb={1}>
+                Thực đơn tuần cho học sinh: {student.name} - Tuổi: {student.age}
+            </Typography>
             {weekDays.map(day => (
                 <Paper key={day.fullDate} elevation={2} sx={{ mb: 2, borderRadius: 3, p: 2 }}>
                     <Typography variant="h6" fontWeight="700" color="#4194cb" gutterBottom>{day.name} - {day.date}</Typography>
                     {mealTypes.map(mealType => (
-                        <Box key={mealType.key} sx={{ display: 'flex', alignItems: 'center', mb: 1, borderBottom: '1px solid #eee', pb: 1, '&:last-child': { border: 0, mb: 0, pb: 0 } }}>
-                            <Box sx={{ width: '110px', fontWeight: '600', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                                {mealType.icon} {mealType.label}
+                        <Box key={mealType.key} sx={{ display: 'flex', alignItems: 'flex-start', mb: 0.5, borderBottom: '1px solid #eee', pb: 0.5, '&:last-child': { border: 0, mb: 0, pb: 0 } }}>
+                            <Box sx={{ width: '140px', fontWeight: 500, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flexShrink: 0 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '0.97em' }}>{mealType.icon} <span style={{ marginLeft: 4 }}>{mealType.label}</span></Box>
+                                <Typography variant="caption" sx={{ color: '#4194cb', fontWeight: 400, display: 'block', mt: 0.1, fontSize: '0.85em' }}>{mealType.time}</Typography>
                             </Box>
-                            <Typography variant="body2" sx={{ flexGrow: 1, textAlign: 'left' }}>{menuData?.[day.date]?.[mealType.key as keyof MealType] || '–'}</Typography>
+                            <Typography variant="body2" sx={{ flexGrow: 1, textAlign: 'left', mt: 0.2, fontSize: '0.97em' }}>{menuData?.[day.date]?.[mealType.key as keyof MealType] || '–'}</Typography>
                         </Box>
                     ))}
                 </Paper>
@@ -257,44 +303,56 @@ export default function WeeklyMealSchedule() {
         </Box>
     );
 
+    // Group students by age category
+    const studentsByAge: { [age: number]: any[] } = {};
+    childrenList.forEach(student => {
+        const ageCategory = mapAgeToCategory(student.age);
+        if (!studentsByAge[ageCategory]) studentsByAge[ageCategory] = [];
+        studentsByAge[ageCategory].push(student);
+    });
+
     const MainContent = () => {
-        if (isLoading && Object.keys(menuData).length === 0) {
+        if (isLoading) {
             return <Box display="flex" justifyContent="center" alignItems="center" sx={{ height: 300 }}><CircularProgress /></Box>;
         }
         if (error) {
             return <Alert severity="error">{error}</Alert>;
         }
-        if (Object.keys(menuData).length === 0 && !isLoading) {
-            return <Alert severity="info">Không có dữ liệu thực đơn cho tuần này.</Alert>;
+        if (childrenList.length === 0) {
+            return <Alert severity="info">Không tìm thấy thông tin học sinh.</Alert>;
+        }
+        if (Object.keys(menuDataByAge).length === 0) {
+            return <Alert severity="info">Hiện chưa có dữ liệu thực đơn cho tuần này.</Alert>;
         }
 
+        // Render only one table per age group, listing all names
         return (
-            <Box sx={{ position: 'relative' }}>
-                {isLoading && (
-                    <Box sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 10,
-                        borderRadius: '12px'
-                    }}>
-                        <CircularProgress />
-                    </Box>
-                )}
-                {isMobile ? <MobileCardList /> : <DesktopTable />}
-            </Box>
+            <>
+                {Object.entries(studentsByAge).map(([age, students]) => {
+                    const menuData = menuDataByAge[Number(age)] || {};
+                    const names = students.map((stu: any) => stu.name).join(', ');
+                    const displayStudent = { name: names, age };
+                    return isMobile
+                        ? <MobileCardList key={age} student={displayStudent} menuData={menuData} />
+                        : <DesktopTable key={age} student={displayStudent} menuData={menuData} />;
+                })}
+            </>
         );
     };
 
+    const allMenus = Object.values(menuDataByAge);
+    const totalDishes = allMenus.reduce((sum, menu) => sum + getTotalDishes(menu), 0);
+    const todaySpecial = getTodaySpecial(menuDataByAge[mapAgeToCategory(childrenList[0]?.age)] || {});
+
     return (
-        <Box mt={4} p={{ xs: 2, sm: 3 }} bgcolor="#f5f7fb" height="100vh" sx={{ overflow: 'hidden' }}>
-            <Grid container spacing={3} mb={4}>
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            bgcolor: '#f5f7fb',
+            p: { xs: 2, sm: 3 }
+        }}>
+            <Grid container spacing={3} mb={4} sx={{ flexShrink: 0 }}>
                 <Grid item xs={12} sm={6} md={3} {...({} as any)}>
                     <StatCard title="Tuần đang xem" value={isLoading && !weekDisplay ? '...' : weekDisplay} icon={<DateRangeIcon />} color="success" />
                 </Grid>
@@ -302,30 +360,31 @@ export default function WeeklyMealSchedule() {
                     <StatCard title="Món đặc biệt hôm nay" value={todaySpecial} icon={<StarBorderIcon />} color="warning" />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3} {...({} as any)}>
-                    <StatCard title="Tổng số món trong tuần" value={isLoading && totalDishes === 0 ? '...' : `${totalDishes} món`} icon={<MenuBookIcon />} color="info" />
+                    <StatCard title="Tổng số món trong tuần" value={isLoading ? '...' : `${totalDishes} món`} icon={<MenuBookIcon />} color="info" />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3} {...({} as any)}>
                     <StatCard title="Năng lượng trung bình" value="~750 Kcal" icon={<LocalFireDepartmentIcon />} color="error" />
                 </Grid>
             </Grid>
 
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6" fontWeight="700" color="#333" display="flex" alignItems="center" gap={1}>
-                    <CalendarTodayIcon /> Lịch thực đơn
-                </Typography>
-                <Box>
-                    <Tooltip title="Tuần trước"><IconButton onClick={handlePrevWeek} disabled={isLoading}><ChevronLeftIcon /></IconButton></Tooltip>
-                    <Tooltip title={isCurrentWeek ? "Bạn đang ở tuần hiện tại" : "Tuần sau"}>
-                        <span>
-                            <IconButton onClick={handleNextWeek} disabled={isLoading || isCurrentWeek}>
-                                <ChevronRightIcon />
-                            </IconButton>
-                        </span>
-                    </Tooltip>
+            <Box sx={{ flexGrow: 1, overflowY: 'auto', minHeight: 0 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} sx={{ flexShrink: 0 }}>
+                    <Typography variant="h6" fontWeight="700" color="#333" display="flex" alignItems="center" gap={1}>
+                        <CalendarTodayIcon /> Lịch thực đơn
+                    </Typography>
+                    <Box>
+                        <Tooltip title="Tuần trước"><IconButton onClick={handlePrevWeek} disabled={isLoading}><ChevronLeftIcon /></IconButton></Tooltip>
+                        <Tooltip title={isCurrentWeek ? "Bạn đang ở tuần hiện tại" : "Tuần sau"}>
+                            <span>
+                                <IconButton onClick={handleNextWeek} disabled={isLoading || isCurrentWeek}>
+                                    <ChevronRightIcon />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    </Box>
                 </Box>
+                <MainContent />
             </Box>
-
-            <MainContent />
         </Box>
     );
 }

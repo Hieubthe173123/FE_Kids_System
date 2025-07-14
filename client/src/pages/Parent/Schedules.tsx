@@ -13,6 +13,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { styled } from '@mui/material/styles';
 import { useMemo } from 'react';
+import dayjs from 'dayjs';
 
 const StyledAccordion = styled(Accordion)(({ theme }) => ({
     borderRadius: '12px',
@@ -49,8 +50,6 @@ interface ScheduleItem {
     subject: string;
 }
 
-import dayjs from 'dayjs';
-
 interface Props {
     title: string;
     panelKey: string;
@@ -60,19 +59,24 @@ interface Props {
     startOfWeekDate: string;
 }
 
-export default function Schedules({ title, panelKey, expanded, onChange, scheduleData, startOfWeekDate }: Props) {
+export default function Schedules({
+    title,
+    panelKey,
+    expanded,
+    onChange,
+    scheduleData,
+    startOfWeekDate,
+}: Props) {
     const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     const startOfWeek = dayjs(startOfWeekDate);
     const weekDates = weekDays.map((_, idx) => startOfWeek.add(idx, 'day'));
 
     const timeSlots = useMemo(() => {
-        const allTimes = new Set<string>();
-        Object.values(scheduleData).forEach(dayActivities => {
-            dayActivities.forEach(activity => {
-                allTimes.add(activity.time);
-            });
+        const timeSet = new Set<string>();
+        Object.values(scheduleData).forEach(dayItems => {
+            dayItems.forEach(item => timeSet.add(item.time));
         });
-        return Array.from(allTimes).sort();
+        return Array.from(timeSet).sort();
     }, [scheduleData]);
 
     return (
@@ -94,18 +98,34 @@ export default function Schedules({ title, panelKey, expanded, onChange, schedul
                     <Table>
                         <TableHead>
                             <TableRow sx={{ bgcolor: '#4194cb' }}>
-                                <TableCell sx={{ color: '#fff', fontWeight: 700, minWidth: 110, textAlign: 'center', verticalAlign: 'middle' }}>⏰ Thời gian</TableCell>
+                                <TableCell
+                                    sx={{
+                                        color: '#fff',
+                                        fontWeight: 700,
+                                        minWidth: 110,
+                                        textAlign: 'center',
+                                        verticalAlign: 'middle',
+                                        border: '1px solid #b3d3ea',
+                                    }}
+                                >
+                                    ⏰ Thời gian
+                                </TableCell>
                                 {weekDays.map((day, idx) => (
                                     <TableCell
                                         key={day}
                                         sx={{
-                                            color: '#fff', fontWeight: 700, textAlign: 'center', verticalAlign: 'middle', padding: '8px 4px',
+                                            color: '#fff',
+                                            fontWeight: 700,
+                                            textAlign: 'center',
+                                            verticalAlign: 'middle',
+                                            padding: '8px 4px',
+                                            border: '1px solid #b3d3ea',
                                         }}
                                     >
-                                        <div style={{ fontSize: 13, color: '#e3f1fa', fontWeight: 600, lineHeight: 1.1 }}>
-                                            {weekDates[idx].date().toString().padStart(2, '0')}/{(weekDates[idx].month() + 1).toString().padStart(2, '0')}
+                                        <div style={{ fontSize: 13, color: '#e3f1fa', fontWeight: 600 }}>
+                                            {weekDates[idx].format('DD/MM')}
                                         </div>
-                                        <div style={{ fontSize: 16, color: '#fff', fontWeight: 700, lineHeight: 1.2 }}>
+                                        <div style={{ fontSize: 16, color: '#fff', fontWeight: 700 }}>
                                             {day}
                                         </div>
                                     </TableCell>
@@ -114,12 +134,25 @@ export default function Schedules({ title, panelKey, expanded, onChange, schedul
                         </TableHead>
                         <TableBody>
                             {timeSlots.map((time, index) => (
-                                <TableRow key={time} sx={{ backgroundColor: index % 2 === 0 ? '#eaf6fd' : '#ffffff' }}>
-                                    <TableCell sx={{ fontWeight: 500, borderBottom: '1px solid #d1eaf5', textAlign: 'center' }}>{time}</TableCell>
+                                <TableRow
+                                    key={time}
+                                    sx={{ backgroundColor: index % 2 === 0 ? '#eaf6fd' : '#ffffff' }}
+                                >
+                                    <TableCell sx={{ textAlign: 'center', fontWeight: 500, color: '#0d47a1', border: '1px solid #b3d3ea' }}>
+                                        {time}
+                                    </TableCell>
                                     {weekDays.map(day => {
                                         const activity = scheduleData[day]?.find(item => item.time === time);
                                         return (
-                                            <TableCell key={`${day}-${time}`} sx={{ borderBottom: '1px solid #d1eaf5', textAlign: 'center', fontWeight: 500, color: '#0d47a1' }}>
+                                            <TableCell
+                                                key={`${day}-${time}`}
+                                                sx={{
+                                                    textAlign: 'center',
+                                                    fontWeight: 500,
+                                                    color: '#0d47a1',
+                                                    border: '1px solid #b3d3ea',
+                                                }}
+                                            >
                                                 {activity ? activity.subject : '—'}
                                             </TableCell>
                                         );

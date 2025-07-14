@@ -3,8 +3,13 @@ import { Box, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import Schedules from './Schedules';
 import Information from './Information';
-import scheduleData from "../../data/schedules.json";
-import { getStudentsByParentId, getStudentClassInfo } from '../../services/ParentApi';
+import {
+    getStudentsByParentId,
+    getStudentClassInfo,
+    getScheduleByClassId,
+    getAttendanceByStudentID
+} from '../../services/ParentApi';
+import AttendanceTable from './Attendance';
 
 interface Student {
     id: string;
@@ -13,8 +18,6 @@ interface Student {
 }
 
 export default function TimeTable() {
-    const currentClassData = scheduleData[0];
-
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({
         morning: true,
@@ -23,6 +26,7 @@ export default function TimeTable() {
 
     const [childrenList, setChildrenList] = useState<Student[]>([]);
     const [selectedChildId, setSelectedChildId] = useState<string>("");
+    const [attendanceData, setAttendanceData] = useState<any[]>([]);
 
     const [currentClassInfo, setCurrentClassInfo] = useState<{
         name: string;
@@ -30,23 +34,32 @@ export default function TimeTable() {
         year: string;
     } | undefined>(undefined);
 
+    const [scheduleDataByClass, setScheduleDataByClass] = useState<any>(null);
+
     const selectedDayjs = dayjs(selectedDate);
     const startOfWeek = selectedDayjs.startOf('isoWeek');
+
+    const weekDates = Array.from({ length: 7 }, (_, i) =>
+        startOfWeek.add(i, 'day')
+    );
 
     const weeklySchedules = useMemo(() => {
         const morningSchedule: any = {};
         const afternoonSchedule: any = {};
 
-        if (currentClassData?.schedule) {
-            for (const [day, activities] of Object.entries(currentClassData.schedule)) {
+        if (scheduleDataByClass) {
+            for (const [day, activities] of Object.entries(scheduleDataByClass)) {
                 const morningActivities: any[] = [];
                 const afternoonActivities: any[] = [];
 
                 (activities as any[]).forEach((item) => {
                     const startHour = parseInt(item.time.split('-')[0].split(':')[0], 10);
-                    const scheduleItem = { time: item.time, subject: item.activity };
+                    const scheduleItem = {
+                        time: item.time,
+                        subject: item.curriculum.activityName,
+                    };
 
-                    if (startHour < 14) morningActivities.push(scheduleItem);
+                    if (startHour < 12) morningActivities.push(scheduleItem);
                     else afternoonActivities.push(scheduleItem);
                 });
 
@@ -56,7 +69,7 @@ export default function TimeTable() {
         }
 
         return { morningSchedule, afternoonSchedule };
-    }, [currentClassData]);
+    }, [scheduleDataByClass]);
 
     const handleAccordionChange =
         (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -73,46 +86,69 @@ export default function TimeTable() {
         const user = JSON.parse(userStr);
         const parentId = user._id;
 
-        const fetchStudents = async () => {
+        const fetchStudentsAndAttendance = async () => {
             try {
                 const res = await getStudentsByParentId(parentId);
                 if (res.students && res.students.length > 0) {
                     setChildrenList(res.students);
                     setSelectedChildId(res.students[0].id);
+                    const attendanceRes = await getAttendanceByStudentID(res.students[0].id);
+                    setAttendanceData(attendanceRes.data || []);
                 }
             } catch (err) {
-                console.error("Failed to load students:", err);
+                console.error("Failed to load students or attendance:", err);
             }
         };
 
-        fetchStudents();
+        fetchStudentsAndAttendance();
     }, []);
 
-    useEffect(() => {
-        const fetchClassInfo = async () => {
-            if (!selectedChildId) return;
+    const fetchClassInfoAndScheduleAndAttendance = async (studentId: string) => {
+        if (!studentId) return;
+
+        try {
+            const res = await getStudentClassInfo(studentId);
+            setCurrentClassInfo({
+                name: res.className || "Chưa có lớp",
+                teacher: res.teacher || "Chưa có giáo viên",
+                year: res.schoolYear || "Chưa rõ",
+            });
+
+            if (res.classId) {
+                const scheduleRes = await getScheduleByClassId(res.classId);
+                setScheduleDataByClass(scheduleRes.schedule || {});
+            }
 
             try {
-                const res = await getStudentClassInfo(selectedChildId);
-                setCurrentClassInfo({
-                    name: res.className || "Chưa có lớp",
-                    teacher: res.teacher || "Chưa có giáo viên",
-                    year: res.schoolYear || "Chưa rõ",
-                });
-            } catch (error) {
-                console.error("Không lấy được thông tin lớp học:", error);
-                setCurrentClassInfo(undefined);
+                const attendanceRes = await getAttendanceByStudentID(studentId);
+                if (attendanceRes.message === "No attendance records found for this student") {
+                    setAttendanceData([]);
+                } else {
+                    setAttendanceData(attendanceRes.data || []);
+                }
+            } catch (attendanceError: any) {
+                if (attendanceError?.response?.status === 404) {
+                    setAttendanceData([]);
+                } else {
+                    console.error("Lỗi lấy điểm danh:", attendanceError);
+                    setAttendanceData([]);
+                }
             }
-        };
+        } catch (error) {
+            console.error("Không lấy được thông tin lớp hoặc thời khóa biểu:", error);
+            setCurrentClassInfo(undefined);
+            setScheduleDataByClass(null);
+        }
+    };
 
-        fetchClassInfo();
+    useEffect(() => {
+        fetchClassInfoAndScheduleAndAttendance(selectedChildId);
     }, [selectedChildId]);
-
 
     return (
         <Box sx={{ p: 4, minHeight: '100vh', bgcolor: '#f5f7fb' }}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: '#0d47a1' }}>
-                📘 Thời khóa biểu Lớp {currentClassData.class}
+                📘 Thời khóa biểu Lớp {currentClassInfo?.name || "?"}
             </Typography>
 
             <Information
@@ -122,6 +158,10 @@ export default function TimeTable() {
                 childrenList={childrenList}
                 selectedChildId={selectedChildId}
                 onChildChange={(id: string) => setSelectedChildId(id)}
+            />
+            <AttendanceTable
+                weekDates={weekDates}
+                attendanceData={attendanceData}
             />
 
             <Schedules
