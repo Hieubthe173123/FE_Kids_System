@@ -86,9 +86,7 @@ const AttendancePage = () => {
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
-        const res = await getAttendanceToday(classId);
-      //  console.log('chjeck ressss', res);
-        
+        const res = await getAttendanceToday(classId);        
         const records = res.data;
         setAttendanceList(records);
         if (records.length > 0) {

@@ -80,11 +80,11 @@ const ScheduleTab = ({
 }: ScheduleTabProps) => {
   const [scheduleData, setScheduleData] = useState<ScheduleData | null>(null);
   const [uniqueTimes, setUniqueTimes] = useState<string[]>([]);
-
+  
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
-        const res = await getScheduleByClassId(classId);
+        const res = await getScheduleByClassId(classId , selectedYear, selectedWeek);
         setScheduleData(res);
 
         // Lấy ra các ca giờ duy nhất từ tất cả các ngày
@@ -101,7 +101,7 @@ const ScheduleTab = ({
       }
     };
     if (classId) fetchSchedule();
-  }, [classId]);
+  }, [classId , selectedYear, selectedWeek]);
 
   return (
     <Box mt={3} paddingBottom={10} >
