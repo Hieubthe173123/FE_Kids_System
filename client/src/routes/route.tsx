@@ -9,7 +9,6 @@ import MenuManagerDaily from "../pages/Principal/MenuDailyWeekly";
 import MenuManager from "../pages/Principal/MenuManager";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
 import ProcessEnroll from "../pages/Principal/ProcessEnroll";
-import TestAuth from "../components/Auth/TestAuth";
 import AdminHomePage from "../pages/admin/admin.home/AdminHome";
 import AccountDetail from "../pages/admin/admin.home/AccountDetail";
 import ClassMannager from "../pages/Principal/ClassMannager";

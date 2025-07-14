@@ -17,7 +17,7 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
-import { Book, ChangeCircle, CheckCircle, ControlCamera, Feedback, History, Home } from '@mui/icons-material';
+import { Book, ChangeCircle, CheckCircle, History, Home } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
     {
