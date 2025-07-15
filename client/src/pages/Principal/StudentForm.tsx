@@ -80,7 +80,16 @@ export default function StudentForm() {
                 <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={4}>
                     {/* Cột trái */}
                     <Box flex={1}>
-                        <TextField id="student-code" label="Mã học sinh" variant="standard" fullWidth value={form.studentCode} onChange={(e) => setForm({ ...form, studentCode: e.target.value })} />
+                        <TextField
+                            id="student-code"
+                            label="Mã học sinh"
+                            variant="standard"
+                            fullWidth
+                            value={form.studentCode}
+                            onChange={(e) => setForm({ ...form, studentCode: e.target.value })}
+                            disabled={!!id}
+                            sx={!!id ? { backgroundColor: 'grey.300', borderRadius: 1 } : {}}
+                        />
                         <TextField id="student-name" label="Họ tên" variant="standard" fullWidth value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} sx={{ mt: 2 }} />
                         <TextField id="student-dob" label="Ngày sinh" type="date" variant="standard" fullWidth InputLabelProps={{ shrink: true }} value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} sx={{ mt: 2 }} />
                         <TextField id="student-age" label="Tuổi" type="number" variant="standard" fullWidth value={form.age} onChange={(e) => setForm({ ...form, age: parseInt(e.target.value) })} sx={{ mt: 2 }} />

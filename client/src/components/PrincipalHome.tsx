@@ -57,11 +57,6 @@ const NAVIGATION: Navigation = [
         icon: <Groups3Icon />,
     },
     {
-        segment: "teacher-management",
-        title: "Quản lý giáo viên",
-        icon: <Groups3Icon />,
-    },
-    {
         segment: "curriculum-management",
         title: "Quản lý khung chương trình",
         icon: <HistoryEduIcon />,

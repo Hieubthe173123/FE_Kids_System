@@ -12,7 +12,7 @@ import {
     GridFooterContainer,
     GridPagination,
 } from "@mui/x-data-grid";
-import { Add, Edit, Delete, Refresh, Search } from "@mui/icons-material";
+import { Edit, Delete, Refresh, Search } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
@@ -109,8 +109,8 @@ export default function StudentManagement() {
                 params.value === "male"
                     ? "Nam"
                     : params.value === "female"
-                      ? "Nữ"
-                      : "Khác",
+                        ? "Nữ"
+                        : "Khác",
         },
         { field: "address", headerName: "Địa chỉ", flex: 2 },
         {
@@ -156,7 +156,7 @@ export default function StudentManagement() {
                             <Refresh />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title="Thêm học sinh mới">
+                    {/* <Tooltip title="Thêm học sinh mới">
                         <IconButton
                             onClick={() =>
                                 navigate("/principal-home/students-create")
@@ -164,7 +164,7 @@ export default function StudentManagement() {
                         >
                             <Add />
                         </IconButton>
-                    </Tooltip>
+                    </Tooltip> */}
                 </Box>
             </Box>
 

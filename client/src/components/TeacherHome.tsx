@@ -81,6 +81,13 @@ export default function TeacherHome() {
     const navigate = useNavigate();
     const navigationType = useNavigationType();
     const pathname = location.pathname.replace('/teacher-home', '') || '/';
+    React.useEffect(() => {
+        if (pathname === "/") {
+            navigate("/teacher-home/teacher-control", {
+                replace: true,
+            });
+        }
+    }, [pathname, navigate]);
 
     const [isMenuExpanded, __] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')

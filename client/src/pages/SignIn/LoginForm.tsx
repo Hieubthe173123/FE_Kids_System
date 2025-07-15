@@ -3,7 +3,6 @@ import {
     Button,
     Card,
     Checkbox,
-    Divider,
     FormControlLabel,
     Link,
     Stack,
@@ -37,8 +36,6 @@ const LoginForm = () => {
 
             if (login.fulfilled.match(resultAction)) {
                 const getUserResult = await dispatch(getUser());
-                //   console.log("getUserResult",getUserResult);
-
                 if (getUser.fulfilled.match(getUserResult)) {
                     const userData = getUserResult.payload;
                     console.log(getUserResult);
@@ -182,32 +179,7 @@ const LoginForm = () => {
                         {loading ? "Đang đăng nhập..." : "Đăng nhập vào Sakura"}
                     </Button>
                 </form>
-
                 <ToastContainer position="top-right" autoClose={3000} />
-
-
-                <Divider sx={{ my: 2, color: "#bbb" }}>hoặc</Divider>
-
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    <Button
-                        fullWidth
-                        variant="outlined"
-                        sx={{
-                            borderRadius: "12px",
-                            py: 1.5,
-                            color: "#e6687a",
-                            borderColor: "#e6687a",
-                            textTransform: "none",
-                            fontWeight: 500,
-                            '&:hover': {
-                                backgroundColor: "#fdecef",
-                                borderColor: "#e6687a"
-                            }
-                        }}
-                    >
-                        Đăng nhập bằng Google
-                    </Button>
-                </Box>
             </Card>
         </Box>
     );
