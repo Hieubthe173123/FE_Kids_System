@@ -22,6 +22,10 @@ import StudentForm from "../pages/Principal/StudentForm";
 import ScheduleManagement from "../pages/Principal/ScheduleManagement";
 import SchoolYearList from "../pages/Principal/SchoolYearList";
 import TeacherManagement from "../pages/Principal/TeacherList";
+import TeacherDashboard from "../pages/teacher/teacher.dashboard/teacher.dashboard";
+import TeacherOverviewPage from "../pages/teacher/teacher.page/teacher.overview";
+import AttendancePage from "../pages/teacher/teacher.attendance/teacher.attendance";
+import AttendanceHistoryPage from "../pages/teacher/teacher.attendance/history.attendance";
 
 export const routesParent = [
     {
@@ -57,13 +61,11 @@ export const routesAdmin = [
         path: "/admin-home",
         component: AdminHome,
         children: [
-            {
-                index: true,
-                component: () => <Navigate to="statistics" replace />,
-            },
+            { index: true, component: () => <Navigate to="" replace /> },
             { path: "", component: AdminHomePage },
             { path: "account-management", component: AdminHomePage },
             { path: "account-management/:id", component: AccountDetail },
+            { path: "statistics", component: AdminHomePage },
 
             {
                 index: true,
@@ -79,11 +81,15 @@ export const routesTeacher = [
         path: "/teacher-home",
         component: TeacherHome,
         children: [
-            {
-                index: true,
-                component: () => <Navigate to="teacher-home" replace />,
-            },
-            { path: "Home", component: TeacherHome },
+            { index: true, component: () => <Navigate to="" replace /> },
+            { path: "", component: TeacherDashboard },
+            // { path: 'time-table', component: TeacherTimetable },
+            // { path: 'class-management', component: TeacherClass },
+            { path: "teacher-control", component: TeacherOverviewPage },
+            { path: "attendance", component: AttendancePage },
+            { path: "history-attendance", component: AttendanceHistoryPage },
+
+            //  { path: 'class-management/:id', component: TeacherStudent },
         ],
     },
 ];

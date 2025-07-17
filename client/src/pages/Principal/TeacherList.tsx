@@ -1,4 +1,3 @@
-// TeacherManager.tsx
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -42,6 +41,9 @@ import {
   deleteTeacher,
   createTeacher,
   updateTeacher,
+  getLocationProvinces,
+  getLocationDistrict,
+  getLocationWards,
 } from "../../services/PrincipalApi";
 
 const PRIMARY_COLOR = "#4194cb";
@@ -78,7 +80,6 @@ export default function TeacherManager() {
     "dob",
     "IDCard",
     "phoneNumber",
-    "email",
     "address",
     "actions",
   ]);
@@ -95,7 +96,15 @@ export default function TeacherManager() {
     email: "",
     IDCard: "",
     address: "",
+    street: "",
   });
+  const [provinces, setProvinces] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
+  console.log("🚀 ~ TeacherManager ~ districts:", districts);
+  const [wards, setWards] = useState<any[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<any>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
+  const [selectedWard, setSelectedWard] = useState<any>(null);
 
   const fetchTeachers = async () => {
     setLoading(true);
@@ -117,6 +126,34 @@ export default function TeacherManager() {
     fetchTeachers();
   }, []);
 
+  useEffect(() => {
+    getLocationProvinces().then(setProvinces);
+  }, []);
+
+  useEffect(() => {
+    if (selectedProvince && selectedProvince.id) {
+      getLocationDistrict(selectedProvince.id).then(setDistricts);
+      setSelectedDistrict(null);
+      setWards([]);
+      setSelectedWard(null);
+    } else {
+      setDistricts([]);
+      setSelectedDistrict(null);
+      setWards([]);
+      setSelectedWard(null);
+    }
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    if (selectedDistrict && selectedDistrict.id) {
+      getLocationWards(selectedDistrict.id).then(setWards);
+      setSelectedWard(null);
+    } else {
+      setWards([]);
+      setSelectedWard(null);
+    }
+  }, [selectedDistrict]);
+
   const handleAdd = () => {
     setEditingTeacherId(null);
     setNewTeacher({
@@ -127,23 +164,63 @@ export default function TeacherManager() {
       email: "",
       IDCard: "",
       address: "",
+      street: "",
     });
+    setSelectedProvince(null);
+    setSelectedDistrict(null);
+    setSelectedWard(null);
     setOpenAddDialog(true);
   };
 
-  const handleEdit = (row: any) => {
-    setEditingTeacherId(row._id);
-    setNewTeacher({
-      fullName: row.fullName,
-      dob: row.dob,
-      gender: row.gender,
-      phoneNumber: row.phoneNumber,
-      email: row.email,
-      IDCard: row.IDCard,
-      address: row.address,
-    });
-    setOpenAddDialog(true);
-  };
+const handleEdit = async (row: any) => {
+  setEditingTeacherId(row._id);
+  let street = "";
+  let province = null;
+  let district = null;
+  let ward = null;
+  if (row.address) {
+    const parts = row.address.split(",").map((s: string) => s.trim());
+    street = parts[0] || "";
+    province = provinces.find((p) => parts[3] && p.name === parts[3]);
+    setSelectedProvince(province || null);
+
+    if (province) {
+      // 1. Load districts theo province
+      const districtsData = await getLocationDistrict(province.id);
+      setDistricts(districtsData);
+      district = districtsData.find((d: any) => parts[2] && d.name === parts[2]);
+      setSelectedDistrict(district || null);
+
+      if (district) {
+        // 2. Load wards theo district
+        const wardsData = await getLocationWards(district.id);
+        setWards(wardsData);
+        ward = wardsData.find((w: any) => parts[1] && w.name === parts[1]);
+        setSelectedWard(ward || null);
+      } else {
+        setWards([]);
+        setSelectedWard(null);
+      }
+    } else {
+      setDistricts([]);
+      setSelectedDistrict(null);
+      setWards([]);
+      setSelectedWard(null);
+    }
+  }
+
+  setNewTeacher({
+    fullName: row.fullName,
+    dob: row.dob,
+    gender: row.gender,
+    phoneNumber: row.phoneNumber,
+    email: row.email,
+    IDCard: row.IDCard,
+    address: row.address,
+    street,
+  });
+  setOpenAddDialog(true);
+};
 
   const handleDelete = async (row: any) => {
     const result = await Swal.fire({
@@ -174,10 +251,21 @@ export default function TeacherManager() {
   const handleSubmit = async () => {
     if (!newTeacher.fullName.trim())
       return toast.error("Họ và tên không được để trống");
+    if (!newTeacher.street.trim())
+      return toast.error("Vui lòng nhập số nhà, tên đường");
+    if (!selectedProvince || !selectedDistrict || !selectedWard)
+      return toast.error("Vui lòng chọn đầy đủ địa chỉ");
+
+    const address = `${newTeacher.street}, ${selectedWard.name}, ${selectedDistrict.name}, ${selectedProvince.name}`;
+    const teacherData = {
+      ...newTeacher,
+      address,
+    };
+
     const action = editingTeacherId ? updateTeacher : createTeacher;
     const res = editingTeacherId
-      ? await action(newTeacher, editingTeacherId)
-      : await action(newTeacher);
+      ? await action(teacherData, editingTeacherId)
+      : await action(teacherData);
 
     if (res.error)
       toast.error(editingTeacherId ? "Cập nhật thất bại" : "Tạo thất bại");
@@ -198,7 +286,13 @@ export default function TeacherManager() {
       email: "",
       IDCard: "",
       address: "",
+      street: "",
     });
+    setSelectedProvince(null);
+    setSelectedDistrict(null);
+    setSelectedWard(null);
+    setDistricts([]);
+    setWards([]);
     setEditingTeacherId(null);
   };
 
@@ -450,16 +544,75 @@ export default function TeacherManager() {
               fullWidth
             />
             <TextField
-              label="Địa chỉ"
-              value={newTeacher.address}
+              label="Số nhà, tên đường"
+              value={newTeacher.street}
               onChange={(e) =>
-                setNewTeacher({ ...newTeacher, address: e.target.value })
+                setNewTeacher({ ...newTeacher, street: e.target.value })
               }
               fullWidth
               multiline
               rows={2}
               sx={{ gridColumn: "1 / 3" }}
             />
+
+            <Select
+              value={selectedProvince?.id || ""}
+              onChange={(e) => {
+                const province = provinces.find((p) => p.id === e.target.value);
+                setSelectedProvince(province || null);
+              }}
+              displayEmpty
+              fullWidth
+            >
+              <MenuItem value="">
+                <em>Chọn tỉnh/thành</em>
+              </MenuItem>
+              {provinces.map((p) => (
+                <MenuItem key={p.id} value={p.id}>
+                  {p.name}
+                </MenuItem>
+              ))}
+            </Select>
+
+            <Select
+              value={selectedDistrict?.id || ""}
+              onChange={(e) => {
+                const district = districts.find((d) => d.id === e.target.value);
+                setSelectedDistrict(district || null);
+              }}
+              displayEmpty
+              fullWidth
+              disabled={!selectedProvince}
+            >
+              <MenuItem value="">
+                <em>Chọn quận/huyện</em>
+              </MenuItem>
+              {districts.map((d) => (
+                <MenuItem key={d.id} value={d.id}>
+                  {d.name}
+                </MenuItem>
+              ))}
+            </Select>
+
+            <Select
+              value={selectedWard?.id || ""}
+              onChange={(e) => {
+                const ward = wards.find((w) => w.id === e.target.value);
+                setSelectedWard(ward || null);
+              }}
+              displayEmpty
+              fullWidth
+              disabled={!selectedDistrict}
+            >
+              <MenuItem value="">
+                <em>Chọn phường/xã</em>
+              </MenuItem>
+              {wards.map((w) => (
+                <MenuItem key={w.id} value={w.id}>
+                  {w.name}
+                </MenuItem>
+              ))}
+            </Select>
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
