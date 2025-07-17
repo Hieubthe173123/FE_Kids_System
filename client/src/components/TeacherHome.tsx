@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SchoolIcon from '@mui/icons-material/School';
 import {
     AppProvider,
@@ -18,7 +17,7 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
-import { Book, CheckCircle, ControlCamera, Feedback, History, Home } from '@mui/icons-material';
+import { Book, ChangeCircle, CheckCircle, History, Home } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
     {
@@ -50,16 +49,22 @@ const NAVIGATION: Navigation = [
         segment: 'history-attendance',
         title: 'Lịch sử điểm danh',
         icon: <History />,
+    },
+    {
+        segment: 'swap-lecture',
+        title: 'Đổi lịch học',
+        icon: <ChangeCircle />,
     }
 
-  
+
+
 ];
 
 const demoTheme = createTheme({
     cssVariables: {
         colorSchemeSelector: 'data-toolpad-color-scheme',
     },
-    colorSchemes: { light: true, dark: true },
+    colorSchemes: { light: true },
     breakpoints: {
         values: {
             xs: 0,
@@ -76,8 +81,15 @@ export default function TeacherHome() {
     const navigate = useNavigate();
     const navigationType = useNavigationType();
     const pathname = location.pathname.replace('/teacher-home', '') || '/';
+    React.useEffect(() => {
+        if (pathname === "/") {
+            navigate("/teacher-home/teacher-control", {
+                replace: true,
+            });
+        }
+    }, [pathname, navigate]);
 
-    const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
+    const [isMenuExpanded, __] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
     const [loading, setLoading] = React.useState<boolean>(true);

@@ -10,22 +10,32 @@ import {
   TableHead,
   TableRow,
   Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Container,
+  Stack,
+  type SelectChangeEvent,
 } from "@mui/material";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import BrunchDiningIcon from "@mui/icons-material/BrunchDining";
 import LunchDiningIcon from "@mui/icons-material/LunchDining";
 import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
-dayjs.extend(isoWeek);
+import "dayjs/locale/vi";
 import { useState, useEffect, type JSX } from "react";
 import { getWeeklyMenuByDate } from "../../services/PrincipalApi";
 import { useNavigate } from "react-router-dom";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+
+dayjs.extend(isoWeek);
+dayjs.locale("vi");
 
 interface MealItem {
   dishName: string;
@@ -43,17 +53,19 @@ interface DailyMenu {
   _id?: string;
 }
 
-export default function WeeklyMenuPage() {
-  // const [weekStart, setWeekStart] = useState(dayjs().startOf("week").add(1, "day"));
-  const [weekStart, setWeekStart] = useState(dayjs().isoWeekday(1));
+export default function WeeklyMenuPage(): JSX.Element {
+  const [weekStart, setWeekStart] = useState<Dayjs>(dayjs().isoWeekday(1));
   const [menuData, setMenuData] = useState<DailyMenu[]>([]);
-  const [ageCategory, setAgeCategory] = useState<number>(1); // mặc định tuổi 1
-  const navigate = useNavigate(); // thêm trong component
+  const [ageCategory, setAgeCategory] = useState<number>(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const menus = await getWeeklyMenuByDate(weekStart.format("YYYY-MM-DD"), ageCategory);
+        const menus = await getWeeklyMenuByDate(
+          weekStart.format("YYYY-MM-DD"),
+          ageCategory
+        );
         setMenuData(menus);
       } catch (error) {
         console.error("Lỗi tải thực đơn:", error);
@@ -62,146 +74,200 @@ export default function WeeklyMenuPage() {
     };
 
     fetchData();
-  }, [weekStart, ageCategory]); // ✅ thêm ageCategory ở đây
+  }, [weekStart, ageCategory]);
 
-  const getMeal = (date: string, meal: keyof DailyMenu): JSX.Element => {
-    const day = menuData.find((d) => dayjs(d.date).isSame(date, "day"));
-    const mealValue = day ? day[meal] : [];
-    return Array.isArray(mealValue) && mealValue.length > 0 ? (
-      <>
-        {mealValue.map((item, idx) => (
-          <div key={idx} style={{ padding: "2px 0", fontSize: "14px" }}>🍽️ {item.dishName}</div>
-        ))}
-      </>
-    ) : (
-      <>-</>
-    );
-  };
-
-  const daysOfWeek = Array.from({ length: 7 }, (_, i) => weekStart.add(i, "day"));
-
-  const getMealLabel = (mealKey: keyof DailyMenu) => {
-    switch (mealKey) {
-      case "breakfast":
-        return <><BrunchDiningIcon fontSize="small" sx={{ mr: 1 }} />Sáng</>;
-      case "lunch":
-        return <><LunchDiningIcon fontSize="small" sx={{ mr: 1 }} />Trưa</>;
-      case "dinner":
-        return <><DinnerDiningIcon fontSize="small" sx={{ mr: 1 }} />Chiều</>;
-      default:
-        return mealKey;
+  const handleDateChange = (newValue: Dayjs | null) => {
+    if (newValue) {
+      setWeekStart(newValue.isoWeekday(1));
     }
   };
 
+  const handleAgeChange = (event: SelectChangeEvent<number>) => {
+    setAgeCategory(Number(event.target.value));
+  };
+
+  const getMeal = (date: string, meal: keyof DailyMenu): JSX.Element => {
+    const day = menuData.find((d) => dayjs(d.date).isSame(date, "day"));
+    const mealItems = day ? (day[meal] as MealItem[]) : [];
+
+    if (!Array.isArray(mealItems) || mealItems.length === 0) {
+      return <Typography variant="body2" color="text.secondary">-</Typography>;
+    }
+
+    return (
+      <Stack spacing={0.5}>
+        {mealItems.map((item, idx) => (
+          <Typography key={item._id || idx} variant="body2">
+            {item.dishName}
+          </Typography>
+        ))}
+      </Stack>
+    );
+  };
+
+  type MealType = "breakfast" | "lunch" | "dinner";
+  const getMealLabel = (mealKey: MealType): JSX.Element => {
+    const icons: Record<MealType, JSX.Element> = {
+      breakfast: <BrunchDiningIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />,
+      lunch: <LunchDiningIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />,
+      dinner: <DinnerDiningIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />,
+    };
+    const labels: Record<MealType, string> = {
+      breakfast: "Sáng",
+      lunch: "Trưa",
+      dinner: "Chiều",
+    };
+    return (
+      <>
+        {icons[mealKey]}
+        {labels[mealKey]}
+      </>
+    );
+  };
+
+  const daysOfWeek = Array.from({ length: 7 }, (_, i) =>
+    weekStart.add(i, "day")
+  );
+
   return (
-    <Box
-      sx={{
-        p: 3,
-        bgcolor: "#fefefe",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-        fontFamily: 'Comic Sans MS',
-      }}
-    >
-      <Typography
-        variant="h5"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-          fontWeight: "bold",
-          color: "#e6687a",
-        }}
-      >
-        <RestaurantMenuIcon sx={{ color: "#4194cb" }} /> Thực đơn tuần vui nhộn 🎉
-      </Typography>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Stack spacing={3}>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <RestaurantMenuIcon color="primary" sx={{ fontSize: '2.5rem' }} />
+            <Typography variant="h4" component="h1" fontWeight="bold">
+              Thực Đơn Tuần
+            </Typography>
+          </Stack>
 
-      <Paper
-        sx={{
-          p: 2,
-          borderRadius: 2,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 2,
-          backgroundColor: "#e3f2fd",
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <CalendarMonthIcon sx={{ color: "#4194cb" }} />
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Chọn ngày trong tuần"
-              value={weekStart}
-              onChange={(newValue) => {
-                if (dayjs.isDayjs(newValue)) setWeekStart(newValue.startOf("week").add(1, "day"));
-              }}
-              format="DD/MM/YYYY"
-            />
-          </LocalizationProvider>
-        </Box>
-        <FormControl sx={{ minWidth: 120 }}>
-          <InputLabel id="age-label">Độ tuổi</InputLabel>
-          <Select
-            labelId="age-label"
-            id="age-select"
-            value={ageCategory}
-            label="Độ tuổi"
-            onChange={(e) => setAgeCategory(Number(e.target.value))}
-          >
-            {[1, 2, 3, 4, 5].map((age) => (
-              <MenuItem key={age} value={age}>
-                Tuổi {age}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button
-          variant="contained"
-          sx={{ backgroundColor: "#4194cb", color: "#fff", whiteSpace: "nowrap" }}
-          onClick={() => navigate("/principal-home/menu-management")}
-        >
-          ➕ Tạo mới thực đơn tuần
-        </Button>
-      </Paper>
-
-      <Paper sx={{ p: 2, borderRadius: 2, backgroundColor: "#f9f9f9" }}>
-        {menuData.length === 0 ? (
-          <Alert severity="info">Chưa có thực đơn cho tuần này.</Alert>
-        ) : (
-          <TableContainer>
-            <Table sx={{ border: '2px solid #4194cb', minWidth: 650 }} size="small" aria-label="timetable">
-              <TableHead sx={{ backgroundColor: '#46a2da' }}>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: "bold", border: '1px solid #3982b8', fontSize: '16px', color: 'white' }}>🍽️ Buổi</TableCell>
-                  {daysOfWeek.map((day) => (
-                    <TableCell key={day.toString()} align="center" sx={{ border: '1px solid #3982b8', fontWeight: 'bold', fontSize: '14px', color: 'white' }}>
-                      {day.format("dddd, DD/MM")}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {(["breakfast", "lunch", "dinner"] as (keyof DailyMenu)[]).map((mealKey) => (
-                  <TableRow key={mealKey}>
-                    <TableCell sx={{ fontWeight: 500, border: '1px solid #ccc', whiteSpace: 'nowrap', backgroundColor: '#f0f8ff' }}>
-                      {getMealLabel(mealKey)}
-                    </TableCell>
-                    {daysOfWeek.map((day) => (
-                      <TableCell key={day.toString()} sx={{ border: '1px solid #ccc', whiteSpace: 'pre-wrap' }}>
-                        {getMeal(day.format("YYYY-MM-DD"), mealKey)}
-                      </TableCell>
+          <Paper elevation={0} sx={{ p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={2}
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
+                <DatePicker {...({} as any)}
+                  label="Chọn tuần"
+                  value={weekStart}
+                  onChange={handleDateChange}
+                  format="DD/MM/YYYY"
+                  slotProps={{
+                    textField: {
+                      InputProps: {
+                        startAdornment: (
+                          <CalendarMonthIcon color="action" sx={{ mr: 1 }} />
+                        )
+                      }
+                    }
+                  }}
+                />
+                <FormControl sx={{ minWidth: 150 }} size="medium">
+                  <InputLabel id="age-label">Độ tuổi</InputLabel>
+                  <Select
+                    labelId="age-label"
+                    value={ageCategory}
+                    label="Độ tuổi"
+                    onChange={handleAgeChange}
+                  >
+                    {[1, 2, 3, 4, 5].map((age) => (
+                      <MenuItem key={age} value={age}>
+                        Khối {age} tuổi
+                      </MenuItem>
                     ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </Paper>
-    </Box>
+                  </Select>
+                </FormControl>
+              </Stack>
+              <Button
+                variant="contained"
+                startIcon={<AddCircleOutlineIcon />}
+                onClick={() => navigate("/principal-home/menu-management")}
+                sx={{ whiteSpace: "nowrap" }}
+              >
+                Tạo thực đơn mới
+              </Button>
+            </Stack>
+          </Paper>
+
+          <Paper elevation={3} sx={{ width: "100%", overflow: "hidden", borderRadius: 3, boxShadow: 3, mt: 1 }}>
+            {menuData.length === 0 ? (
+              <Box sx={{ p: 4 }}>
+                <Alert severity="info">
+                  Chưa có dữ liệu thực đơn cho tuần được chọn.
+                </Alert>
+              </Box>
+            ) : (
+              <TableContainer component={Box} sx={{ background: '#fff', borderRadius: 3 }}>
+                <Table sx={{ minWidth: 900, borderCollapse: 'separate', borderSpacing: 0 }} aria-label="menu table">
+                  <TableHead>
+                    <TableRow sx={{ background: 'linear-gradient(90deg, #4194cb 0%, #6ec6ff 100%)' }}>
+                      <TableCell
+                        align="center"
+                        sx={{ color: '#fff', fontWeight: 700, fontSize: 17, borderTopLeftRadius: 12, borderBottom: 'none', letterSpacing: 0.5 }}
+                      >
+                        Buổi
+                      </TableCell>
+                      {daysOfWeek.map((day, idx) => (
+                        <TableCell
+                          key={day.toString()}
+                          align="center"
+                          sx={{
+                            color: '#fff',
+                            fontWeight: 700,
+                            fontSize: 16,
+                            borderBottom: 'none',
+                            ...(idx === daysOfWeek.length - 1 && { borderTopRightRadius: 12 })
+                          }}
+                        >
+                          {day.format("dddd, DD/MM")}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(["breakfast", "lunch", "dinner"] as MealType[]).map((mealKey, rowIdx) => (
+                      <TableRow
+                        key={mealKey}
+                        sx={{
+                          backgroundColor: rowIdx % 2 === 0 ? '#f7fbff' : '#e3f2fd',
+                          '&:hover': { backgroundColor: '#e1f5fe' },
+                          transition: 'background 0.2s',
+                        }}
+                      >
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          align="center"
+                          sx={{ fontWeight: 600, fontSize: 15, minWidth: 120, borderRight: '1px solid #e0e0e0', letterSpacing: 0.2 }}
+                        >
+                          {getMealLabel(mealKey)}
+                        </TableCell>
+                        {daysOfWeek.map((day) => (
+                          <TableCell
+                            key={day.toString()}
+                            align="center"
+                            sx={{
+                              fontSize: 15,
+                              px: 2,
+                              py: 1.5,
+                              borderRight: '1px solid #e0e0e0',
+                              borderBottom: rowIdx === 2 ? 'none' : '1px solid #e0e0e0',
+                              minWidth: 120,
+                            }}
+                          >
+                            {getMeal(day.format("YYYY-MM-DD"), mealKey)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Paper>
+        </Stack>
+      </Container>
+    </LocalizationProvider>
   );
 }

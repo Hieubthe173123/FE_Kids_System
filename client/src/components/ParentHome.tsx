@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
-import FeedbackIcon from '@mui/icons-material/Feedback';
+import HomeIcon from '@mui/icons-material/Home';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SchoolIcon from '@mui/icons-material/School';
 import {
@@ -23,6 +23,16 @@ import {
 
 const NAVIGATION: Navigation = [
     {
+        segment: 'dashboard',
+        title: 'Trang chủ',
+        icon: <HomeIcon />,
+    },
+    {
+        segment: 'profile',
+        title: 'Hồ sơ phụ huynh',
+        icon: <SchoolIcon />,
+    },
+    {
         segment: 'time-table',
         title: 'Lịch học của bé',
         icon: <CalendarMonthIcon />,
@@ -32,12 +42,6 @@ const NAVIGATION: Navigation = [
         segment: 'meal-time',
         title: 'Thực đơn hàng ngày',
         icon: <FastfoodIcon />,
-    },
-
-    {
-        segment: 'feedback',
-        title: 'Đánh giá học sinh',
-        icon: <FeedbackIcon />,
     }
 ];
 
@@ -45,7 +49,7 @@ const demoTheme = createTheme({
     cssVariables: {
         colorSchemeSelector: 'data-toolpad-color-scheme',
     },
-    colorSchemes: { light: true, dark: true },
+    colorSchemes: { light: true },
     breakpoints: {
         values: {
             xs: 0,
@@ -68,10 +72,9 @@ export default function ParentHome() {
         }
     }, [pathname, navigate]);
 
-    const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
+    const [isMenuExpanded, __] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
-    console.log(setIsMenuExpanded);
 
 
     const [loading, setLoading] = React.useState<boolean>(true);

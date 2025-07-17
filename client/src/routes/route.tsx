@@ -9,7 +9,6 @@ import MenuManagerDaily from "../pages/Principal/MenuDailyWeekly";
 import MenuManager from "../pages/Principal/MenuManager";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
 import ProcessEnroll from "../pages/Principal/ProcessEnroll";
-import TestAuth from "../components/Auth/TestAuth";
 import AdminHomePage from "../pages/admin/admin.home/AdminHome";
 import AccountDetail from "../pages/admin/admin.home/AccountDetail";
 import ClassMannager from "../pages/Principal/ClassMannager";
@@ -26,6 +25,9 @@ import TeacherDashboard from "../pages/teacher/teacher.dashboard/teacher.dashboa
 import TeacherOverviewPage from "../pages/teacher/teacher.page/teacher.overview";
 import AttendancePage from "../pages/teacher/teacher.attendance/teacher.attendance";
 import AttendanceHistoryPage from "../pages/teacher/teacher.attendance/history.attendance";
+import Attendance from "../pages/Parent/Attendance";
+import ParentProfile from "../pages/Parent/ParentProfile";
+import ScheduleSwapPage from "../pages/teacher/swap/teacher.swap.lecture";
 
 export const routesParent = [
     {
@@ -49,8 +51,12 @@ export const routesParent = [
                 component: DailyFeedback,
             },
             {
-                path: "test-auth",
-                component: TestAuth,
+                path: "attendance",
+                component: Attendance,
+            },
+            {
+                path: "profile",
+                component: ParentProfile,
             },
         ],
     },
@@ -88,6 +94,7 @@ export const routesTeacher = [
             { path: "teacher-control", component: TeacherOverviewPage },
             { path: "attendance", component: AttendancePage },
             { path: "history-attendance", component: AttendanceHistoryPage },
+            { path: "swap-lecture", component: ScheduleSwapPage },
 
             //  { path: 'class-management/:id', component: TeacherStudent },
         ],

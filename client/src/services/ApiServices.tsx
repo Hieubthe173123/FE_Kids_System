@@ -40,26 +40,50 @@ export const getWeeklyMenuByDate = async (weekStart: string, age: Number) => {
 //   }
 // };
 
-export const getWeeklyMenuByDateNow = async (date: Date) => {
-  try {
-    // Tính toán ngày đầu tuần (Thứ 2) dựa trên `date` được truyền vào
-    const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
+// Trả về object: { [ageCategory]: dailyMenus[] }
+// export const getWeeklyMenuByDateNow = async (date: Date, ageList: number[]) => {
+//   try {
+//     const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
+//     const response = await axiosInstance.get("/weeklyMenu");
+//     const allMenus = response.data.data || [];
+//     const matchedWeeks = allMenus.filter((menu: any) =>
+//       dayjs(menu.weekStart).utc().isSame(weekStart, "day")
+//     );
+//     // Trả về mảng object gồm ageCategory và dailyMenus
+//     return matchedWeeks.map((menu: any) => ({
+//       ageCategory: menu.ageCategory,
+//       days: menu.dailyMenus
+//     }));
+//   } catch (error) {
+//     console.error("Lỗi lấy thực đơn theo tuần:", error);
+//     throw error;
+//   }
+// };
 
+export const getWeeklyMenuByDateNow = async (date: Date, ageList: number[]) => {
+  try {
+    const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
     const response = await axiosInstance.get("/weeklyMenu");
     const allMenus = response.data.data || [];
 
-    // Tìm kiếm tuần khớp với `weekStart` đã tính
-    const matchedWeek = allMenus.find((menu: any) =>
-      dayjs(menu.weekStart).utc().isSame(weekStart, "day")
-    );
+    const matchedWeeks = allMenus.filter((menu: any) => {
+      const isSameWeek = dayjs(menu.weekStart).utc().isSame(weekStart, "day");
+      const isInAgeList = ageList.includes(menu.ageCategory);
+      return isSameWeek && isInAgeList;
+    });
 
-    return matchedWeek?.dailyMenus || [];
+    const abc = matchedWeeks.map((menu: any) => ({
+      ageCategory: menu.ageCategory,
+      days: menu.dailyMenus
+    }));
+    console.log("🚀 ~ abc ~ abc:", abc)
+
+    return abc;
   } catch (error) {
     console.error("Lỗi lấy thực đơn theo tuần:", error);
     throw error;
   }
 };
-
 
 
 export const getWeeklyMenuById = async (id: string) => {
@@ -123,7 +147,7 @@ export const getAllParents = async () => {
 };
 
 export const createParent = async (parentData: any) => {
-      console.log("🚀 ~ createParent ~ parentData:", parentData)
+  console.log("🚀 ~ createParent ~ parentData:", parentData)
   try {
     const response = await axiosInstance.post("/parent", parentData);
     return response.data;

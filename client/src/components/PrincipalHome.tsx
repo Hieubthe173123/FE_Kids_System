@@ -57,11 +57,6 @@ const NAVIGATION: Navigation = [
         icon: <Groups3Icon />,
     },
     {
-        segment: "teacher-management",
-        title: "Quản lý giáo viên",
-        icon: <Groups3Icon />,
-    },
-    {
         segment: "curriculum-management",
         title: "Quản lý khung chương trình",
         icon: <HistoryEduIcon />,
@@ -82,7 +77,7 @@ const demoTheme = createTheme({
     cssVariables: {
         colorSchemeSelector: "data-toolpad-color-scheme",
     },
-    colorSchemes: { light: true, dark: true },
+    colorSchemes: { light: true },
     breakpoints: {
         values: {
             xs: 0,
@@ -107,10 +102,9 @@ export default function PrincipalHome() {
         }
     }, [pathname, navigate]);
 
-    const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
-        JSON.parse(localStorage.getItem("parentMenuExpanded") || "false")
+    const [isMenuExpanded, __] = React.useState<boolean>(
+        JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
-    console.log(setIsMenuExpanded);
 
     const [loading, setLoading] = React.useState<boolean>(true);
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -123,7 +117,7 @@ export default function PrincipalHome() {
     };
 
     const authentication = {
-        signIn: () => {},
+        signIn: () => { },
         signOut: async () => {
             await logout();
             window.location.href = "/sign-in";

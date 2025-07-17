@@ -29,20 +29,20 @@ const NAVIGATION: Navigation = [
         title: 'Quản lý tài khoản',
         icon: <AdminPanelSettings />,
     },
- 
+
     {
         segment: 'statistics',
         title: 'Thống kê',
         icon: <BarChart />,
     },
-    
+
 ];
 
 const demoTheme = createTheme({
     cssVariables: {
         colorSchemeSelector: 'data-toolpad-color-scheme',
     },
-    colorSchemes: { light: true, dark: true },
+    colorSchemes: { light: true },
     breakpoints: {
         values: {
             xs: 0,
@@ -60,10 +60,9 @@ export default function AdminHome() {
     const navigationType = useNavigationType();
     const pathname = location.pathname.replace('/admin-home', '') || '/';
 
-    const [isMenuExpanded, setIsMenuExpanded] = React.useState<boolean>(
+    const [isMenuExpanded, __] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );
-    console.log(setIsMenuExpanded)
     const [loading, setLoading] = React.useState<boolean>(true);
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const session: Session = {

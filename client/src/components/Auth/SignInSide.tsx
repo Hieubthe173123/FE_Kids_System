@@ -3,8 +3,10 @@ import Stack from '@mui/material/Stack';
 import { Box } from '@mui/material';
 import LoginForm from '../../pages/SignIn/LoginForm';
 import SakuraContent from '../../pages/SignIn/SakuraContent';
+import { useNavigate } from 'react-router-dom';
 
 export default function SignInSide() {
+    const navigate = useNavigate();
     return (
         <>
             <CssBaseline enableColorScheme />
@@ -16,6 +18,30 @@ export default function SignInSide() {
                     flexDirection: 'column',
                 }}
             >
+                {/* Nút Back về trang chủ */}
+                <Box sx={{ position: 'absolute', top: 24, left: 24, zIndex: 10 }}>
+                    <Box component="button"
+                        onClick={() => navigate("/")}
+                        sx={{
+                            px: 2,
+                            py: 1,
+                            borderRadius: 2,
+                            border: '1px solid #1976d2',
+                            background: '#fff',
+                            color: '#1976d2',
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            boxShadow: 1,
+                            transition: 'all 0.2s',
+                            '&:hover': {
+                                background: '#e3f2fd',
+                                borderColor: '#1565c0',
+                            },
+                        }}
+                    >
+                        ← Về trang chủ
+                    </Box>
+                </Box>
                 <Stack
                     direction="row"
                     component="main"

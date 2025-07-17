@@ -87,8 +87,6 @@ const AttendancePage = () => {
     const fetchAttendance = async () => {
       try {
         const res = await getAttendanceToday(classId);
-      //  console.log('chjeck ressss', res);
-        
         const records = res.data;
         setAttendanceList(records);
         if (records.length > 0) {
@@ -168,14 +166,14 @@ const AttendancePage = () => {
             sx={{ mx: 1, display: { xs: "none", md: "block" } }}
           />
           <Box display="flex" alignItems="center" gap={1.5} sx={{ pr: 2 }}>
-  <PersonIcon sx={{ color: "#46a2da" }} />
-  <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-    <Typography fontSize={13} color="text.secondary">Giáo viên</Typography>
-    <Typography fontWeight={600} fontSize={16}>
-      {teacherInClass?.map((t: any) => t.fullName).join(", ") || "--"}
-    </Typography>
-  </Box>
-</Box>
+            <PersonIcon sx={{ color: "#46a2da" }} />
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+              <Typography fontSize={13} color="text.secondary">Giáo viên</Typography>
+              <Typography fontWeight={600} fontSize={16}>
+                {teacherInClass?.map((t: any) => t.fullName).join(", ") || "--"}
+              </Typography>
+            </Box>
+          </Box>
 
           <Divider
             orientation="vertical"
@@ -218,7 +216,7 @@ const AttendancePage = () => {
         >
           <Table>
             <TableHead>
-              <TableRow sx={{ bgcolor: "#1976d2" }}>
+              <TableRow sx={{ bgcolor: "#4194cb" }}>
                 <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
                   STT
                 </TableCell>
