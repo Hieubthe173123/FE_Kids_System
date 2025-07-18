@@ -107,6 +107,16 @@ export default function WeeklyMenuCRUD() {
         return;
       }
 
+      const existing = menus.find((m) =>
+        dayjs(m.weekStart).isSame(weekStart, "day") &&
+        String(m.ageCategory) === String(ageCategory)
+      );
+
+      if (existing && !editData) {
+        setErrorMsg("⛔ Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
+        return;
+      }
+
       const startOfSelectedWeek = dayjs(weekStart).startOf('week');
       const startOfCurrentWeek = dayjs().startOf('week');
 
