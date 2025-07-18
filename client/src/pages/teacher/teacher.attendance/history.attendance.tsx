@@ -51,7 +51,8 @@ const AttendanceHistoryPage = () => {
   const [attendanceList, setAttendanceList] = useState<Attendance[]>([]);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [classId, setClassId] = useState<string>("");
-
+ // console.log(';check seleted date', selectedDate);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -59,18 +60,27 @@ const AttendanceHistoryPage = () => {
 
         if (!currentClassId) {
           const classRes = await getTeacherClass();
-          if (classRes && classRes.length > 0) {
-            currentClassId = classRes[0]._id;
+          console.log('chek res', classRes);
+          
+          if (classRes && classRes.data.classes.length > 0) {
+            //   setClassId( classRes.data.classes[0]._id);
+        //  setClassInfo( classRes.data.classes[0]);
+            currentClassId =  classRes.data.classes[0]._id;
             setClassId(currentClassId);
           } else {
+            console.log('false');
+            
             return;
           }
         }
-
+        console.log('chek seleted date', selectedDate);
+        
         if (!selectedDate) return;
         const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
 
         const attendanceRes = await getAttendanceByDate(formattedDate, currentClassId);
+        console.log('check attendance res', attendanceRes);
+        
         setAttendanceList(attendanceRes.data);
 
       } catch (err: any) {
@@ -105,6 +115,8 @@ const AttendanceHistoryPage = () => {
     }
   };
 
+    console.log('chjeck attendaec', attendanceList);
+    
   return (
     <Box
       sx={{ p: 4, minHeight: "100vh", bgcolor: "#f5f7fb", marginBottom: 10 }}

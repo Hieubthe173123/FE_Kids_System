@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+  import { useEffect, useState } from "react";
 import {
   Box, Typography, Button, Grid, Paper, Stack, CircularProgress,
   Snackbar, Alert, Card, CardContent, Dialog, DialogActions,
@@ -91,7 +91,7 @@ export default function SwapSchedule() {
   useEffect(() => {
     const fetchTeacherClass = async () => {
       const res = await getTeacherClass();
-      if (res && res.length > 0) setClassId(res[0]._id);
+      if (res && res.data.classes.length > 0) setClassId(res.data.classes[0]._id);
     };
     fetchTeacherClass();
   }, []);

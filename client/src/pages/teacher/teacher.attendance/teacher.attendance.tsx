@@ -62,44 +62,57 @@ const AttendancePage = () => {
   const [teacherInClass, setTeacherInClass] = useState<any>(null);
   const user = useSelector((state: RootState) => state.auth.user);
   useEffect(() => {
-    const fetchTeacherClass = async () => {
-      const res = await getTeacherClass();
-      if (res && res.length > 0) {
-        setClassId(res[0]._id);
-        setClassInfo(res[0]);
-      }
-    };
-    fetchTeacherClass();
-  }, []);
-  useEffect(() => {
-    const fetchTeacherInClass = async () => {
-      const res = await getTeacherInClass(classId);
-      if (res && res.length > 0) {
-        setTeacherInClass(res);
-      }
-    };
-    fetchTeacherInClass();
-  }, [classId]);
-  // Lấy classId và thông tin lớp của giáo viên
-
-  // Lấy danh sách điểm danh hôm nay
-  useEffect(() => {
-    const fetchAttendance = async () => {
+    const fetchClassInfo = async () => {
       try {
-        const res = await getAttendanceToday(classId);
-        const records = res.data;
-        setAttendanceList(records);
-        if (records.length > 0) {
-          setTeacherName(
-            records[0]?.teacherId?.fullName || user?.fullName || ""
-          );
+        const classRes = await getTeacherClass();
+        // console.log('ceck class res', classRes);
+        // console.log('echck id', classRes.data.classes[0]._id);
+        
+        
+        if (classRes && classRes.data.classes.length > 0) {
+          setClassId( classRes.data.classes[0]._id);
+          setClassInfo( classRes.data.classes[0]);
+        } else {
+          console.warn("Không tìm thấy lớp học");
         }
       } catch (err) {
-        console.error("Lỗi khi lấy điểm danh:", err);
+        console.error("Lỗi khi lấy lớp học:", err);
       }
     };
-    if (classId) fetchAttendance();
+    fetchClassInfo();
+  }, []);
+  
+  useEffect(() => {
+    const fetchDependentData = async () => {
+      if (!classId) return;
+  
+      try {
+        const [teacherRes, attendanceRes] = await Promise.all([
+          getTeacherInClass(classId),
+          getAttendanceToday(classId),
+        ]);
+  
+        if (teacherRes && teacherRes.length > 0) {
+          setTeacherInClass(teacherRes);
+        }
+  
+        if (attendanceRes?.data) {
+          setAttendanceList(attendanceRes.data);
+          if (attendanceRes.data.length > 0) {
+            setTeacherName(
+              attendanceRes.data[0]?.teacherId?.fullName || user?.fullName || ""
+            );
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi khi lấy giáo viên hoặc điểm danh:", err);
+      }
+    };
+  
+    fetchDependentData();
   }, [classId]);
+  
+  
 
   // Cập nhật trường trong từng bản ghi điểm danh
   const handleChange = (index: number, field: keyof Attendance, value: any) => {
@@ -128,6 +141,8 @@ const AttendancePage = () => {
     }
   };
 
+  console.log('chekc data ', attendanceList);
+  
   return (
     <Box
       sx={{ p: 4, minHeight: "100vh", bgcolor: "#f5f7fb", marginBottom: 20 }}
