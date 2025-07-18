@@ -506,7 +506,7 @@ export const getWeeklyMenuByDate = async (weekStart: string, age: Number) => {
             params: { weekStart },
         });
 
-        const allMenus = response.data.data || [];
+        const allMenus = response.data || [];
 
         const matchedWeek = allMenus.find(
             (menu: any) =>
@@ -534,7 +534,7 @@ export const createWeeklyMenu = async (menuData: any) => {
 export const getAllWeeklyMenus = async () => {
     try {
         const response = await axiosInstance.get("/weeklyMenu");
-        return response.data.data || [];
+        return response.data || [];
     } catch (error) {
         console.error("Lỗi lấy tất cả thực đơn:", error);
         throw error;
