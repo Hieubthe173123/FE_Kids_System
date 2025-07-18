@@ -56,3 +56,23 @@ export const getAttendanceByStudentID = async (studentId: string) => {
         throw error;
     }
 }
+
+export const getAllHolidays = async () => {
+    try {
+        const response = await axiosInstance.get('/holiday');
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching holidays: ", error);
+        throw error;
+    }
+}
+
+export const getHolidayByDate = async (date: string) => {
+    try {
+        const response = await axiosInstance.get(`/holiday/${date}`)
+        return response.data
+    } catch (error) {
+        console.error("Error fetching holiday: ", error);
+        throw error
+    }
+}

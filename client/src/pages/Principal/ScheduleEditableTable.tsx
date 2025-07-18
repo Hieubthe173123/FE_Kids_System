@@ -144,34 +144,29 @@ export const ScheduleEditableTable: React.FC<Props> = ({
                 sel.activity.id === activity.id &&
                 sel.time === activity.time
         );
-    };
+    }
 
     return (
-        <Paper
-            sx={{ mt: 2, overflow: "hidden", borderRadius: 3, boxShadow: 3 }}
-        >
-            <Box
-                sx={{
-                    p: 2,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    bgcolor: "primary.main",
-                    color: "white",
-                }}
-            >
-                <Typography variant="h6" fontWeight="bold">
-                    Thời Khóa Biểu
-                </Typography>
+        <Box sx={{ width: '100%', overflowX: 'auto', maxWidth: '100vw' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 2 }}>
                 {!isReadOnly && (
-                    <Tooltip title="Hoán đổi 2 hoạt động đã chọn">
+                    <Tooltip title="Chọn 2 hoạt động để hoán đổi">
                         <span>
                             <Button
                                 variant="contained"
-                                color="secondary"
+                                color="warning"
                                 startIcon={<SwapHorizIcon />}
                                 disabled={selectedActivities.length !== 2}
                                 onClick={handleSwap}
+                                sx={{
+                                    fontWeight: 700,
+                                    fontSize: 15,
+                                    px: 2.5,
+                                    py: 1,
+                                    boxShadow: '0 2px 8px 0 rgba(255,193,7,0.10)',
+                                    borderRadius: 2,
+                                    transition: 'all 0.2s',
+                                }}
                             >
                                 Hoán đổi
                             </Button>
@@ -179,143 +174,171 @@ export const ScheduleEditableTable: React.FC<Props> = ({
                     </Tooltip>
                 )}
             </Box>
-            <TableContainer sx={{ maxHeight: "calc(90vh - 300px)" }}>
-                <Table stickyHeader>
-                    <TableHead>
-                        <TableRow
-                            sx={{
-                                "& .MuiTableCell-root": {
-                                    bgcolor: "primary.light",
+            <Paper
+                sx={{
+                    mt: 0,
+                    overflow: "hidden",
+                    borderRadius: 4,
+                    boxShadow: "0px 6px 24px rgba(65,148,203,0.10)",
+                    border: '1.5px solid #e3eaf5',
+                }}
+            >
+                <Box
+                    sx={{
+                        p: 0.4,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        bgcolor: "#4194cb",
+                        color: "white",
+                        borderTopLeftRadius: 4,
+                        borderTopRightRadius: 4,
+                        boxShadow: "0 2px 8px 0 rgba(65,148,203,0.08)",
+                    }}
+                >
+                </Box>
+                <TableContainer sx={{ maxHeight: "calc(90vh - 300px)", bgcolor: '#f7fbff', width: '100%' }}>
+                    <Table stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell align="center" sx={{
+                                    bgcolor: "#4194cb",
                                     color: "white",
-                                    fontWeight: "bold",
-                                },
-                            }}
-                        >
-                            <TableCell align="center">Thời gian</TableCell>
-                            {WEEKDAYS.map((day) => (
-                                <TableCell key={day} align="center">
-                                    {day}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {scheduleByTime.map((row) => (
-                            <TableRow key={row.time} hover>
-                                <TableCell
-                                    align="center"
-                                    sx={{
-                                        fontWeight: "bold",
-                                        bgcolor: "grey.100",
-                                    }}
-                                >
-                                    {row.time}
-                                </TableCell>
-                                {WEEKDAYS.map((day) => {
-                                    const activity: Activity | null = row[day];
-                                    const checked = isSelected(day, activity);
-                                    const isDisabled =
-                                        !checked &&
-                                        selectedActivities.length >= 2;
-
-                                    return (
-                                        <TableCell
-                                            key={`${day}-${row.time}`}
-                                            align="center"
-                                            sx={{
-                                                bgcolor: activity?.fixed
-                                                    ? "grey.200"
-                                                    : checked
-                                                      ? "secondary.light"
-                                                      : "white",
-                                                border: checked
-                                                    ? "2px solid"
-                                                    : "1px solid",
-                                                borderColor: checked
-                                                    ? "secondary.main"
-                                                    : "grey.200",
-                                                cursor:
-                                                    activity &&
-                                                    !activity.fixed &&
-                                                    !isReadOnly
-                                                        ? "pointer"
-                                                        : "default",
-                                                transition:
-                                                    "background-color 0.2s",
-                                            }}
-                                            onClick={() =>
-                                                activity &&
-                                                handleSelect(day, activity)
-                                            }
-                                        >
-                                            {activity ? (
-                                                <Box
-                                                    sx={{
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        justifyContent:
-                                                            "center",
-                                                        gap: 1,
-                                                    }}
-                                                >
-                                                    {!activity.fixed &&
-                                                        !isReadOnly && (
-                                                            <Checkbox
-                                                                size="small"
-                                                                checked={
-                                                                    checked
-                                                                }
-                                                                disabled={
-                                                                    isDisabled
-                                                                }
-                                                                onChange={() =>
-                                                                    handleSelect(
-                                                                        day,
-                                                                        activity
-                                                                    )
-                                                                }
-                                                                onClick={(e) =>
-                                                                    e.stopPropagation()
-                                                                }
-                                                            />
-                                                        )}
-                                                    <Box textAlign="left">
-                                                        <Typography
-                                                            variant="body2"
-                                                            fontWeight={500}
-                                                        >
-                                                            {activity.activity}
-                                                        </Typography>
-                                                        {/* <Typography
-                                                            variant="caption"
-                                                            color="text.secondary"
-                                                        >
-                                                            (Tuổi:{" "}
-                                                            {activity.age})
-                                                        </Typography>
-                                                        {activity.fixed && (
-                                                            <Typography
-                                                                variant="caption"
-                                                                display="block"
-                                                                color="error.main"
-                                                                fontWeight="bold"
-                                                            >
-                                                                (Cố định)
-                                                            </Typography>
-                                                        )} */}
-                                                    </Box>
-                                                </Box>
-                                            ) : (
-                                                "—"
-                                            )}
-                                        </TableCell>
-                                    );
-                                })}
+                                    fontWeight: 700,
+                                    fontSize: 15,
+                                    borderTopLeftRadius: 4,
+                                    borderRight: '2px solid #fff',
+                                    py: 1,
+                                    px: 1,
+                                    width: '12%',
+                                    minWidth: 80,
+                                }}>Thời gian</TableCell>
+                                {WEEKDAYS.map((day, idx) => (
+                                    <TableCell key={day} align="center" sx={{
+                                        bgcolor: "#4194cb",
+                                        color: "white",
+                                        fontWeight: 700,
+                                        fontSize: 15,
+                                        borderRight: idx === WEEKDAYS.length - 1 ? undefined : '2px solid #fff',
+                                        py: 1,
+                                        px: 1,
+                                        width: `${88 / WEEKDAYS.length}%`,
+                                        minWidth: 80,
+                                    }}>{day}</TableCell>
+                                ))}
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Paper>
+                        </TableHead>
+                        <TableBody>
+                            {scheduleByTime.map((row) => (
+                                <TableRow key={row.time} hover sx={{ '&:hover': { bgcolor: '#e3f2fd' } }}>
+                                    <TableCell
+                                        align="center"
+                                        sx={{
+                                            fontWeight: "bold",
+                                            bgcolor: "#e3eaf5",
+                                            fontSize: 15,
+                                            borderRight: '2px solid #fff',
+                                            width: '12%',
+                                            minWidth: 80,
+                                        }}
+                                    >
+                                        {row.time}
+                                    </TableCell>
+                                    {WEEKDAYS.map((day) => {
+                                        const activity: Activity | null = row[day];
+                                        const checked = isSelected(day, activity);
+                                        const isDisabled =
+                                            !checked &&
+                                            selectedActivities.length >= 2;
+
+                                        return (
+                                            <TableCell
+                                                key={`${day}-${row.time}`}
+                                                align="center"
+                                                sx={{
+                                                    bgcolor: activity?.fixed
+                                                        ? "#f5f5f5"
+                                                        : checked
+                                                            ? "#ffe082"
+                                                            : "white",
+                                                    border: checked
+                                                        ? "2.5px solid #ffa000"
+                                                        : "1px solid #e3eaf5",
+                                                    cursor:
+                                                        activity &&
+                                                            !activity.fixed &&
+                                                            !isReadOnly
+                                                            ? "pointer"
+                                                            : "default",
+                                                    transition:
+                                                        "background-color 0.2s",
+                                                    fontSize: 15,
+                                                    width: `${88 / WEEKDAYS.length}%`,
+                                                    minWidth: 80,
+                                                    py: 1.5,
+                                                }}
+                                                onClick={() =>
+                                                    activity &&
+                                                    handleSelect(day, activity)
+                                                }
+                                            >
+                                                {activity ? (
+                                                    <Box
+                                                        sx={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent:
+                                                                "center",
+                                                            gap: 1.5,
+                                                        }}
+                                                    >
+                                                        {!activity.fixed &&
+                                                            !isReadOnly && (
+                                                                <Checkbox
+                                                                    size="medium"
+                                                                    checked={
+                                                                        checked
+                                                                    }
+                                                                    disabled={
+                                                                        isDisabled
+                                                                    }
+                                                                    sx={{
+                                                                        '& .MuiSvgIcon-root': { fontSize: 24 },
+                                                                    }}
+                                                                    onChange={() =>
+                                                                        handleSelect(
+                                                                            day,
+                                                                            activity
+                                                                        )
+                                                                    }
+                                                                    onClick={(e) =>
+                                                                        e.stopPropagation()
+                                                                    }
+                                                                />
+                                                            )}
+                                                        <Box textAlign="left" sx={{ width: '100%' }}>
+                                                            <Typography
+                                                                variant="body2"
+                                                                fontWeight={500}
+                                                                sx={{ textAlign: 'center', fontSize: 15 }}
+                                                            >
+                                                                {activity.activity}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
+                                                ) : (
+                                                    <Typography variant="body2" sx={{ color: '#bdbdbd', fontSize: 15 }}>—</Typography>
+                                                )}
+                                            </TableCell>
+                                        );
+                                    })}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Paper>
+        </Box>
     );
+
 };

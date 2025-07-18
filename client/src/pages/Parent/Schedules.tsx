@@ -57,6 +57,7 @@ interface Props {
     onChange: (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => void;
     scheduleData: { [key: string]: ScheduleItem[] };
     startOfWeekDate: string;
+    holidays?: { [key: string]: string };
 }
 
 export default function Schedules({
@@ -66,11 +67,11 @@ export default function Schedules({
     onChange,
     scheduleData,
     startOfWeekDate,
+    holidays = {},
 }: Props) {
     const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     const startOfWeek = dayjs(startOfWeekDate);
     const weekDates = weekDays.map((_, idx) => startOfWeek.add(idx, 'day'));
-
     const timeSlots = useMemo(() => {
         const timeSet = new Set<string>();
         Object.values(scheduleData).forEach(dayItems => {
@@ -78,6 +79,11 @@ export default function Schedules({
         });
         return Array.from(timeSet).sort();
     }, [scheduleData]);
+
+    const isHolidayDay = (dayIdx: number) => {
+        const dateStr = weekDates[dayIdx].format('YYYY-MM-DD');
+        return holidays[dateStr];
+    };
 
     return (
         <StyledAccordion expanded={expanded} onChange={onChange(panelKey)}>
@@ -141,7 +147,27 @@ export default function Schedules({
                                     <TableCell sx={{ textAlign: 'center', fontWeight: 500, color: '#0d47a1', border: '1px solid #b3d3ea' }}>
                                         {time}
                                     </TableCell>
-                                    {weekDays.map(day => {
+                                    {weekDays.map((day, dayIdx) => {
+                                        const holidayName = isHolidayDay(dayIdx);
+                                        if (holidayName) {
+                                            // Nếu là ngày nghỉ lễ, chỉ hiển thị tên ngày nghỉ lễ ở ô đầu tiên, các ô còn lại để trống
+                                            return index === 0 ? (
+                                                <TableCell
+                                                    key={`${day}-${time}`}
+                                                    rowSpan={timeSlots.length}
+                                                    sx={{
+                                                        textAlign: 'center',
+                                                        fontWeight: 700,
+                                                        color: '#d32f2f',
+                                                        border: '1px solid #b3d3ea',
+                                                        background: '#fff3e0',
+                                                        fontSize: 16,
+                                                    }}
+                                                >
+                                                    {holidayName}
+                                                </TableCell>
+                                            ) : null;
+                                        }
                                         const activity = scheduleData[day]?.find(item => item.time === time);
                                         return (
                                             <TableCell

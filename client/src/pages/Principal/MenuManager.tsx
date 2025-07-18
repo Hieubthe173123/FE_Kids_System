@@ -161,9 +161,9 @@ export default function WeeklyMenuCRUD() {
   return (
     <Box p={{ xs: 1, sm: 3 }} sx={{ background: '#f7fafd', height: '100vh' }}>
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 4, mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold" color="#4194cb" mb={2}>
+        {/* <Typography variant="h4" fontWeight="bold" color="#4194cb" mb={2}>
           Quản lý thực đơn theo tuần
-        </Typography>
+        </Typography> */}
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'stretch', sm: 'center' }} mb={2}>
           <Button
             variant="contained"

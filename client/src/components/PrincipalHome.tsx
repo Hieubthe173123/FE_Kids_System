@@ -164,7 +164,7 @@ export default function PrincipalHome() {
                                 fontWeight="bold"
                                 color="#1976d2"
                             >
-                                Principal School
+                                Academic Officer School
                             </Typography>
                         </Box>
                     ),

@@ -136,7 +136,7 @@ export default function WeeklyMenuPage(): JSX.Element {
           <Stack direction="row" spacing={1.5} alignItems="center">
             <RestaurantMenuIcon color="primary" sx={{ fontSize: '2.5rem' }} />
             <Typography variant="h4" component="h1" fontWeight="bold">
-              Thực Đơn Tuần
+              Quản lý thực đơn tuần
             </Typography>
           </Stack>
 

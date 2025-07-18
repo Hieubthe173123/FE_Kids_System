@@ -5,9 +5,10 @@ import {
     Button,
     IconButton,
     CircularProgress,
+    LinearProgress,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
+// import { useNavigate } from "react-router-dom";
+// import dayjs from "dayjs";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -41,53 +42,54 @@ const initialMockClassData: Array<{
     }>;
 }> = [];
 
-const initialMockScheduleData: Array<{
-    class: string;
-    schedule: Array<{
-        Monday: Array<{
-            id: string;
-            age: string;
-            time: string;
-            activity: string;
-            fixed: boolean;
-        }>;
-        Tuesday: Array<{
-            id: string;
-            age: string;
-            time: string;
-            activity: string;
-            fixed: boolean;
-        }>;
-        Wednesday: Array<{
-            id: string;
-            age: string;
-            time: string;
-            activity: string;
-            fixed: boolean;
-        }>;
-        Thursday: Array<{
-            id: string;
-            age: string;
-            time: string;
-            activity: string;
-            fixed: boolean;
-        }>;
-        Friday: Array<{
-            id: string;
-            age: string;
-            time: string;
-            activity: string;
-            fixed: boolean;
-        }>;
-    }>;
-}> = [];
-const calculateAge = (dob: string) => {
-    const birthDate = dayjs(dob);
-    const age = dayjs().diff(birthDate, "year");
-    return `(${age} tuổi)`;
-};
+// const initialMockScheduleData: Array<{
+//     class: string;
+//     schedule: Array<{
+//         Monday: Array<{
+//             id: string;
+//             age: string;
+//             time: string;
+//             activity: string;
+//             fixed: boolean;
+//         }>;
+//         Tuesday: Array<{
+//             id: string;
+//             age: string;
+//             time: string;
+//             activity: string;
+//             fixed: boolean;
+//         }>;
+//         Wednesday: Array<{
+//             id: string;
+//             age: string;
+//             time: string;
+//             activity: string;
+//             fixed: boolean;
+//         }>;
+//         Thursday: Array<{
+//             id: string;
+//             age: string;
+//             time: string;
+//             activity: string;
+//             fixed: boolean;
+//         }>;
+//         Friday: Array<{
+//             id: string;
+//             age: string;
+//             time: string;
+//             activity: string;
+//             fixed: boolean;
+//         }>;
+//     }>;
+// }> = [];
+// const calculateAge = (dob: string) => {
+//     const birthDate = dayjs(dob);
+//     const age = dayjs().diff(birthDate, "year");
+//     return `(${age} tuổi)`;
+// };
 export default function ScheduleManagement() {
     const [classData, setClassData] = useState(initialMockClassData);
+    const [progress, setProgress] = useState(0);
     const [selectedRoom, setSelectedRoom] = useState("");
     const [selectedSchoolYear, setSelectedSchoolYear] = useState("");
     const [allSchoolYears, setAllSchoolYears] = useState<string[]>([]);
@@ -101,7 +103,6 @@ export default function ScheduleManagement() {
     const [isReadOnly, setIsReadOnly] = useState(false);
     const [initialSchoolYear, setInitialSchoolYear] = useState<string>("");
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-    const navigate = useNavigate();
 
     const [teacherPerClass, setTeacherPerClass] = useState<{
         [key: string]: string;
@@ -112,6 +113,7 @@ export default function ScheduleManagement() {
         });
         return initial;
     });
+
 
     useEffect(() => {
         if (!selectedSchoolYear) return;
@@ -210,6 +212,7 @@ export default function ScheduleManagement() {
             !generatedSchedules[selectedSchoolYear]
         ) {
             setLoading(true);
+            setProgress(0);
             genScheduleWithAI(selectedSchoolYear)
                 .then((data) => {
                     setGeneratedSchedules((prev) => ({
@@ -224,12 +227,32 @@ export default function ScheduleManagement() {
                 .finally(() => {
                     setLoading(false);
                     setGenSchedule(false);
+                    setProgress(100);
                 });
         }
     }, [genSchedule, selectedSchoolYear]);
 
     useEffect(() => {
-        // Nếu muốn xử lý gì khi đổi năm học và đã có lịch, có thể thêm ở đây
+        let interval: any;
+        if (loading) {
+            setProgress(0);
+            let steps = [10, 30, 50, 70, 90];
+            let idx = 0;
+            interval = setInterval(() => {
+                setProgress((prev) => {
+                    if (idx < steps.length) {
+                        const next = steps[idx];
+                        idx++;
+                        return next;
+                    }
+                    return prev;
+                });
+            }, 700);
+        }
+        return () => clearInterval(interval);
+    }, [loading]);
+
+    useEffect(() => {
     }, [selectedSchoolYear, generatedSchedules]);
 
     const rooms = useMemo(
@@ -242,6 +265,20 @@ export default function ScheduleManagement() {
     const isScheduleGeneratedForYear = useMemo(() => {
         return !!generatedSchedules[selectedSchoolYear];
     }, [generatedSchedules, selectedSchoolYear]);
+
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (loading || (isScheduleGeneratedForYear && !hasSchedule)) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [loading, isScheduleGeneratedForYear, hasSchedule]);
 
     const handleCancelSchedule = () => {
         setGeneratedSchedules((prev) => {
@@ -508,14 +545,15 @@ export default function ScheduleManagement() {
                         <Box
                             sx={{
                                 display: "flex",
+                                flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 height: "50vh",
                             }}
                         >
-                            <CircularProgress />
-                            <Typography sx={{ ml: 2 }}>
-                                Đang tự động tạo lịch học, vui lòng chờ...
+                            <LinearProgress variant="determinate" value={progress} sx={{ width: '60%', height: 10, borderRadius: 5 }} />
+                            <Typography sx={{ mt: 2 }}>
+                                Đang tự động tạo lịch học, vui lòng chờ... ({progress}%)
                             </Typography>
                         </Box>
                     )}
@@ -583,7 +621,6 @@ export default function ScheduleManagement() {
                     </Box>
                 </Box>
             </Box>
-            {/* <ToastContainer position="top-right" autoClose={3000} /> */}
         </Box>
     );
 }

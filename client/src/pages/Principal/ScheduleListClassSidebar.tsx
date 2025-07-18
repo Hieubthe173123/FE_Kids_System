@@ -90,6 +90,51 @@ export const ScheduleListClassSidebar = ({
                 </MenuItem>
             ))}
         </TextField>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
+            {hasSchedule ? (
+                <Box
+                    sx={{
+                        px: 2.5,
+                        py: 1.5,
+                        bgcolor: '#e0f7fa',
+                        color: '#00796b',
+                        textAlign: 'center',
+                        fontWeight: 600,
+                        borderRadius: 2,
+                        boxShadow: '0 2px 8px 0 rgba(0,121,107,0.08)',
+                        fontSize: 15,
+                        width: '90%',
+                        mb: 1.5,
+                    }}
+                >
+                    Lịch học đã được phân công cho năm học này.
+                </Box>
+            ) : (
+                <Button
+                    variant="contained"
+                    disabled={genSchedule || hasSchedule}
+                    sx={{
+                        bgcolor: PRIMARY_COLOR,
+                        borderRadius: 2,
+                        fontWeight: 700,
+                        color: '#fff',
+                        fontSize: 16,
+                        px: 3,
+                        py: 1.2,
+                        boxShadow: '0 2px 8px 0 rgba(65,148,203,0.10)',
+                        width: '90%',
+                        mb: 1.5,
+                        transition: 'all 0.2s',
+                        '&:hover': { bgcolor: PRIMARY_DARK },
+                    }}
+                    onClick={() => {
+                        onSetGenSchedule(true);
+                    }}
+                >
+                    Tạo lịch học
+                </Button>
+            )}
+        </Box>
         <Box sx={{ flexGrow: 1, px: 1.5, pb: 2, pt: 0 }}>
             <List
                 disablePadding
@@ -154,41 +199,6 @@ export const ScheduleListClassSidebar = ({
                     ))
                 )}
             </List>
-        </Box>
-        <Box>
-            {hasSchedule && (
-                <Box
-                    sx={{
-                        p: 2,
-                        bgcolor: "#e0f7fa",
-                        color: "#00796b",
-                        textAlign: "center",
-                        fontWeight: 500,
-                    }}
-                >
-                    Lịch học đã được phân công cho năm học này.
-                </Box>
-            )}
-            {!hasSchedule && (
-                <Button
-                    variant="contained"
-                    disabled={genSchedule || hasSchedule}
-                    sx={{
-                        bgcolor: PRIMARY_COLOR,
-                        m: 2,
-                        marginLeft: 13,
-                        borderRadius: 2,
-                        fontWeight: "bold",
-                        color: "#ffffffff",
-                        fontSize: 16,
-                    }}
-                    onClick={() => {
-                        onSetGenSchedule(true);
-                    }}
-                >
-                    Tạo lịch học
-                </Button>
-            )}
         </Box>
     </Paper>
 );
