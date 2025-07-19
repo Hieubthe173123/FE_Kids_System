@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import LoadingOverlay from "../../components/LoadingOverlay";
 import {
   Box,
   Typography,
@@ -75,6 +76,7 @@ export default function CurriculumManager() {
   );
   const [curriculums, setCurriculums] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false); // loading cho các thao tác CRUD
   const [visibleColumns, setVisibleColumns] = useState([
     "curriculumCode",
     "activityName",
@@ -149,9 +151,10 @@ export default function CurriculumManager() {
   };
 
   const handleAdd = () => {
+    setEditingActivityId(null);
     setOpenAddDialog(true);
   };
-  // Xử lý pop-up
+
   const handleSetTime = () => {
     setOpenSetTimeDialog(true);
   };
@@ -174,24 +177,27 @@ export default function CurriculumManager() {
 
   // Tạo mới
   const handleCreateActivity = async () => {
-    const response = await createCurriculums(newActivity);
-
-    if (response.error) {
-      const { errorList } = response.error;
-      if (errorList && errorList.length > 0) {
-        for (const error of errorList) {
-          const { message } = error;
-          toast.error(message);
+    setActionLoading(true);
+    try {
+      const response = await createCurriculums(newActivity);
+      if (response.error) {
+        const { errorList } = response.error;
+        if (errorList && errorList.length > 0) {
+          for (const error of errorList) {
+            const { message } = error;
+            toast.error(message);
+          }
+        } else {
+          toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
         }
-      } else {
-        toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
+        return;
       }
-      return;
+      toast.success("Đã tạo hoạt động mới thành công.");
+      handleCloseAddDialog();
+      fetchCurriculums();
+    } finally {
+      setActionLoading(false);
     }
-
-    toast.success("Đã tạo hoạt động mới thành công.");
-    handleCloseAddDialog();
-    fetchCurriculums();
   };
 
   //Cập nhật
@@ -208,25 +214,27 @@ export default function CurriculumManager() {
 
   const handleUpdateActivity = async () => {
     if (!editingActivityId) return;
-
-    const response = await updateCurriculum(editingActivityId, newActivity);
-
-    if (response.error) {
-      const { errorList } = response.error;
-      if (errorList && errorList.length > 0) {
-        for (const error of errorList) {
-          const { message } = error;
-          toast.error(message);
+    setActionLoading(true);
+    try {
+      const response = await updateCurriculum(editingActivityId, newActivity);
+      if (response.error) {
+        const { errorList } = response.error;
+        if (errorList && errorList.length > 0) {
+          for (const error of errorList) {
+            const { message } = error;
+            toast.error(message);
+          }
+        } else {
+          toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
         }
-      } else {
-        toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
+        return;
       }
-      return;
+      toast.success("Đã cập nhật hoạt động thành công.");
+      handleCloseAddDialog();
+      fetchCurriculums();
+    } finally {
+      setActionLoading(false);
     }
-
-    toast.success("Đã cập nhật hoạt động thành công.");
-    handleCloseAddDialog();
-    fetchCurriculums();
   };
 
   //Xóa
@@ -242,12 +250,15 @@ export default function CurriculumManager() {
       cancelButtonText: "Huỷ"
     });
     if (result.isConfirmed) {
+      setActionLoading(true);
       try {
         await deleteCurriculum(row._id);
         toast.success("Đã xoá chương trình học thành công.");
         fetchCurriculums();
       } catch {
         toast.error("Xoá chương trình học thất bại. Vui lòng thử lại.");
+      } finally {
+        setActionLoading(false);
       }
     }
   };
@@ -273,29 +284,33 @@ export default function CurriculumManager() {
   };
 
   const handleUpdate = async () => {
-    const payload = updatedActivities.map((item: any) => ({
-      activityId: item.activityId,
-      startTime: item.startTime ? item.startTime.toISOString() : null,
-      endTime: item.endTime ? item.endTime.toISOString() : null,
-    }));
-    const res = await createTimeCurriculum(payload);
-
-    if (res.error) {
-      const { errorList } = res.error;
-      if (errorList && errorList.length > 0) {
-        for (const error of errorList) {
-          const { message } = error;
-          toast.error(message);
+    setActionLoading(true);
+    try {
+      const payload = updatedActivities.map((item: any) => ({
+        activityId: item.activityId,
+        startTime: item.startTime ? item.startTime.toISOString() : null,
+        endTime: item.endTime ? item.endTime.toISOString() : null,
+      }));
+      const res = await createTimeCurriculum(payload);
+      if (res.error) {
+        const { errorList } = res.error;
+        if (errorList && errorList.length > 0) {
+          for (const error of errorList) {
+            const { message } = error;
+            toast.error(message);
+          }
+        } else {
+          toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
         }
+        return;
       } else {
-        toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
+        toast.success("Đã cập nhật giờ thành công.");
+        setOpenSetTimeDialog(false);
+        setUpdatedActivities([]);
+        fetchCurriculums();
       }
-      return;
-    } else {
-      toast.success("Đã cập nhật giờ thành công.");
-      setOpenSetTimeDialog(false);
-      setUpdatedActivities([]);
-      fetchCurriculums();
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -374,11 +389,12 @@ export default function CurriculumManager() {
   );
 
   return (
-    <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, height: "90vh" }}>
+    <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, height: "90vh", position: "relative" }}>
       <Typography variant="h5" fontWeight="bold" color={PRIMARY_COLOR} mb={3}>
         Quản lý chương trình học
       </Typography>
       <ToastContainer position="top-right" autoClose={3000} />
+      {actionLoading && <LoadingOverlay />}
 
       <Box
         sx={{
