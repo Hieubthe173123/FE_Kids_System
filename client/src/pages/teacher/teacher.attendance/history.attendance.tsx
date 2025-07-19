@@ -157,7 +157,6 @@ const AttendanceHistoryPage = () => {
     }
   };
 
-  console.log('chjeck attendaec', attendanceList);
 
   return (
     <Box

@@ -61,8 +61,8 @@
 import axios, { type InternalAxiosRequestConfig } from "axios";
 const axiosInstance = axios.create({
   // baseURL: "http://localhost:9999/api/",
-  // baseURL: "http://localhost:7071/api/",
-  baseURL: "https://azure-function-sakura-dwdch3adbdg5epfs.eastus-01.azurewebsites.net/api/",
+   baseURL: "http://localhost:7071/api/",
+//  baseURL: "https://azure-function-sakura-dwdch3adbdg5epfs.eastus-01.azurewebsites.net/api/",
   withCredentials: true,
 });
 
@@ -91,16 +91,16 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // const res = await axios.post(
-        //   "http://localhost:7071/api/auth/access-token",
-        //   {},
-        //   { withCredentials: true }
-        // );
         const res = await axios.post(
-          "https://azure-function-sakura-dwdch3adbdg5epfs.eastus-01.azurewebsites.net/api/auth/access-token",
+          "http://localhost:7071/api/auth/access-token",
           {},
           { withCredentials: true }
         );
+        // const res = await axios.post(
+        //   "https://azure-function-sakura-dwdch3adbdg5epfs.eastus-01.azurewebsites.net/api/auth/access-token",
+        //   {},
+        //   { withCredentials: true }
+        // );
 
         // const res = await axios.post(
         //   "http://localhost:9999/api/auth/access-token",

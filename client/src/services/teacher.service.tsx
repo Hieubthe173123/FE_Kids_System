@@ -58,6 +58,7 @@ export const getDashboard = async () => {
 export const getScheduleByClassId = async (classId: string,year: string,week: string) => {
     try {
         const response = await axiosInstance.get(`/teacher/schedule/${classId}?year=${year}&week=${week}`);
+        
         return response.data;
     } catch (error) {
         console.error("Get schedule by class id failed:", error);

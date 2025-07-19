@@ -100,7 +100,6 @@ export default function TeacherManager() {
   });
   const [provinces, setProvinces] = useState<any[]>([]);
   const [districts, setDistricts] = useState<any[]>([]);
-  console.log("🚀 ~ TeacherManager ~ districts:", districts);
   const [wards, setWards] = useState<any[]>([]);
   const [selectedProvince, setSelectedProvince] = useState<any>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<any>(null);

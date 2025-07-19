@@ -257,7 +257,6 @@ const AttendancePage = () => {
     }
   };
 
-  console.log('chekc data ', attendanceList);
 
   return (
     <Box
