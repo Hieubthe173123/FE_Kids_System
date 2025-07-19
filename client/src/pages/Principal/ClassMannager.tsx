@@ -352,19 +352,19 @@ export default function ClassMannager() {
             const teacherList = await getTeachersInClass(currentClass.id);
             const teacherToRemove = teacherList.find((t: any) => t.name === teacherName);
             if (!teacherToRemove || !teacherToRemove._id) {
-                console.error("Không tìm thấy _id của giáo viên:", teacherToRemove);
                 toast.error("Không tìm thấy ID của giáo viên để xóa");
                 return;
             }
 
-
-            await removeTeacherFromClass(currentClass.id, String(teacherToRemove._id || teacherToRemove.id));
-            console.log("teacherToRemove:", teacherToRemove);
-
+            await removeTeacherFromClass(currentClass.id, String(teacherToRemove._id));
             const updatedTeachers = teacherList.filter((t: any) => t.name !== teacherName);
             const updatedNames = updatedTeachers.map((t: any) => t.name).join(", ");
             setTeacherPerClass(prev => ({ ...prev, [classKey]: updatedNames }));
-            setAvailableTeachers(prev => [...prev, { id: teacherToRemove.id, name: teacherToRemove.name, phone: teacherToRemove.phone }]);
+            setAvailableTeachers(prev => [...prev, {
+                id: teacherToRemove._id,
+                name: teacherToRemove.name,
+                phone: teacherToRemove.phone || teacherToRemove.phoneNumber
+            }]);
 
             toast.success(`Đã xóa giáo viên ${teacherName} khỏi lớp`);
         } catch (err) {
