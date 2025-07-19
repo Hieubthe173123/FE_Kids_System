@@ -57,9 +57,10 @@ export default function WeeklyMenuCRUD() {
   const fetchMenus = async () => {
     try {
       const data = await getAllWeeklyMenus();
-      setMenus(data);
+      setMenus(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Failed to fetch menus", error);
+      setMenus([]);
     }
   };
 

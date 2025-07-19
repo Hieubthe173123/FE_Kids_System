@@ -5,30 +5,30 @@ import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 
 export const getLocationProvinces = async () => {
-    try{
+    try {
         const response = await axios.get("https://open.oapi.vn/location/provinces");
         return response.data.data;
-    }catch(error){
+    } catch (error) {
         console.log("Failed to fetch getLocationProvinces:", error);
         throw error;
     }
 }
 
 export const getLocationDistrict = async (provinceId: any) => {
-      try{
+    try {
         const response = await axios.get(`https://open.oapi.vn/location/districts/${provinceId}`);
-         return response.data.data;
-    }catch(error){
+        return response.data.data;
+    } catch (error) {
         console.log("Failed to fetch getLocationDistrict:", error);
         throw error;
     }
 }
 
 export const getLocationWards = async (districtId: any) => {
-      try{
+    try {
         const response = await axios.get(`https://open.oapi.vn/location/wards/${districtId}`);
         return response.data.data;
-    }catch(error){
+    } catch (error) {
         console.log("Failed to fetch getLocationWards:", error);
         throw error;
     }
@@ -541,23 +541,6 @@ export const getAllWeeklyMenus = async () => {
     }
 };
 
-// export const getWeeklyMenuByDateNow = async () => {
-//   try {
-//     const weekStart = dayjs().startOf("week").add(1, "day").utc();
-
-//     const response = await axiosInstance.get("/weeklyMenu");
-//     const allMenus = response.data.data || [];
-
-//     const matchedWeek = allMenus.find((menu: any) =>
-//       dayjs(menu.weekStart).utc().isSame(weekStart, "day")
-//     );
-
-//     return matchedWeek?.dailyMenus || [];
-//   } catch (error) {
-//     console.error("Lỗi lấy thực đơn theo tuần:", error);
-//     throw error;
-//   }
-// };
 
 export const getWeeklyMenuByDateNow = async (date: Date) => {
     try {

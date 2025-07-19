@@ -1,4 +1,4 @@
-  import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box, Typography, Button, Grid, Paper, Stack, CircularProgress,
   Snackbar, Alert, Card, CardContent, Dialog, DialogActions,
@@ -88,10 +88,50 @@ export default function SwapSchedule() {
   const [stagedSlot1, setStagedSlot1] = useState<ScheduleSlot | null>(null);
   const [stagedSlot2, setStagedSlot2] = useState<ScheduleSlot | null>(null);
 
+  // useEffect(() => {
+  //   const fetchTeacherClass = async () => {
+  //     const res = await getTeacherClass();
+  //     if (res && res.data.classes.length > 0) setClassId(res.data.classes[0]._id);
+  //   };
+  //   fetchTeacherClass();
+  // }, []);
+
+  // const fetchSchedule = async (
+  //   date: Dayjs | null,
+  //   setSchedule: (data: ScheduleSlot[]) => void,
+  //   setLoading: (loading: boolean) => void,
+  //   resetStaged: () => void
+  // ) => {
+  //   resetStaged();
+  //   if (!date || !classId) {
+  //     setSchedule([]);
+  //     return;
+  //   }
+  //   setLoading(true);
+  //   setSchedule([]);
+  //   try {
+  //     const dateString = date.format("YYYY-MM-DD");
+  //     const res = await getTeacherSwappableSchedule(classId, dateString);
+  //     setSchedule(res.schedule.filter((slot: ScheduleSlot) => !slot.fixed));
+  //   } catch (error) {
+  //     setSnackbar({ open: true, message: "Lấy lịch học thất bại", severity: "error" });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => { fetchSchedule(date1, setSchedule1, setLoading1, () => setStagedSlot1(null)); }, [date1, classId]);
+  // useEffect(() => { fetchSchedule(date2, setSchedule2, setLoading2, () => setStagedSlot2(null)); }, [date2, classId]);
+
+
+
   useEffect(() => {
     const fetchTeacherClass = async () => {
       const res = await getTeacherClass();
-      if (res && res.data.classes.length > 0) setClassId(res.data.classes[0]._id);
+      const classes = Array.isArray(res)
+        ? res
+        : res?.data?.classes || res?.classes || [];
+      if (classes.length > 0) setClassId(classes[0]._id);
     };
     fetchTeacherClass();
   }, []);
@@ -112,7 +152,10 @@ export default function SwapSchedule() {
     try {
       const dateString = date.format("YYYY-MM-DD");
       const res = await getTeacherSwappableSchedule(classId, dateString);
-      setSchedule(res.schedule.filter((slot: ScheduleSlot) => !slot.fixed));
+      const slots = Array.isArray(res)
+        ? res
+        : res?.schedule || [];
+      setSchedule(slots.filter((slot: ScheduleSlot) => !slot.fixed));
     } catch (error) {
       setSnackbar({ open: true, message: "Lấy lịch học thất bại", severity: "error" });
     } finally {
@@ -120,8 +163,15 @@ export default function SwapSchedule() {
     }
   };
 
-  useEffect(() => { fetchSchedule(date1, setSchedule1, setLoading1, () => setStagedSlot1(null)); }, [date1, classId]);
-  useEffect(() => { fetchSchedule(date2, setSchedule2, setLoading2, () => setStagedSlot2(null)); }, [date2, classId]);
+  useEffect(() => {
+    fetchSchedule(date1, setSchedule1, setLoading1, () => setStagedSlot1(null));
+  }, [date1, classId]);
+
+  useEffect(() => {
+    fetchSchedule(date2, setSchedule2, setLoading2, () => setStagedSlot2(null));
+  }, [date2, classId]);
+
+
 
   const handleSwap = async () => {
     if (!stagedSlot1 || !stagedSlot2 || !date1 || !date2) return;

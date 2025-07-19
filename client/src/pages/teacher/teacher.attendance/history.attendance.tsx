@@ -51,8 +51,51 @@ const AttendanceHistoryPage = () => {
   const [attendanceList, setAttendanceList] = useState<Attendance[]>([]);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [classId, setClassId] = useState<string>("");
- // console.log(';check seleted date', selectedDate);
-  
+  // console.log(';check seleted date', selectedDate);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       let currentClassId = classId;
+
+  //       if (!currentClassId) {
+  //         const classRes = await getTeacherClass();
+  //         console.log('chek res', classRes);
+
+  //         if (classRes && classRes.data.classes.length > 0) {
+  //           //   setClassId( classRes.data.classes[0]._id);
+  //       //  setClassInfo( classRes.data.classes[0]);
+  //           currentClassId =  classRes.data.classes[0]._id;
+  //           setClassId(currentClassId);
+  //         } else {
+  //           console.log('false');
+
+  //           return;
+  //         }
+  //       }
+  //       console.log('chek seleted date', selectedDate);
+
+  //       if (!selectedDate) return;
+  //       const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+
+  //       const attendanceRes = await getAttendanceByDate(formattedDate, currentClassId);
+  //       console.log('check attendance res', attendanceRes);
+
+  //       setAttendanceList(attendanceRes.data);
+
+  //     } catch (err: any) {
+  //       if (err?.response?.status === 400) {
+  //         setAttendanceList([]); // Không có dữ liệu
+  //       } else {
+  //         console.error("Lỗi khi lấy dữ liệu điểm danh:", err);
+  //         toast.error("Lỗi khi tải dữ liệu điểm danh");
+  //       }
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [selectedDate]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,32 +103,30 @@ const AttendanceHistoryPage = () => {
 
         if (!currentClassId) {
           const classRes = await getTeacherClass();
-          console.log('chek res', classRes);
-          
-          if (classRes && classRes.data.classes.length > 0) {
-            //   setClassId( classRes.data.classes[0]._id);
-        //  setClassInfo( classRes.data.classes[0]);
-            currentClassId =  classRes.data.classes[0]._id;
+          const classes = Array.isArray(classRes)
+            ? classRes
+            : classRes?.data?.classes || classRes?.classes || [];
+
+          if (classes.length > 0) {
+            currentClassId = classes[0]._id;
             setClassId(currentClassId);
           } else {
-            console.log('false');
-            
             return;
           }
         }
-        console.log('chek seleted date', selectedDate);
-        
+
         if (!selectedDate) return;
+
         const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
-
         const attendanceRes = await getAttendanceByDate(formattedDate, currentClassId);
-        console.log('check attendance res', attendanceRes);
-        
-        setAttendanceList(attendanceRes.data);
+        const records = Array.isArray(attendanceRes)
+          ? attendanceRes
+          : attendanceRes?.data || [];
 
+        setAttendanceList(records);
       } catch (err: any) {
         if (err?.response?.status === 400) {
-          setAttendanceList([]); // Không có dữ liệu
+          setAttendanceList([]);
         } else {
           console.error("Lỗi khi lấy dữ liệu điểm danh:", err);
           toast.error("Lỗi khi tải dữ liệu điểm danh");
@@ -95,6 +136,7 @@ const AttendanceHistoryPage = () => {
 
     fetchData();
   }, [selectedDate]);
+
 
   const formatTime = (time: string) => {
     return time?.length === 5 ? time : time?.slice(0, 5) || "--";
@@ -115,8 +157,8 @@ const AttendanceHistoryPage = () => {
     }
   };
 
-    console.log('chjeck attendaec', attendanceList);
-    
+  console.log('chjeck attendaec', attendanceList);
+
   return (
     <Box
       sx={{ p: 4, minHeight: "100vh", bgcolor: "#f5f7fb", marginBottom: 10 }}
