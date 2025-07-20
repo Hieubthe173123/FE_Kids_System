@@ -548,7 +548,7 @@ export const getWeeklyMenuByDateNow = async (date: Date) => {
         const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
 
         const response = await axiosInstance.get("/weeklyMenu");
-        const allMenus = response.data.data || [];
+        const allMenus = response.data || [];
 
         // Tìm kiếm tuần khớp với `weekStart` đã tính
         const matchedWeek = allMenus.find((menu: any) =>

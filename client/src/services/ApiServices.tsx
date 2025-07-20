@@ -61,10 +61,11 @@ export const getWeeklyMenuByDate = async (weekStart: string, age: Number) => {
 // };
 
 export const getWeeklyMenuByDateNow = async (date: Date, ageList: number[]) => {
+  console.log("🚀 ~ getWeeklyMenuByDateNow ~ date:", date, "ageList:", ageList)
   try {
     const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
     const response = await axiosInstance.get("/weeklyMenu");
-    const allMenus = response.data.data || [];
+    const allMenus = response.data || [];
     console.log("🚀 ~ getWeeklyMenuByDateNow ~ allMenus:", allMenus)
 
     const matchedWeeks = allMenus.filter((menu: any) => {
