@@ -6,8 +6,9 @@ import {
   Button,
   Typography,
   Box,
-  Paper,
+  Paper
 } from "@mui/material";
+import LoadingOverlay from '../../components/LoadingOverlay';
 import {
   // getAllStudentNoParent,
   getParentById,
@@ -40,6 +41,7 @@ export default function ParentFormPage() {
   // const [accountList, setAccountList] = useState([]);
   // const [studentList, setStudentList] = useState<Student[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -60,7 +62,7 @@ export default function ParentFormPage() {
 
   const handleSave = async () => {
     console.log("form", form);
-    
+
     if (!form.fullName || !form.dob || !form.phoneNumber || !form.email || !form.IDCard || !form.gender || !form.address) {
       toast.warning("Vui lòng nhập đầy đủ thông tin bắt buộc");
       return;
@@ -81,8 +83,8 @@ export default function ParentFormPage() {
     }
 
     try {
+      setLoading(true);
       const payload = { ...form, student: selectedStudents };
-
       if (id) {
         await updateParent(id, payload);
         toast.success("Cập nhật thành công");
@@ -90,15 +92,17 @@ export default function ParentFormPage() {
         await createParent(payload);
         toast.success("Thêm mới thành công");
       }
-
       setTimeout(() => navigate("/principal-home/parent-management"), 1500);
     } catch (err) {
       toast.error("Có lỗi xảy ra");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box p={4}>
+    <Box p={4} position="relative">
+      {loading && <LoadingOverlay />}
       <Typography variant="h5" mb={2}>
         {id ? "Cập nhật phụ huynh" : "Thêm phụ huynh mới"}
       </Typography>
@@ -119,20 +123,6 @@ export default function ParentFormPage() {
               <MenuItem value="female">Nữ</MenuItem>
             </TextField>
             <TextField id="standard-address" label="Địa chỉ" variant="standard" fullWidth value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} sx={{ mt: 2 }} />
-            {/* <TextField id="standard-account" label="Tài khoản" select variant="standard" fullWidth value={form.account} onChange={(e) => setForm({ ...form, account: e.target.value })} sx={{ mt: 2 }}>
-              {accountList.map((acc: any) => (
-                <MenuItem key={acc._id} value={acc._id}>
-                  {acc.username}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField id="standard-student" label="Thêm học sinh" select variant="standard" fullWidth SelectProps={{ multiple: true }} value={selectedStudents} onChange={(e) => setSelectedStudents(typeof e.target.value === "string" ? e.target.value.split(",") : e.target.value)} sx={{ mt: 2 }}>
-              {studentList.map((student) => (
-                <MenuItem key={student._id} value={student._id}>
-                  {student.fullName}
-                </MenuItem>
-              ))}
-            </TextField> */}
           </Box>
         </Box>
         <Box mt={3} display="flex" justifyContent="flex-end">

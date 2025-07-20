@@ -17,7 +17,6 @@ import {
 } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
 import SearchIcon from "@mui/icons-material/Search";
-import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -218,11 +217,11 @@ export default function ParentManagement() {
               <RefreshIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Thêm phụ huynh mới">
+          {/* <Tooltip title="Thêm phụ huynh mới">
             <IconButton onClick={() => navigate("/principal-home/parent-create")}>
               <AddIcon />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
         </Box>
       </Box>
 

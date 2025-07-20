@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LoadingOverlay from '../../components/LoadingOverlay';
 import { TextField, Button, Box, Typography, Checkbox, FormControlLabel, MenuItem, FormControl, InputLabel, Select, Stack } from '@mui/material';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -29,6 +30,8 @@ export const ContactForm = () => {
         parentName: '', parentDob: '', parentGender: '', IDCard: '', address: '', phoneNumber: '',
         email: '', relationship: '', reason: '', note: '', nda: false,
     });
+
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = event.target;
@@ -66,11 +69,30 @@ export const ContactForm = () => {
             toast.warning('Vui lòng điền đầy đủ tất cả các trường bắt buộc!');
             return;
         }
+        // Kiểm tra số điện thoại
+        const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+        if (!phoneRegex.test(formState.phoneNumber)) {
+            toast.warning('Số điện thoại không hợp lệ!');
+            return;
+        }
+        // Kiểm tra ID Card (CMND/CCCD: 9 hoặc 12 số)
+        const idCardRegex = /^\d{9}$|^\d{12}$/;
+        if (!idCardRegex.test(formState.IDCard)) {
+            toast.warning('CMND/CCCD phải gồm 9 hoặc 12 số!');
+            return;
+        }
+        // Kiểm tra độ tuổi (chỉ nhận 1-5 tuổi)
+        const ageNum = Number(formState.studentAge);
+        if (isNaN(ageNum) || ageNum < 1 || ageNum > 5) {
+            toast.warning('Độ tuổi học sinh phải từ 1 đến 5 tuổi!');
+            return;
+        }
         if (!formState.nda) {
             toast.warning('Vui lòng xác nhận cam kết trước khi đăng ký!');
             return;
         }
         try {
+            setLoading(true);
             const res = await createEnrollSchool(formState);
             toast.success('Đăng ký thành công!');
             console.log('API response:', res);
@@ -81,13 +103,16 @@ export const ContactForm = () => {
             });
         } catch (error) {
             toast.error('Đăng ký thất bại. Vui lòng thử lại!');
+        } finally {
+            setLoading(false);
         }
     };
 
 
 
     return (
-        <Box sx={{ fontFamily: 'Poppins, sans-serif' }}>
+        <Box sx={{ fontFamily: 'Poppins, sans-serif', position: 'relative' }}>
+            {loading && <LoadingOverlay />}
             <Stack spacing={4} sx={{ minWidth: 0, fontFamily: 'Poppins, sans-serif' }}>
                 <Box>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: 'Poppins, sans-serif' }}>Thông tin học sinh</Typography>

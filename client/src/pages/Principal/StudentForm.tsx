@@ -8,6 +8,7 @@ import {
     Paper,
     Box,
 } from "@mui/material";
+import LoadingOverlay from '../../components/LoadingOverlay';
 import { toast } from "react-toastify";
 import {
     getStudentById,
@@ -31,6 +32,7 @@ export default function StudentForm() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [form, setForm] = useState(defaultForm);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -58,6 +60,7 @@ export default function StudentForm() {
             return;
         }
         try {
+            setLoading(true);
             if (id) {
                 await updateStudent(id, form);
                 toast.success("Cập nhật học sinh thành công");
@@ -68,11 +71,14 @@ export default function StudentForm() {
             setTimeout(() => navigate("/principal-home/students-management"), 1200);
         } catch {
             toast.error("Có lỗi khi lưu học sinh");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Box p={4}>
+        <Box p={4} position="relative">
+            {loading && <LoadingOverlay />}
             <Typography variant="h5" mb={2}>
                 {id ? "Cập nhật học sinh" : "Thêm học sinh mới"}
             </Typography>

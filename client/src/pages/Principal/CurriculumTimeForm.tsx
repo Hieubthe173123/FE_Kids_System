@@ -14,6 +14,7 @@ import {
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { vi } from "date-fns/locale";
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 const PRIMARY_COLOR = "#4194cb";
 const BG_COLOR = "#f9f9f9";
@@ -29,6 +30,7 @@ export default function CurriculumTimeForm({
   handleUpdate,
 }: any) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const filteredActivities = activities.filter((activity: any) => {
     const matchesAge =
@@ -52,9 +54,11 @@ export default function CurriculumTimeForm({
           borderRadius: 3,
           p: 0,
           width: "90vw",
+          position: 'relative',
         },
       }}
     >
+      {loading && <LoadingOverlay />}
       <DialogTitle
         sx={{
           bgcolor: PRIMARY_COLOR,
@@ -202,7 +206,11 @@ export default function CurriculumTimeForm({
         </Button>
         <Button
           variant="contained"
-          onClick={handleUpdate}
+          onClick={async () => {
+            setLoading(true);
+            await handleUpdate();
+            setLoading(false);
+          }}
           sx={{ bgcolor: PRIMARY_COLOR, color: "#fff" }}
         >
           Cập nhật

@@ -98,19 +98,21 @@ export default function CurriculumForm({
             </Select>
           </FormControl>
 
-          <TextField
-            label="Số tiết học"
-            type="number"
-            value={newActivity.activityNumber}
-            onChange={(e) =>
-              setNewActivity({
-                ...newActivity,
-                activityNumber: Number(e.target.value),
-              })
-            }
-            fullWidth
-            inputProps={{ min: 1 }}
-          />
+          {!newActivity.activityFixed && (
+            <TextField
+              label="Số tiết học"
+              type="number"
+              value={newActivity.activityNumber}
+              onChange={(e) =>
+                setNewActivity({
+                  ...newActivity,
+                  activityNumber: Number(e.target.value),
+                })
+              }
+              fullWidth
+              inputProps={{ min: 1 }}
+            />
+          )}
         </Box>
       </DialogContent>
 

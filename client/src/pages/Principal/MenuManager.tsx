@@ -21,6 +21,7 @@ import {
   Stack,
   Alert,
 } from "@mui/material";
+import LoadingOverlay from '../../components/LoadingOverlay';
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -40,6 +41,7 @@ import Swal from 'sweetalert2';
 
 export default function WeeklyMenuCRUD() {
   const [menus, setMenus] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [editData, setEditData] = useState<any>(null);
   const [weekStart, setWeekStart] = useState("");
@@ -103,8 +105,11 @@ export default function WeeklyMenuCRUD() {
 
   const handleSave = async () => {
     try {
+      setLoading(true);
       if (!ageCategory) {
         setErrorMsg("⛔ Vui lòng chọn độ tuổi.");
+        toast.info("Vui lòng chọn độ tuổi.");
+        setLoading(false);
         return;
       }
 
@@ -115,6 +120,8 @@ export default function WeeklyMenuCRUD() {
 
       if (existing && !editData) {
         setErrorMsg("⛔ Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
+        toast.info("Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
+        setLoading(false);
         return;
       }
 
@@ -123,6 +130,8 @@ export default function WeeklyMenuCRUD() {
 
       if (startOfSelectedWeek.isBefore(startOfCurrentWeek, 'week')) {
         setErrorMsg("Không thể tạo hoặc sửa thực đơn cho tuần đã trôi qua.");
+        toast.info("Không thể tạo hoặc sửa thực đơn cho tuần đã trôi qua.");
+        setLoading(false);
         return;
       }
 
@@ -163,18 +172,18 @@ export default function WeeklyMenuCRUD() {
       } else {
         toast.success("Tạo mới thực đơn tuần thành công!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error saving weekly menu", err);
-      toast.error("Có lỗi xảy ra khi lưu thực đơn tuần!");
+      toast.error("Có lỗi xảy ra khi lưu thực đơn tuần!" + (err?.message ? ` (${err.message})` : ""));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box p={{ xs: 1, sm: 3 }} sx={{ background: '#f7fafd', height: '100vh' }}>
+    <Box p={{ xs: 1, sm: 3 }} sx={{ background: '#f7fafd', height: '100vh', position: 'relative' }}>
+      {loading && <LoadingOverlay />}
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 4, mb: 4 }}>
-        {/* <Typography variant="h4" fontWeight="bold" color="#4194cb" mb={2}>
-          Quản lý thực đơn theo tuần
-        </Typography> */}
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'stretch', sm: 'center' }} mb={2}>
           <Button
             variant="contained"
@@ -394,35 +403,83 @@ export default function WeeklyMenuCRUD() {
             </Tabs>
             {dailyMenus[selectedDayIndex] && (
               <Box>
+                {(ageCategory && !isPast) && (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                    <Button
+                      variant="outlined"
+                      sx={{ fontWeight: 'bold', color: '#1976d2', borderColor: '#1976d2' }}
+                      onClick={() => {
+                        const autoMenus: Record<string, { breakfast: string; lunch: string; dinner: string }> = {
+                          '1': {
+                            breakfast: 'Sữa, Bánh mì, Cháo',
+                            lunch: 'Cơm, Thịt băm, Canh rau',
+                            dinner: 'Súp, Sữa, Hoa quả',
+                          },
+                          '2': {
+                            breakfast: 'Sữa, Xôi, Bánh ngọt',
+                            lunch: 'Cơm, Thịt kho, Canh bí',
+                            dinner: 'Cháo, Sữa, Bánh mì',
+                          },
+                          '3': {
+                            breakfast: 'Sữa, Bánh mì, Phở',
+                            lunch: 'Cơm, Cá chiên, Canh rau',
+                            dinner: 'Súp, Sữa, Trái cây',
+                          },
+                          '4': {
+                            breakfast: 'Sữa, Bánh mì, Xôi',
+                            lunch: 'Cơm, Thịt gà, Canh cải',
+                            dinner: 'Cháo, Sữa, Bánh ngọt',
+                          },
+                          '5': {
+                            breakfast: 'Sữa, Bánh mì, Bánh bao',
+                            lunch: 'Cơm, Thịt bò, Canh rau',
+                            dinner: 'Súp, Sữa, Hoa quả',
+                          },
+                        };
+                        const selected = autoMenus[String(ageCategory)] || autoMenus['1'];
+                        const newMenus = [...dailyMenus];
+                        newMenus[selectedDayIndex].breakfast = selected.breakfast;
+                        newMenus[selectedDayIndex].lunch = selected.lunch;
+                        newMenus[selectedDayIndex].dinner = selected.dinner;
+                        setDailyMenus(newMenus);
+                      }}
+                    >
+                      Tự động điền món cho độ tuổi này
+                    </Button>
+                  </Box>
+                )}
                 <Typography fontStyle="italic" color="#4194cb" sx={{ mb: 2, textAlign: 'center', fontWeight: 'bold' }}>
                   Tuần từ {dayjs(weekStart).format("DD/MM")} đến {dayjs(weekStart).add(6, "day").format("DD/MM")}
                 </Typography>
                 <TextField
                   label="🌞 Món sáng"
+                  variant="standard"
                   value={dailyMenus[selectedDayIndex].breakfast}
                   onChange={(e) => handleMealChange(selectedDayIndex, "breakfast", e.target.value)}
                   fullWidth
                   multiline
                   disabled={isPast}
-                  sx={{ mb: 2, backgroundColor: '#f7fafd', borderRadius: 2, fontWeight: 'bold', fontSize: '1rem', border: '1px solid #4194cb' }}
+                  sx={{ mb: 2 }}
                 />
                 <TextField
                   label="🍽️ Món trưa"
+                  variant="standard"
                   value={dailyMenus[selectedDayIndex].lunch}
                   onChange={(e) => handleMealChange(selectedDayIndex, "lunch", e.target.value)}
                   fullWidth
                   multiline
                   disabled={isPast}
-                  sx={{ mb: 2, backgroundColor: '#f7fafd', borderRadius: 2, fontWeight: 'bold', fontSize: '1rem', border: '1px solid #4194cb' }}
+                  sx={{ mb: 2 }}
                 />
                 <TextField
                   label="💤 Món chiều"
+                  variant="standard"
                   value={dailyMenus[selectedDayIndex].dinner}
                   onChange={(e) => handleMealChange(selectedDayIndex, "dinner", e.target.value)}
                   fullWidth
                   multiline
                   disabled={isPast}
-                  sx={{ backgroundColor: '#f7fafd', borderRadius: 2, fontWeight: 'bold', fontSize: '1rem', border: '1px solid #4194cb' }}
+                  sx={{ mb: 2 }}
                 />
               </Box>
             )}

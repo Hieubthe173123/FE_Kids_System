@@ -65,6 +65,7 @@ export const getWeeklyMenuByDateNow = async (date: Date, ageList: number[]) => {
     const weekStart = dayjs(date).startOf("week").add(1, "day").utc();
     const response = await axiosInstance.get("/weeklyMenu");
     const allMenus = response.data.data || [];
+    console.log("🚀 ~ getWeeklyMenuByDateNow ~ allMenus:", allMenus)
 
     const matchedWeeks = allMenus.filter((menu: any) => {
       const isSameWeek = dayjs(menu.weekStart).utc().isSame(weekStart, "day");
@@ -76,8 +77,6 @@ export const getWeeklyMenuByDateNow = async (date: Date, ageList: number[]) => {
       ageCategory: menu.ageCategory,
       days: menu.dailyMenus
     }));
-    console.log("🚀 ~ abc ~ abc:", abc)
-
     return abc;
   } catch (error) {
     console.error("Lỗi lấy thực đơn theo tuần:", error);

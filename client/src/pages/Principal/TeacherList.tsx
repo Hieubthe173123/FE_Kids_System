@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -19,6 +19,7 @@ import {
   DialogActions,
   Select,
 } from "@mui/material";
+import LoadingOverlay from '../../components/LoadingOverlay';
 import {
   DataGrid,
   GridFooterContainer,
@@ -171,55 +172,55 @@ export default function TeacherManager() {
     setOpenAddDialog(true);
   };
 
-const handleEdit = async (row: any) => {
-  setEditingTeacherId(row._id);
-  let street = "";
-  let province = null;
-  let district = null;
-  let ward = null;
-  if (row.address) {
-    const parts = row.address.split(",").map((s: string) => s.trim());
-    street = parts[0] || "";
-    province = provinces.find((p) => parts[3] && p.name === parts[3]);
-    setSelectedProvince(province || null);
+  const handleEdit = async (row: any) => {
+    setEditingTeacherId(row._id);
+    let street = "";
+    let province = null;
+    let district = null;
+    let ward = null;
+    if (row.address) {
+      const parts = row.address.split(",").map((s: string) => s.trim());
+      street = parts[0] || "";
+      province = provinces.find((p) => parts[3] && p.name === parts[3]);
+      setSelectedProvince(province || null);
 
-    if (province) {
-      // 1. Load districts theo province
-      const districtsData = await getLocationDistrict(province.id);
-      setDistricts(districtsData);
-      district = districtsData.find((d: any) => parts[2] && d.name === parts[2]);
-      setSelectedDistrict(district || null);
+      if (province) {
+        // 1. Load districts theo province
+        const districtsData = await getLocationDistrict(province.id);
+        setDistricts(districtsData);
+        district = districtsData.find((d: any) => parts[2] && d.name === parts[2]);
+        setSelectedDistrict(district || null);
 
-      if (district) {
-        // 2. Load wards theo district
-        const wardsData = await getLocationWards(district.id);
-        setWards(wardsData);
-        ward = wardsData.find((w: any) => parts[1] && w.name === parts[1]);
-        setSelectedWard(ward || null);
+        if (district) {
+          // 2. Load wards theo district
+          const wardsData = await getLocationWards(district.id);
+          setWards(wardsData);
+          ward = wardsData.find((w: any) => parts[1] && w.name === parts[1]);
+          setSelectedWard(ward || null);
+        } else {
+          setWards([]);
+          setSelectedWard(null);
+        }
       } else {
+        setDistricts([]);
+        setSelectedDistrict(null);
         setWards([]);
         setSelectedWard(null);
       }
-    } else {
-      setDistricts([]);
-      setSelectedDistrict(null);
-      setWards([]);
-      setSelectedWard(null);
     }
-  }
 
-  setNewTeacher({
-    fullName: row.fullName,
-    dob: row.dob,
-    gender: row.gender,
-    phoneNumber: row.phoneNumber,
-    email: row.email,
-    IDCard: row.IDCard,
-    address: row.address,
-    street,
-  });
-  setOpenAddDialog(true);
-};
+    setNewTeacher({
+      fullName: row.fullName,
+      dob: row.dob,
+      gender: row.gender,
+      phoneNumber: row.phoneNumber,
+      email: row.email,
+      IDCard: row.IDCard,
+      address: row.address,
+      street,
+    });
+    setOpenAddDialog(true);
+  };
 
   const handleDelete = async (row: any) => {
     const result = await Swal.fire({
@@ -249,29 +250,32 @@ const handleEdit = async (row: any) => {
 
   const handleSubmit = async () => {
     if (!newTeacher.fullName.trim())
-      return toast.error("Họ và tên không được để trống");
+      return toast.info("Họ và tên không được để trống");
     if (!newTeacher.street.trim())
-      return toast.error("Vui lòng nhập số nhà, tên đường");
+      return toast.info("Vui lòng nhập số nhà, tên đường");
     if (!selectedProvince || !selectedDistrict || !selectedWard)
-      return toast.error("Vui lòng chọn đầy đủ địa chỉ");
+      return toast.info("Vui lòng chọn đầy đủ địa chỉ");
 
-    const address = `${newTeacher.street}, ${selectedWard.name}, ${selectedDistrict.name}, ${selectedProvince.name}`;
-    const teacherData = {
-      ...newTeacher,
-      address,
-    };
+    try {
+      const address = `${newTeacher.street}, ${selectedWard.name}, ${selectedDistrict.name}, ${selectedProvince.name}`;
+      const teacherData = {
+        ...newTeacher,
+        address,
+      };
 
-    const action = editingTeacherId ? updateTeacher : createTeacher;
-    const res = editingTeacherId
-      ? await action(teacherData, editingTeacherId)
-      : await action(teacherData);
+      const action = editingTeacherId ? updateTeacher : createTeacher;
+      const res = await action(teacherData, editingTeacherId ?? undefined);
 
-    if (res.error)
-      toast.error(editingTeacherId ? "Cập nhật thất bại" : "Tạo thất bại");
-    else {
-      toast.success(editingTeacherId ? "Đã cập nhật" : "Đã thêm giáo viên");
-      handleCloseDialog();
-      fetchTeachers();
+      if (res.error)
+        toast.error(editingTeacherId ? "Cập nhật thất bại" : "Tạo thất bại");
+      else {
+        toast.success(editingTeacherId ? "Đã cập nhật" : "Đã thêm giáo viên");
+        handleCloseDialog();
+        fetchTeachers();
+      }
+    } catch (err) {
+      const errorMessage = (err && typeof err === 'object' && 'message' in err) ? (err as any).message : JSON.stringify(err);
+      toast.error("Lỗi hệ thống: " + errorMessage);
     }
   };
 
@@ -348,7 +352,8 @@ const handleEdit = async (row: any) => {
   );
 
   return (
-    <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, height: "90vh" }}>
+    <Box sx={{ p: 3, bgcolor: BACKGROUND_COLOR, height: "90vh", position: 'relative' }}>
+      {loading && <LoadingOverlay />}
       <Typography variant="h5" fontWeight="bold" color={PRIMARY_COLOR} mb={3}>
         Quản lý giáo viên
       </Typography>
