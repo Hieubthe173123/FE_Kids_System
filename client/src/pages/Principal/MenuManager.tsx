@@ -420,39 +420,64 @@ export default function WeeklyMenuCRUD() {
                       variant="outlined"
                       sx={{ fontWeight: 'bold', color: '#1976d2', borderColor: '#1976d2' }}
                       onClick={() => {
-                        const autoMenus: Record<string, { breakfast: string; lunch: string; dinner: string }> = {
-                          '1': {
-                            breakfast: 'Sữa, Bánh mì, Cháo',
-                            lunch: 'Cơm, Thịt băm, Canh rau',
-                            dinner: 'Súp, Sữa, Hoa quả',
-                          },
-                          '2': {
-                            breakfast: 'Sữa, Xôi, Bánh ngọt',
-                            lunch: 'Cơm, Thịt kho, Canh bí',
-                            dinner: 'Cháo, Sữa, Bánh mì',
-                          },
-                          '3': {
-                            breakfast: 'Sữa, Bánh mì, Phở',
-                            lunch: 'Cơm, Cá chiên, Canh rau',
-                            dinner: 'Súp, Sữa, Trái cây',
-                          },
-                          '4': {
-                            breakfast: 'Sữa, Bánh mì, Xôi',
-                            lunch: 'Cơm, Thịt gà, Canh cải',
-                            dinner: 'Cháo, Sữa, Bánh ngọt',
-                          },
-                          '5': {
-                            breakfast: 'Sữa, Bánh mì, Bánh bao',
-                            lunch: 'Cơm, Thịt bò, Canh rau',
-                            dinner: 'Súp, Sữa, Hoa quả',
-                          },
+                        const autoMenusByDay: Record<string, { breakfast: string; lunch: string; dinner: string }[]> = {
+                          '1': [ // 1 tuổi - ăn mềm, dễ nuốt
+                            { breakfast: 'Sữa, Cháo thịt băm, Chuối', lunch: 'Cháo cà rốt, Thịt nạc, Canh rau ngót', dinner: 'Súp bí đỏ, Sữa, Táo nghiền' },
+                            { breakfast: 'Sữa, Bánh mì mềm, Trứng hấp', lunch: 'Cháo gà xé, Rau mồng tơi', dinner: 'Cháo trắng, Ruốc cá hồi, Chuối' },
+                            { breakfast: 'Sữa, Cháo khoai tây, Thịt bò xay', lunch: 'Cháo tôm, Bí đỏ', dinner: 'Cháo yến mạch, Sữa chua' },
+                            { breakfast: 'Sữa, Cháo hạt sen, Rau củ', lunch: 'Cháo cá hồi, Canh rau cải', dinner: 'Cháo gạo lứt, Trứng hấp' },
+                            { breakfast: 'Sữa, Bánh flan mềm, Cháo đậu xanh', lunch: 'Cháo thịt gà, Cà rốt, Khoai tây', dinner: 'Súp rau củ, Sữa' },
+                            { breakfast: 'Sữa, Cháo trứng cà chua', lunch: 'Cháo cua, Rau mồng tơi', dinner: 'Cháo trắng, Bí đỏ, Chuối nghiền' },
+                            { breakfast: 'Sữa, Cháo thịt băm, Khoai lang hấp', lunch: 'Cháo thịt bò, Cải ngọt', dinner: 'Cháo đậu xanh, Sữa' },
+                          ],
+                          '2': [ // 2 tuổi - bắt đầu ăn thô hơn
+                            { breakfast: 'Sữa, Xôi đậu xanh, Trứng luộc', lunch: 'Cơm mềm, Thịt băm kho, Canh bí đỏ', dinner: 'Cháo cá, Sữa, Chuối' },
+                            { breakfast: 'Sữa, Bánh mì bơ, Chuối', lunch: 'Cơm, Gà xé, Canh rau ngót', dinner: 'Cháo thịt bò, Rau mồng tơi' },
+                            { breakfast: 'Sữa, Bún mọc', lunch: 'Cơm, Thịt kho tàu, Canh cải xanh', dinner: 'Cháo trứng, Sữa chua' },
+                            { breakfast: 'Sữa, Phở gà', lunch: 'Cơm, Cá hấp, Canh bí xanh', dinner: 'Cháo tôm, Rau củ' },
+                            { breakfast: 'Sữa, Bánh ngọt, Chuối', lunch: 'Cơm, Thịt viên sốt, Canh mướp', dinner: 'Cháo gà, Trứng hấp' },
+                            { breakfast: 'Sữa, Cháo tim heo, Cà rốt', lunch: 'Cơm, Thịt bò, Canh rau cải', dinner: 'Cháo trắng, Sữa' },
+                            { breakfast: 'Sữa, Bánh bao, Cam', lunch: 'Cơm, Gà rang, Canh cải ngọt', dinner: 'Cháo tôm, Trứng cút' },
+                          ],
+                          '3': [ // 3 tuổi - ăn cơm bình thường, đa dạng món
+                            { breakfast: 'Sữa, Bánh mì trứng', lunch: 'Cơm, Thịt gà kho, Canh rau ngót', dinner: 'Cháo tôm, Bí đỏ, Sữa' },
+                            { breakfast: 'Sữa, Phở bò', lunch: 'Cơm, Cá kho, Canh cải ngọt', dinner: 'Súp thịt bằm, Trái cây' },
+                            { breakfast: 'Sữa, Bún chả', lunch: 'Cơm, Thịt bò xào, Canh mồng tơi', dinner: 'Cháo thịt gà, Sữa chua' },
+                            { breakfast: 'Sữa, Mì trứng', lunch: 'Cơm, Thịt kho trứng, Canh rau', dinner: 'Súp cua, Cam' },
+                            { breakfast: 'Sữa, Bánh ngọt, Chuối', lunch: 'Cơm, Gà chiên giòn, Canh bí xanh', dinner: 'Cháo cá, Sữa' },
+                            { breakfast: 'Sữa, Bánh bao, Trứng luộc', lunch: 'Cơm, Tôm rim, Canh rau cải', dinner: 'Cháo đậu xanh, Trái cây' },
+                            { breakfast: 'Sữa, Xôi gấc', lunch: 'Cơm, Thịt bò xào rau, Canh bí đỏ', dinner: 'Cháo thịt nạc, Sữa' },
+                          ],
+                          '4': [ // 4 tuổi - bắt đầu có khẩu phần gần giống người lớn hơn
+                            { breakfast: 'Sữa, Bún bò Huế', lunch: 'Cơm, Gà rô-ti, Canh mồng tơi', dinner: 'Súp rau củ, Bánh mì' },
+                            { breakfast: 'Sữa, Xôi đậu, Trứng chiên', lunch: 'Cơm, Cá kho tộ, Canh cải', dinner: 'Cháo thịt, Cam' },
+                            { breakfast: 'Sữa, Mì xào rau củ', lunch: 'Cơm, Thịt bò xào, Canh bí đỏ', dinner: 'Súp gà nấm, Trái cây' },
+                            { breakfast: 'Sữa, Bánh mì bơ sữa', lunch: 'Cơm, Tôm chiên, Canh rau dền', dinner: 'Cháo cá thu, Sữa chua' },
+                            { breakfast: 'Sữa, Phở gà', lunch: 'Cơm, Gà kho gừng, Canh rau ngót', dinner: 'Cháo thịt bằm, Bánh flan' },
+                            { breakfast: 'Sữa, Bánh bao, Cam', lunch: 'Cơm, Thịt viên, Canh rau muống', dinner: 'Cháo cua đồng, Dưa hấu' },
+                            { breakfast: 'Sữa, Bánh ngọt, Dưa hấu', lunch: 'Cơm, Thịt kho tàu, Canh rau cải', dinner: 'Súp trứng, Chuối' },
+                          ],
+                          '5': [ // 5 tuổi - chuẩn bị vào lớp 1, ăn như người lớn, ít hạn chế
+                            { breakfast: 'Sữa, Bún riêu', lunch: 'Cơm, Cá sốt cà, Canh cải ngọt', dinner: 'Cháo gà, Bánh mì, Sữa' },
+                            { breakfast: 'Sữa, Bánh mì thịt nguội', lunch: 'Cơm, Gà kho, Canh rau dền', dinner: 'Cháo tôm, Trái cây' },
+                            { breakfast: 'Sữa, Xôi ruốc', lunch: 'Cơm, Thịt bò xào, Canh mướp', dinner: 'Súp trứng, Sữa chua' },
+                            { breakfast: 'Sữa, Mì Ý', lunch: 'Cơm, Thịt heo rim, Canh bí xanh', dinner: 'Cháo thịt, Dưa hấu' },
+                            { breakfast: 'Sữa, Bánh cuốn', lunch: 'Cơm, Cá hấp gừng, Canh rau ngót', dinner: 'Súp gà, Chuối' },
+                            { breakfast: 'Sữa, Bánh bao nhân trứng', lunch: 'Cơm, Tôm rang, Canh rau cải', dinner: 'Cháo đậu xanh, Sữa' },
+                            { breakfast: 'Sữa, Bánh mì bơ đậu phộng', lunch: 'Cơm, Thịt viên sốt, Canh rau muống', dinner: 'Cháo tim, Dưa lưới' },
+                          ],
                         };
-                        const selected = autoMenus[String(ageCategory)] || autoMenus['1'];
-                        const newMenus = [...dailyMenus];
-                        newMenus[selectedDayIndex].breakfast = selected.breakfast;
-                        newMenus[selectedDayIndex].lunch = selected.lunch;
-                        newMenus[selectedDayIndex].dinner = selected.dinner;
-                        setDailyMenus(newMenus);
+                        const selectedWeekMenus = autoMenusByDay[String(ageCategory)];
+                        if (selectedWeekMenus && selectedWeekMenus[selectedDayIndex]) {
+                          const selected = selectedWeekMenus[selectedDayIndex];
+                          const newMenus = [...dailyMenus];
+                          newMenus[selectedDayIndex].breakfast = selected.breakfast;
+                          newMenus[selectedDayIndex].lunch = selected.lunch;
+                          newMenus[selectedDayIndex].dinner = selected.dinner;
+                          setDailyMenus(newMenus);
+                        } else {
+                          toast.warn("Chưa có dữ liệu thực đơn cho độ tuổi hoặc ngày này.");
+                        }
                       }}
                     >
                       Tự động điền món cho độ tuổi này
