@@ -20,7 +20,7 @@ import { AdminPanelSettings, BarChart, Home } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
     {
-        segment: '',
+        segment: 'statistics',
         title: 'Trang chủ',
         icon: <Home />,
     },
@@ -30,11 +30,11 @@ const NAVIGATION: Navigation = [
         icon: <AdminPanelSettings />,
     },
 
-    {
-        segment: 'statistics',
-        title: 'Thống kê',
-        icon: <BarChart />,
-    },
+    // {
+    //     segment: 'statistics',
+    //     title: 'Thống kê',
+    //     icon: <BarChart />,
+    // },
 
 ];
 
