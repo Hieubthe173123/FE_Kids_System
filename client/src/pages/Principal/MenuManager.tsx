@@ -139,6 +139,17 @@ export default function WeeklyMenuCRUD() {
 
       let isUpdate = false;
       if (editData) {
+        const duplicate = menus.find((m) =>
+          dayjs(m.weekStart).isSame(weekStart, "day") &&
+          String(m.ageCategory) === String(ageCategory) &&
+          m._id !== editData._id
+        );
+
+        if (duplicate) {
+          setErrorMsg("⛔ Không thể cập nhật thực đơn do đã có một thực đơn khác tồn tại cho độ tuổi này trong tuần đó.");
+          return;
+        }
+
         await updateWeeklyMenu(editData._id, payload);
         isUpdate = true;
       } else {
