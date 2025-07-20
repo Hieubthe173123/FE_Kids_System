@@ -4,21 +4,21 @@ import axiosInstance from "../helper/axiosInstance";
 // services/teacher.service.ts
 
 export const getTimeTable = async ({
-  year,
-  week,
+    year,
+    week,
 }: {
-  year: string;
-  week: string;
+    year: string;
+    week: string;
 }) => {
-  try {
-    const response = await axiosInstance.get(
-      `/teacher/time-table?year=${year}&week=${week}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Get time table failed:", error);
-    throw error;
-  }
+    try {
+        const response = await axiosInstance.get(
+            `/teacher/time-table?year=${year}&week=${week}`
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Get time table failed:", error);
+        throw error;
+    }
 };
 
 
@@ -55,10 +55,10 @@ export const getDashboard = async () => {
     }
 };
 
-export const getScheduleByClassId = async (classId: string,year: string,week: string) => {
+export const getScheduleByClassId = async (classId: string, year: string, week: string) => {
     try {
         const response = await axiosInstance.get(`/teacher/schedule/${classId}?year=${year}&week=${week}`);
-        
+
         return response.data;
     } catch (error) {
         console.error("Get schedule by class id failed:", error);
@@ -69,7 +69,7 @@ export const getScheduleByClassId = async (classId: string,year: string,week: st
 export const getAttendanceToday = async (classId: string) => {
     try {
         const response = await axiosInstance.get(`/teacher/attendance/${classId}`);
-        
+
         return response.data;
     } catch (error) {
         console.error("Get attendance today failed:", error);
@@ -79,7 +79,7 @@ export const getAttendanceToday = async (classId: string) => {
 
 export const getTeacherClass = async () => {
     try {
-        const response = await axiosInstance.get(`/teacher/class-teacher`);        
+        const response = await axiosInstance.get(`/teacher/class-teacher`);
         return response.data;
     } catch (error) {
         console.error("Get teacher class failed:", error);
@@ -109,10 +109,10 @@ export const getTeacherInClass = async (classId: string) => {
     }
 };
 
-export const getAttendanceByDate = async (date: string , classId: string) => {
+export const getAttendanceByDate = async (date: string, classId: string) => {
     try {
         const response = await axiosInstance.get(`/teacher/attendance/history/${classId}?date=${date}`);
-        
+
         return response.data;
     } catch (error) {
         console.error("Get attendance by date failed:", error);
@@ -121,10 +121,10 @@ export const getAttendanceByDate = async (date: string , classId: string) => {
 };
 
 
-export const getTeacherSwappableSchedule = async ( classId: string, date: string) => {
+export const getTeacherSwappableSchedule = async (classId: string, date: string) => {
     try {
         const response = await axiosInstance.get(`/teacher/schedule/day/${classId}?date=${date}`);
-        
+
         return response.data;
     } catch (error) {
         console.error("Get teacher swappable schedule failed:", error);
