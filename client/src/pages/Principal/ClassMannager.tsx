@@ -539,7 +539,7 @@ export default function ClassMannager() {
                                 }}
                                 disabled={isReadOnly}
                             >
-                                Tạo / Sửa lớp
+                                Sửa thông tin lớp học
                             </Button>
                         </Box>
                     </Box>

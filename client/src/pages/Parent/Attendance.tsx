@@ -49,6 +49,7 @@ export default function AttendanceTable({ weekDates, attendanceData }: Attendanc
         return new Map(attendanceData.map(record => [dayjs(record.date).format('YYYY-MM-DD'), record]));
     }, [attendanceData]);
 
+    const filteredWeekDates = weekDates.filter(date => date.day() !== 0 && date.day() !== 6);
     return (
         <Paper elevation={4} sx={{ mb: 3, borderRadius: 3, overflow: 'hidden', mt: 2, boxShadow: '0 4px 24px rgba(13, 71, 161, 0.08)' }}>
             <Table size="small" sx={{ background: 'linear-gradient(90deg, #e3f2fd 0%, #f6fff7 100%)' }}>
@@ -63,7 +64,7 @@ export default function AttendanceTable({ weekDates, attendanceData }: Attendanc
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {weekDates.map((date, idx) => {
+                    {filteredWeekDates.map((date, idx) => {
                         const att = attendanceMap.get(date.format('YYYY-MM-DD'));
                         return (
                             <TableRow

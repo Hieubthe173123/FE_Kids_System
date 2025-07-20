@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
-import HomeIcon from '@mui/icons-material/Home';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SchoolIcon from '@mui/icons-material/School';
 import {
@@ -22,11 +21,6 @@ import {
 } from 'react-router-dom';
 
 const NAVIGATION: Navigation = [
-    {
-        segment: 'dashboard',
-        title: 'Trang chủ',
-        icon: <HomeIcon />,
-    },
     {
         segment: 'profile',
         title: 'Hồ sơ phụ huynh',
