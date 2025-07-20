@@ -28,6 +28,7 @@ import AttendanceHistoryPage from "../pages/teacher/teacher.attendance/history.a
 import Attendance from "../pages/Parent/Attendance";
 import ParentProfile from "../pages/Parent/ParentProfile";
 import ScheduleSwapPage from "../pages/teacher/swap/teacher.swap.lecture";
+import AdminStatistic from "../pages/admin/admin.home/AdminStatistic";
 
 export const routesParent = [
     {
@@ -71,7 +72,7 @@ export const routesAdmin = [
             { path: "", component: AdminHomePage },
             { path: "account-management", component: AdminHomePage },
             { path: "account-management/:id", component: AccountDetail },
-            { path: "statistics", component: AdminHomePage },
+            { path: "statistics", component: AdminStatistic },
 
             {
                 index: true,

@@ -2,7 +2,7 @@ import axiosInstance from "../helper/axiosInstance";
 
 export const getAccounts = async () => {
     try {
-        const response = await axiosInstance.get("/admin/accounts");
+        const response = await axiosInstance.get("/management/accounts");
         
         return response.data;
     } catch (error) {
@@ -13,7 +13,7 @@ export const getAccounts = async () => {
 
 export const getAccountById = async (id: string) => {
     try {
-        const response = await axiosInstance.get(`/admin/accounts/${id}`);
+        const response = await axiosInstance.get(`/management/accounts/${id}`);
         return response.data;
     } catch (error) {
         console.error("Get account by id failed:", error);
@@ -23,10 +23,21 @@ export const getAccountById = async (id: string) => {
 
 export const updateAccount = async (id: string, data: any) => {
     try {
-        const response = await axiosInstance.put(`/admin/accounts/${id}`, data);
+        const response = await axiosInstance.put(`/management/accounts/${id}`, data);
         return response.data;
     } catch (error) {
         console.error("Update account failed:", error);
+        throw error;
+    }
+};
+
+
+export const statisticDataAdmin = async () => {
+    try {
+        const response = await axiosInstance.get("/management/statistic");
+        return response.data;
+    } catch (error) {
+        console.error("Get statistic data failed:", error);
         throw error;
     }
 };
