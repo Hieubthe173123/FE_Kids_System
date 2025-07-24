@@ -126,7 +126,7 @@ const ScheduleTab = ({
   }, [classId, selectedYear, selectedWeek]);
 
   return (
-    <Box mt={3} paddingBottom={10} >
+    <Box mt={3} paddingBottom={10}>
       <Stack direction="row" spacing={2} mb={2}>
         <FormControl sx={{ minWidth: 120, bgcolor: "white", borderRadius: 2 }}>
           <Select
@@ -148,6 +148,7 @@ const ScheduleTab = ({
             ))}
           </Select>
         </FormControl>
+  
         <FormControl sx={{ minWidth: 180, bgcolor: "white", borderRadius: 2 }}>
           <Select
             value={selectedWeek}
@@ -165,62 +166,80 @@ const ScheduleTab = ({
           </Select>
         </FormControl>
       </Stack>
-
-      <TableContainer component={Paper} sx={{ borderRadius: 3, bgcolor: "#f9fbfc", boxShadow: 2 }}>
-        <Table sx={{ borderCollapse: "collapse" }}>
-          <TableHead>
-            <TableRow sx={{ bgcolor: "#4194cb" }}>
-              <TableCell
-                sx={{
-                  width: "10%",
-                  color: "#fff",
-                  fontWeight: 700,
-                  border: "1px solid #bdbdbd",
-                }}
-              >
-                Thời gian
-              </TableCell>
-              {weekdays.map((day) => (
+  
+      {!scheduleData || uniqueTimes.length === 0 ? (
+        <Paper
+          elevation={2}
+          sx={{
+            borderRadius: 3,
+            p: 4,
+            bgcolor: "#fff",
+            textAlign: "center",
+            fontWeight: 500,
+            fontSize: "1.1rem",
+            color: "#888",
+          }}
+        >
+          Không có thời khóa biểu
+        </Paper>
+      ) : (
+        <TableContainer component={Paper} sx={{ borderRadius: 3, bgcolor: "#f9fbfc", boxShadow: 2 }}>
+          <Table sx={{ borderCollapse: "collapse" }}>
+            <TableHead>
+              <TableRow sx={{ bgcolor: "#4194cb" }}>
                 <TableCell
-                  key={day}
                   sx={{
-                    width: "18%",
+                    width: "10%",
                     color: "#fff",
                     fontWeight: 700,
                     border: "1px solid #bdbdbd",
                   }}
                 >
-                  <Box display="flex" flexDirection="column" alignItems="center">
-                    <span>{weekdayLabels[day]}</span>
-                    <span style={{ fontSize: 20, color: "#e3e3e3", fontWeight: 600 }}>
-                      {selectedYear && selectedWeek ? getDatesOfWeek(selectedYear, selectedWeek)[day] : ""}
-                    </span>
-                  </Box>
+                  Thời gian
                 </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {uniqueTimes.map((time) => (
-              <TableRow key={time}>
-                <TableCell sx={{ fontWeight: 600, border: "1px solid #bdbdbd" }}>{time}</TableCell>
-                {weekdays.map((day) => {
-                  const activity = scheduleData?.schedule[day]?.find(
-                    (a) => a.time === time
-                  );
-                  return (
-                    <TableCell key={`${day}-${time}`} sx={{ border: "1px solid #bdbdbd" }}>
-                      {activity ? activity.curriculum.activityName : "-"}
-                    </TableCell>
-                  );
-                })}
+                {weekdays.map((day) => (
+                  <TableCell
+                    key={day}
+                    sx={{
+                      width: "18%",
+                      color: "#fff",
+                      fontWeight: 700,
+                      border: "1px solid #bdbdbd",
+                    }}
+                  >
+                    <Box display="flex" flexDirection="column" alignItems="center">
+                      <span>{weekdayLabels[day]}</span>
+                      <span style={{ fontSize: 20, color: "#e3e3e3", fontWeight: 600 }}>
+                        {selectedYear && selectedWeek
+                          ? getDatesOfWeek(selectedYear, selectedWeek)[day]
+                          : ""}
+                      </span>
+                    </Box>
+                  </TableCell>
+                ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {uniqueTimes.map((time) => (
+                <TableRow key={time}>
+                  <TableCell sx={{ fontWeight: 600, border: "1px solid #bdbdbd" }}>{time}</TableCell>
+                  {weekdays.map((day) => {
+                    const activity = scheduleData?.schedule[day]?.find((a) => a.time === time);
+                    return (
+                      <TableCell key={`${day}-${time}`} sx={{ border: "1px solid #bdbdbd" }}>
+                        {activity ? activity.curriculum.activityName : "-"}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </Box>
   );
+  
 };
 
 export default ScheduleTab;

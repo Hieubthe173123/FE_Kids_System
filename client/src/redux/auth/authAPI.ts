@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getUserApi, loginApi } from "../../services/AuthApi";
+import { getUserApi, loginApi, logoutApi } from "../../services/AuthApi";
 import { getUserFromToken } from "../../helper/authHelper";
 
 interface AuthState {
@@ -54,6 +54,23 @@ export const getUser = createAsyncThunk(
     }
   }
 );
+
+export const logoutThunk = createAsyncThunk(
+  "auth/logout",
+  async (_, thunkAPI) => {
+    try {
+      await logoutApi();
+      localStorage.clear();
+      sessionStorage.clear();
+      return true;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Logout thất bại"
+      );
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -87,7 +104,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.token = action.payload.token;
-        state.user = action.payload.user; //Local comment dòng này
+        state.user = action.payload.user;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -103,6 +120,13 @@ const authSlice = createSlice({
       })
       .addCase(getUser.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(logoutThunk.fulfilled, (state) => {
+        state.user = null;
+        state.token = null;
+      })
+      .addCase(logoutThunk.rejected, (state, action) => {
         state.error = action.payload as string;
       });
   },

@@ -7,10 +7,8 @@ import {
     CircularProgress,
     LinearProgress,
 } from "@mui/material";
-// import { useNavigate } from "react-router-dom";
-// import dayjs from "dayjs";
 
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScheduleEditableTable } from "./ScheduleEditableTable";
 
@@ -42,51 +40,6 @@ const initialMockClassData: Array<{
     }>;
 }> = [];
 
-// const initialMockScheduleData: Array<{
-//     class: string;
-//     schedule: Array<{
-//         Monday: Array<{
-//             id: string;
-//             age: string;
-//             time: string;
-//             activity: string;
-//             fixed: boolean;
-//         }>;
-//         Tuesday: Array<{
-//             id: string;
-//             age: string;
-//             time: string;
-//             activity: string;
-//             fixed: boolean;
-//         }>;
-//         Wednesday: Array<{
-//             id: string;
-//             age: string;
-//             time: string;
-//             activity: string;
-//             fixed: boolean;
-//         }>;
-//         Thursday: Array<{
-//             id: string;
-//             age: string;
-//             time: string;
-//             activity: string;
-//             fixed: boolean;
-//         }>;
-//         Friday: Array<{
-//             id: string;
-//             age: string;
-//             time: string;
-//             activity: string;
-//             fixed: boolean;
-//         }>;
-//     }>;
-// }> = [];
-// const calculateAge = (dob: string) => {
-//     const birthDate = dayjs(dob);
-//     const age = dayjs().diff(birthDate, "year");
-//     return `(${age} tuổi)`;
-// };
 export default function ScheduleManagement() {
     const [classData, setClassData] = useState(initialMockClassData);
     const [progress, setProgress] = useState(0);
@@ -621,6 +574,7 @@ export default function ScheduleManagement() {
                     </Box>
                 </Box>
             </Box>
+            <ToastContainer position="top-right" autoClose={3000} />
         </Box>
     );
 }

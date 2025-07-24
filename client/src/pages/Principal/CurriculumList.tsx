@@ -14,7 +14,6 @@ import {
   Button,
   FormGroup,
   Paper,
-  MenuItem as MuiMenuItem,
 } from "@mui/material";
 import {
   DataGrid,
@@ -393,7 +392,6 @@ export default function CurriculumManager() {
       <Typography variant="h5" fontWeight="bold" color={PRIMARY_COLOR} mb={3}>
         Quản lý chương trình học
       </Typography>
-      <ToastContainer position="top-right" autoClose={3000} />
       {actionLoading && <LoadingOverlay />}
 
       <Box
@@ -586,6 +584,7 @@ export default function CurriculumManager() {
         handleTimeChange={handleTimeChange}
         handleUpdate={handleUpdate}
       />
+      <ToastContainer position="top-right" autoClose={3000} />
     </Box>
   );
 }

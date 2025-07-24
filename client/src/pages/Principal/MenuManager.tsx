@@ -34,7 +34,7 @@ import {
   createWeeklyMenu,
   updateWeeklyMenu,
 } from "../../services/PrincipalApi";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { MenuItem } from "@mui/material";
 import Swal from 'sweetalert2';
 
@@ -534,6 +534,7 @@ export default function WeeklyMenuCRUD() {
           </Button>
         </DialogActions>
       </Dialog>
+      <ToastContainer position="top-right" autoClose={3000} />
     </Box>
   );
 }

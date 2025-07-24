@@ -4,7 +4,6 @@ import ParentHome from "../components/ParentHome";
 import PrincipalHome from "../components/PrincipalHome";
 import TeacherHome from "../components/TeacherHome";
 import TimeTable from "../pages/Parent/TimeTable";
-import DailyFeedback from "../pages/Parent/DailyFeedback";
 import MenuManagerDaily from "../pages/Principal/MenuDailyWeekly";
 import MenuManager from "../pages/Principal/MenuManager";
 import ClassFormManager from "../pages/Principal/ClassFormManager";
@@ -48,10 +47,6 @@ export const routesParent = [
                 component: MealTimeline,
             },
             {
-                path: "feedback",
-                component: DailyFeedback,
-            },
-            {
                 path: "attendance",
                 component: Attendance,
             },
@@ -90,14 +85,11 @@ export const routesTeacher = [
         children: [
             { index: true, component: () => <Navigate to="" replace /> },
             { path: "", component: TeacherDashboard },
-            // { path: 'time-table', component: TeacherTimetable },
-            // { path: 'class-management', component: TeacherClass },
             { path: "teacher-control", component: TeacherOverviewPage },
             { path: "attendance", component: AttendancePage },
             { path: "history-attendance", component: AttendanceHistoryPage },
             { path: "swap-lecture", component: ScheduleSwapPage },
 
-            //  { path: 'class-management/:id', component: TeacherStudent },
         ],
     },
 ];

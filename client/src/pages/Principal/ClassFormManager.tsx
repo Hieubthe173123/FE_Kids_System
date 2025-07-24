@@ -15,7 +15,7 @@ import {
     updateClass,
     getAllRooms
 } from '../../services/PrincipalApi';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -469,6 +469,7 @@ export default function ClassCreateTable() {
                     Cập nhật thông tin
                 </Button>
             </Box>
+            <ToastContainer position="top-right" autoClose={3000} />
         </Box>
     );
 }

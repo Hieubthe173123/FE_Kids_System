@@ -23,6 +23,7 @@ import {
     useNavigate,
     useNavigationType,
 } from "react-router-dom";
+// import { logoutApi } from "../services/AuthApi";
 import { logout } from "../redux/auth/authAPI";
 
 const NAVIGATION: Navigation = [
@@ -116,11 +117,21 @@ export default function PrincipalHome() {
         },
     };
 
+    // const authentication = {
+    //     signIn: () => { },
+    //     signOut: async () => {
+    //         await logoutApi();
+    //         localStorage.clear();
+    //         sessionStorage.clear();
+    //         window.location.href = "/sign-in";
+    //     },
+    // };
+
     const authentication = {
         signIn: () => { },
         signOut: async () => {
             await logout();
-            window.location.href = "/sign-in";
+            window.location.href = '/sign-in';
         },
     };
 

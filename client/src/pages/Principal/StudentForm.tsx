@@ -9,7 +9,7 @@ import {
     Box,
 } from "@mui/material";
 import LoadingOverlay from '../../components/LoadingOverlay';
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import {
     getStudentById,
     createStudent,
@@ -116,6 +116,7 @@ export default function StudentForm() {
                     <Button variant="contained" onClick={handleSave}>{id ? "Cập nhật" : "Lưu"}</Button>
                 </Box>
             </Paper>
+            <ToastContainer position="top-right" autoClose={3000} />
         </Box>
     );
 }

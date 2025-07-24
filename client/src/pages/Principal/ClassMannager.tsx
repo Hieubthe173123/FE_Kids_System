@@ -14,7 +14,7 @@ import { ClassListSidebar } from "./ClassListSidebar";
 import StudentTable from "./StudentTable";
 import TeacherSelectionModal from "./TeacherSelectionModal";
 import AddStudentModal from "./AddStudentModal";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import {
@@ -579,6 +579,7 @@ export default function ClassMannager() {
                 onAddStudent={handleAddStudentToClass}
                 selectedRoom={selectedRoom}
             />
+            <ToastContainer position="top-right" autoClose={3000} />
         </Box>
     );
 }

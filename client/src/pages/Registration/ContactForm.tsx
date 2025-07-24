@@ -4,7 +4,7 @@ import { TextField, Button, Box, Typography, Checkbox, FormControlLabel, MenuIte
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { createEnrollSchool } from '../../services/GuestApi';
 
@@ -381,6 +381,7 @@ export const ContactForm = () => {
                     Đăng ký
                 </Button>
             </Stack>
+            <ToastContainer position="top-right" autoClose={3000} />
         </Box>
     );
 };

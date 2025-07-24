@@ -163,7 +163,7 @@ const VerifyOTP = () => {
                                 value={digit}
                                 onChange={(e) => handleChange(index, e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(index, e)}
-                                ref={(el) => (inputRefs.current[index] = el)}
+                                ref={(el) => { inputRefs.current[index] = el as HTMLInputElement | null; }}
                                 sx={{
                                     width: isMobile ? 40 : 52,
                                     height: isMobile ? 48 : 60,
@@ -179,6 +179,7 @@ const VerifyOTP = () => {
                                         boxShadow: "0 0 0 3px rgba(70,162,218,0.25)",
                                     },
                                 }}
+
                             />
                         ))}
                     </Box>

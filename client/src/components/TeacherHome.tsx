@@ -9,7 +9,6 @@ import {
 } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DemoProvider } from '@toolpad/core/internal';
-import { logout } from "../redux/auth/authAPI"
 
 import {
     Outlet,
@@ -18,6 +17,8 @@ import {
     useNavigationType,
 } from 'react-router-dom';
 import { Book, ChangeCircle, CheckCircle, History, Home } from '@mui/icons-material';
+// import { logoutApi } from '../services/AuthApi';
+import { logout } from '../redux/auth/authAPI';
 
 const NAVIGATION: Navigation = [
     {
@@ -25,16 +26,6 @@ const NAVIGATION: Navigation = [
         title: 'Trang chủ',
         icon: <Home />,
     },
-    // {
-    //     segment: 'time-table',
-    //     title: 'Lịch học',
-    //     icon: <CalendarMonthIcon />,
-    // },
-    // {
-    //     segment: 'class-management',
-    //     title: 'Quản lý lớp',
-    //     icon: <SchoolIcon />,
-    // },
     {
         segment: 'teacher-control',
         title: 'Thông tin dạy học',
@@ -101,6 +92,15 @@ export default function TeacherHome() {
             image: user.image,
         },
     };
+
+    // const authentication = {
+    //     signIn: () => { },
+    //     signOut: async () => {
+    //         await logoutApi();
+    //         localStorage.clear();
+    //         window.location.href = "/sign-in";
+    //     },
+    // };
 
     const authentication = {
         signIn: () => { },

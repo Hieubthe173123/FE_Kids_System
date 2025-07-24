@@ -10,11 +10,9 @@ import {
 } from "@mui/material";
 import LoadingOverlay from '../../components/LoadingOverlay';
 import {
-  // getAllStudentNoParent,
   getParentById,
   createParent,
   updateParent,
-  // getAccountParentUnused,
 } from "../../services/PrincipalApi";
 import { toast, ToastContainer } from "react-toastify";
 
@@ -31,15 +29,8 @@ export default function ParentFormPage() {
     gender: "",
     address: "",
     status: true,
-    // account: [],
     student: [],
   });
-  // type Student = {
-  //   _id: string;
-  //   fullName: string;
-  // };
-  // const [accountList, setAccountList] = useState([]);
-  // const [studentList, setStudentList] = useState<Student[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -50,14 +41,6 @@ export default function ParentFormPage() {
         setSelectedStudents(res.data.student?.map((s: any) => s._id) || []);
       });
     }
-
-    // getAccountParentUnused()
-    //   .then((res) => setAccountList(res.data))
-    //   .catch(() => toast.error("Lỗi tải tài khoản"));
-
-    // getAllStudentNoParent()
-    //   .then((res) => setStudentList(res))
-    //   .catch(() => toast.error("Lỗi tải học sinh"));
   }, [id]);
 
   const handleSave = async () => {

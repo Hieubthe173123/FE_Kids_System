@@ -102,7 +102,7 @@ export default function ProcessEnroll() {
           Quản lý năm học
         </Typography>
 
-        <ToastContainer position="top-right" autoClose={3000} />
+        {/* <ToastContainer position="top-right" autoClose={3000} /> */}
       </Box>
 
       {/* Năm học hiện tại + thêm mới */}
@@ -215,6 +215,7 @@ export default function ProcessEnroll() {
           </Button>
         </DialogActions>
       </Dialog>
+      <ToastContainer position="top-right" autoClose={3000} />
     </Box>
   );
 }

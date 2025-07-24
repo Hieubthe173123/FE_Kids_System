@@ -58,6 +58,7 @@ const customTheme = createTheme({
 });
 
 import type { Theme } from "@mui/material/styles";
+import LoadingOverlay from "../../../components/LoadingOverlay";
 
 const getCardStyle = (snapshot: DraggableStateSnapshot, isStaged: boolean) => {
   if (snapshot.isDropAnimating) {
@@ -88,10 +89,16 @@ export default function SwapSchedule() {
   const [stagedSlot1, setStagedSlot1] = useState<ScheduleSlot | null>(null);
   const [stagedSlot2, setStagedSlot2] = useState<ScheduleSlot | null>(null);
 
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchTeacherClass = async () => {
+      setLoading(true);
       const res = await getTeacherClass();
-      if (res && res.data.classes.length > 0) setClassId(res.data.classes[0]._id);
+      if (res && res.data.classes.length > 0) {
+        setClassId(res.data.classes[0]._id)
+
+      };
+      setLoading(false);
     };
     fetchTeacherClass();
   }, []);
@@ -111,8 +118,9 @@ export default function SwapSchedule() {
     setSchedule([]);
     try {
       const dateString = date.format("YYYY-MM-DD");
+      setLoading(true);
       const res = await getTeacherSwappableSchedule(classId, dateString);
-      
+      setLoading(false);
       setSchedule(res.schedule.filter((slot: ScheduleSlot) => !slot.fixed));
     } catch (error) {
       setSnackbar({ open: true, message: "Lấy lịch học thất bại", severity: "error" });
@@ -124,63 +132,10 @@ export default function SwapSchedule() {
   useEffect(() => { fetchSchedule(date1, setSchedule1, setLoading1, () => setStagedSlot1(null)); }, [date1, classId]);
   useEffect(() => { fetchSchedule(date2, setSchedule2, setLoading2, () => setStagedSlot2(null)); }, [date2, classId]);
 
-
-
-  // useEffect(() => {
-  //   const fetchTeacherClass = async () => {
-  //     const res = await getTeacherClass();
-  //     const classes = Array.isArray(res)
-  //       ? res
-  //       : res?.data?.classes || res?.classes || [];
-  //     if (classes.length > 0) setClassId(classes[0]._id);
-  //   };
-  //   fetchTeacherClass();
-  // }, []);
-
-  // const fetchSchedule = async (
-  //   date: Dayjs | null,
-  //   setSchedule: (data: ScheduleSlot[]) => void,
-  //   setLoading: (loading: boolean) => void,
-  //   resetStaged: () => void
-  // ) => {
-  //   resetStaged();
-  //   if (!date || !classId) {
-  //     setSchedule([]);
-  //     return;
-  //   }
-  //   setLoading(true);
-  //   setSchedule([]);
-  //   try {
-  //     const dateString = date.format("YYYY-MM-DD");
-  //     const res = await getTeacherSwappableSchedule(classId, dateString);
-  //     console.log('check resss',res);
-      
-  //     const slots = Array.isArray(res)
-  //       ? res
-  //       : res?.schedule || [];
-  //       console.log('check slots',slots);
-        
-  //     setSchedule(slots.filter((slot: ScheduleSlot) => !slot.fixed));
-  //   } catch (error) {
-  //     setSnackbar({ open: true, message: "Lấy lịch học thất bại", severity: "error" });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchSchedule(date1, setSchedule1, setLoading1, () => setStagedSlot1(null));
-  // }, [date1, classId]);
-
-  // useEffect(() => {
-  //   fetchSchedule(date2, setSchedule2, setLoading2, () => setStagedSlot2(null));
-  // }, [date2, classId]);
-
-
-
   const handleSwap = async () => {
     if (!stagedSlot1 || !stagedSlot2 || !date1 || !date2) return;
     try {
+      setLoading(true);
       await swapSchedule({
         classId,
         date1: date1.format("YYYY-MM-DD"),
@@ -188,12 +143,15 @@ export default function SwapSchedule() {
         time1: stagedSlot1.time,
         time2: stagedSlot2.time,
       });
+      setLoading(false);
       setSnackbar({ open: true, message: "Đổi lịch học thành công!", severity: "success" });
-     fetchSchedule(date1, setSchedule1, setLoading1, () => setStagedSlot1(null));
+      fetchSchedule(date1, setSchedule1, setLoading1, () => setStagedSlot1(null));
       fetchSchedule(date2, setSchedule2, setLoading2, () => setStagedSlot2(null));
     } catch (error) {
+      setLoading(false);
       setSnackbar({ open: true, message: "Đổi lịch học thất bại. Vui lòng thử lại.", severity: "error" });
     } finally {
+      setLoading(false);
       setOpenConfirmDialog(false);
     }
   };
@@ -284,6 +242,7 @@ export default function SwapSchedule() {
 
   return (
     <ThemeProvider theme={customTheme}>
+      {loading && <LoadingOverlay />}
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
         <DragDropContext onDragEnd={onDragEnd}>

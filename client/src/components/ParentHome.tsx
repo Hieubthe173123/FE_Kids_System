@@ -11,7 +11,6 @@ import {
 } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DemoProvider } from '@toolpad/core/internal';
-import { logout } from "../redux/auth/authAPI"
 
 import {
     Outlet,
@@ -19,6 +18,8 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
+// import { logoutApi } from '../services/AuthApi';
+import { logout } from '../redux/auth/authAPI';
 
 const NAVIGATION: Navigation = [
     {
@@ -81,6 +82,15 @@ export default function ParentHome() {
             image: user.image,
         },
     };
+
+    // const authentication = {
+    //     signIn: () => { },
+    //     signOut: async () => {
+    //         await logoutApi();
+    //         localStorage.clear();
+    //         window.location.href = "/sign-in";
+    //     },
+    // };
 
     const authentication = {
         signIn: () => { },

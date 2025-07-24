@@ -4,17 +4,9 @@ import PublicRoute from "./routes/publicRoute";
 import { mainRoute } from "./routes/mainRoute";
 import * as Components from "./components";
 import { renderRoutes } from "./utils/renderRoutes";
-import { useAppDispatch } from "./hooks/useAppDispatch";
-import { useEffect } from "react";
-import { restoreSession } from "./redux/auth/authAPI";
+
 
 function App() {
-  // const dispatch = useAppDispatch();
-
-  // useEffect(() => {
-  //   dispatch(restoreSession()); // tự động khôi phục phiên nếu F5 hoặc reload
-  // }, [dispatch]);
-
   return (
     <Routes>
       <Route path="/" element={<Components.SakuraHome />} />

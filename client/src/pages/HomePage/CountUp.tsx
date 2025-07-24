@@ -22,7 +22,7 @@ export default function CountUp({
     duration = 2,
     className = "",
     startWhen = true,
-    separator = ".",
+    // separator = ".",
     onStart,
     onEnd,
 }: CountUpProps) {

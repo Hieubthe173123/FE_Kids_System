@@ -266,9 +266,9 @@ export default function ProcessEnroll() {
           <AssignmentTurnedInIcon />
           Danh sách hồ sơ nhập học
         </Typography>
-        <Box sx={{ mt: 1 }}>
+        {/* <Box sx={{ mt: 1 }}>
           <ToastContainer position="top-right" autoClose={3000} />
-        </Box>
+        </Box> */}
       </Box>
 
       <Box
@@ -439,6 +439,9 @@ export default function ProcessEnroll() {
           </Button>
         </MenuItem>
       </Menu>
+      <Box sx={{ mt: 1 }}>
+        <ToastContainer position="top-right" autoClose={3000} />
+      </Box>
     </Box>
   );
 }

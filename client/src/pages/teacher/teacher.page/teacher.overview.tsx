@@ -5,6 +5,7 @@ import ScheduleTab from "./schedule.tab";
 import StudentsTab from "./student.tab";
 import ClassesTab from "./classs.tab";
 import ParentInfoDialog from "./parent.info";
+import LoadingOverlay from "../../../components/LoadingOverlay";
 
 interface Class {
   _id: string;
@@ -77,11 +78,13 @@ const TeacherOverviewPage = () => {
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [selectedWeek, setSelectedWeek] = useState<string>("");
   const [weekOptions, setWeekOptions] = useState<{ value: string; label: string }[]>([]);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchClasses = async () => {
       try {
+      setLoading(true);
         const res = await getTeacherClasses();
+        setLoading(false);
         const classes = res.data.classes || [];
         setClasses(classes);
         const targetClasses = classes.filter((cls: any) => cls.schoolYear === "2025-2026");
@@ -91,9 +94,11 @@ const TeacherOverviewPage = () => {
           const studentRes = await getStudentsInClass(firstClass._id);
           setStudents(studentRes.data.students || []);
         } else {
+
           console.warn("Không có lớp nào thuộc năm học 2025-2026");
         }
       } catch (error) {
+        setLoading(false);
         console.error("Lỗi khi lấy danh sách lớp:", error);
       }
     };
@@ -121,6 +126,7 @@ const TeacherOverviewPage = () => {
 
   return (
     <Box sx={{ p: 4, minHeight: '100vh', bgcolor: '#f5f7fb' }}>
+      {loading && <LoadingOverlay />}
       {selectedClass && (
         <Paper elevation={2} sx={{ borderRadius: 3, p: 3, mb: 3, bgcolor: '#f9fbfc' }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: '#4194cb' }}>

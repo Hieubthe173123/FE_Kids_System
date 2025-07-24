@@ -31,6 +31,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import SaveIcon from "@mui/icons-material/Save";
 import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
+import LoadingOverlay from "../../../components/LoadingOverlay";
 
 interface Student {
   _id: string;
@@ -60,112 +61,17 @@ const AttendancePage = () => {
   const [teacherName, setTeacherName] = useState<string>("");
   const [classInfo, setClassInfo] = useState<any>(null);
   const [teacherInClass, setTeacherInClass] = useState<any>(null);
+
+  const [loading, setLoading] = useState(false);
   const user = useSelector((state: RootState) => state.auth.user);
-
-  // code cloud
-  // useEffect(() => {
-  //   const fetchClassInfo = async () => {
-  //     try {
-  //       const classRes = await getTeacherClass();
-  //       // console.log('ceck class res', classRes);
-  //       // console.log('echck id', classRes.data.classes[0]._id);
-
-  //       if (classRes && classRes.data.classes.length > 0) {
-  //         setClassId(classRes.data.classes[0]._id);
-  //         setClassInfo(classRes.data.classes[0]);
-  //       } else {
-  //         console.warn("Không tìm thấy lớp học");
-  //       }
-  //     } catch (err) {
-  //       console.error("Lỗi khi lấy lớp học:", err);
-  //     }
-  //   };
-  //   fetchClassInfo();
-  // }, []);
-
-
-  // useEffect(() => {
-  //   const fetchDependentData = async () => {
-  //     if (!classId) return;
-
-  //     try {
-  //       const [teacherRes, attendanceRes] = await Promise.all([
-  //         getTeacherInClass(classId),
-  //         getAttendanceToday(classId),
-  //       ]);
-
-  //       if (teacherRes && teacherRes.length > 0) {
-  //         setTeacherInClass(teacherRes);
-  //       }
-
-  //       if (attendanceRes?.data) {
-  //         setAttendanceList(attendanceRes.data);
-  //         if (attendanceRes.data.length > 0) {
-  //           setTeacherName(
-  //             attendanceRes.data[0]?.teacherId?.fullName || user?.fullName || ""
-  //           );
-  //         }
-  //       }
-  //     } catch (err) {
-  //       console.error("Lỗi khi lấy giáo viên hoặc điểm danh:", err);
-  //     }
-  //   };
-
-  //   fetchDependentData();
-  // }, [classId]);
-
-
-  // // Code local express
-  // useEffect(() => {
-  //   const fetchTeacherClass = async () => {
-  //     const res = await getTeacherClass();
-  //     if (res && res.length > 0) {
-  //       setClassId(res[0]._id);
-  //       setClassInfo(res[0]);
-  //     }
-  //   };
-  //   fetchTeacherClass();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (!classId) return;
-  //   const fetchTeacherInClass = async () => {
-  //     const res = await getTeacherInClass(classId);
-  //     if (res && res.length > 0) {
-  //       setTeacherInClass(res);
-  //     } else {
-  //       setTeacherInClass([]);
-  //     }
-  //   };
-  //   fetchTeacherInClass();
-  // }, [classId]);
-  // // Lấy classId và thông tin lớp của giáo viên
-
-  // // Lấy danh sách điểm danh hôm nay
-  // useEffect(() => {
-  //   const fetchAttendance = async () => {
-  //     try {
-  //       const res = await getAttendanceToday(classId);
-  //       const records = res.data;
-  //       setAttendanceList(records);
-  //       if (records.length > 0) {
-  //         setTeacherName(
-  //           records[0]?.teacherId?.fullName || user?.fullName || ""
-  //         );
-  //       }
-  //     } catch (err) {
-  //       console.error("Lỗi khi lấy điểm danh:", err);
-  //     }
-  //   };
-  //   if (classId) fetchAttendance();
-  // }, [classId]);
 
 
   useEffect(() => {
     const fetchClassInfo = async () => {
       try {
+        setLoading(true);
         const res = await getTeacherClass();
-
+        setLoading(false);
         const classes = Array.isArray(res)
           ? res
           : res?.data?.classes || res?.classes || [];
@@ -177,6 +83,7 @@ const AttendancePage = () => {
           console.warn("Không tìm thấy lớp học");
         }
       } catch (err) {
+        setLoading(false);
         console.error("Lỗi khi lấy lớp học:", err);
       }
     };
@@ -189,13 +96,16 @@ const AttendancePage = () => {
 
     const fetchTeacherInClass = async () => {
       try {
+        setLoading(true);
         const res = await getTeacherInClass(classId);
+        setLoading(false);
         const teacherList = Array.isArray(res)
           ? res
           : res?.data || [];
 
         setTeacherInClass(teacherList);
       } catch (err) {
+        setLoading(false);
         console.error("Lỗi khi lấy giáo viên:", err);
         setTeacherInClass([]);
       }
@@ -207,7 +117,9 @@ const AttendancePage = () => {
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
+        setLoading(true);
         const res = await getAttendanceToday(classId);
+        setLoading(false);
         const records = Array.isArray(res)
           ? res
           : res?.data || [];
@@ -220,6 +132,7 @@ const AttendancePage = () => {
           );
         }
       } catch (err) {
+        setLoading(false);
         console.error("Lỗi khi lấy điểm danh:", err);
       }
     };
@@ -248,10 +161,12 @@ const AttendancePage = () => {
         note: record.note,
         date: record.date,
       }));
-
+      setLoading(true);
       await bulkUpdateAttendance(payload);
+      setLoading(false);
       toast.success("Lưu điểm danh thành công!");
     } catch (err) {
+      setLoading(false);
       console.error("Lỗi khi lưu:", err);
       toast.error("Có lỗi khi lưu điểm danh!");
     }
@@ -262,6 +177,7 @@ const AttendancePage = () => {
     <Box
       sx={{ p: 4, minHeight: "100vh", bgcolor: "#f5f7fb", marginBottom: 20 }}
     >
+      {loading && <LoadingOverlay />}
       {/* Header Info */}
       {classInfo && (
         <Paper
@@ -474,7 +390,7 @@ const AttendancePage = () => {
           </Button>
         </Box>
       </Paper>
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={3000} />
     </Box>
   );
 };

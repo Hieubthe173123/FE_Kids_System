@@ -16,7 +16,7 @@ import {
     useNavigate,
     useNavigationType,
 } from 'react-router-dom';
-import { AdminPanelSettings, BarChart, Home } from '@mui/icons-material';
+import { AdminPanelSettings, Home } from '@mui/icons-material';
 
 const NAVIGATION: Navigation = [
     {
@@ -30,11 +30,6 @@ const NAVIGATION: Navigation = [
         icon: <AdminPanelSettings />,
     },
 
-    // {
-    //     segment: 'statistics',
-    //     title: 'Thống kê',
-    //     icon: <BarChart />,
-    // },
 
 ];
 
@@ -59,7 +54,11 @@ export default function AdminHome() {
     const navigate = useNavigate();
     const navigationType = useNavigationType();
     const pathname = location.pathname.replace('/admin-home', '') || '/';
-
+    React.useEffect(() => {
+        if (pathname === '/') {
+            navigate('/admin-home/statistics', { replace: true });
+        }
+    }, [pathname, navigate]);
     const [isMenuExpanded, __] = React.useState<boolean>(
         JSON.parse(localStorage.getItem('parentMenuExpanded') || 'false')
     );

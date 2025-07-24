@@ -18,6 +18,8 @@ import {
 } from '@mui/material';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { getAccountById, updateAccount } from '../../../services/admin.service';
+import LoadingOverlay from '../../../components/LoadingOverlay';
+import { toast, ToastContainer } from 'react-toastify';
 
 type Student = {
   id: string;
@@ -47,7 +49,7 @@ const AccountDetail = () => {
   const { id } = useParams();
   const [role, setRole] = useState('');
   const [editMode, setEditMode] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const {
     control,
     handleSubmit,
@@ -85,11 +87,61 @@ const AccountDetail = () => {
     fetchData();
   }, [id, reset]);
 
-  const onSubmit = async (data: any) => {
-    await updateAccount(id as string, data);
-    alert('Lưu thành công!');
-    setEditMode(false);
+  const validateForm = (data: AccountForm): boolean => {
+    const errors: string[] = [];
+  
+    // Thông tin cá nhân
+    if (!data.fullName.trim()) errors.push('Họ tên không được để trống');
+    if (!['nam', 'nữ', 'Nam', 'Nữ'].includes(data.gender)) errors.push('Giới tính phải là nam hoặc nữ');
+    if (!data.phoneNumber.trim().match(/^0[0-9]{9}$/)) errors.push('Sai định dạng số điện thoại');
+    if (!data.dob.trim()) {
+      errors.push('Ngày sinh không được để trống');
+    } else {
+      const dobDate = new Date(data.dob);
+      const now = new Date();
+      if (dobDate > now) errors.push('Ngày sinh không được trong tương lai');
+    }
+    if (!data.email.trim().match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) errors.push('Email sai định dạng');
+    if (!data.IDCard.trim().match(/^[0-9]{9,12}$/)) errors.push('Căn cước công dân sai định dạng');
+    if (!data.address.trim()) errors.push('Địa chỉ không được để trống');
+  
+    // Danh sách học sinh (nếu có)
+    data.student.forEach((s, index) => {
+      if (!s.fullName.trim()) errors.push(`Tên học sinh ${index + 1} không được để trống`);
+      if (typeof s.age !== 'number' || isNaN(s.age)) {
+        errors.push(`Tuổi của con số ${index + 1} phải là 1 số`);
+      } else if (s.age === 0) {
+        errors.push(`Tuổi của con số ${index + 1} phải khác 0`);
+      }
+  
+      if (!['nam', 'nữ', 'Nam', 'Nữ'].includes(s.gender)) {
+        errors.push(`Giới tính của con số ${index + 1} phải là nam hoặc nữ`);
+      }
+    });
+  
+    if (errors.length > 0) {
+      errors.forEach((err) => alert(err)); // dùng alert hoặc custom toast
+      return false;
+    }
+  
+    return true;
   };
+  
+  const onSubmit = async (data: AccountForm) => {
+    if (!validateForm(data)) return;
+  
+    try {
+      setLoading(true);
+      await updateAccount(id as string, data);
+      toast.success("Chỉnh sửa thành công.");
+      setLoading(false);
+      setEditMode(false);
+    } catch (e) {
+      setLoading(false);
+     toast.error("Lỗi tại máy chủ. Vui lòng thử lại.");
+    }
+  };
+  
 
   return (
     <Box
@@ -100,6 +152,8 @@ const AccountDetail = () => {
         backgroundColor: '#f5f7fb',
       }}
     >
+        {loading && <LoadingOverlay />}
+        <ToastContainer />
       <Paper elevation={2} sx={{ borderRadius: 3, p: 4, maxWidth: 1500, mx: 'auto', mt: 4, mb: 4, bgcolor: '#fff' }}>
         <Stack direction="row" spacing={2} mb={3}>
           {editMode ? (
@@ -373,6 +427,7 @@ const AccountDetail = () => {
           </>
         )}
       </Paper>
+     
     </Box>
   );
 };

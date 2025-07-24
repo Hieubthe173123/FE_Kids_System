@@ -357,7 +357,7 @@ export default function TeacherManager() {
       <Typography variant="h5" fontWeight="bold" color={PRIMARY_COLOR} mb={3}>
         Quản lý giáo viên
       </Typography>
-      <ToastContainer position="top-right" autoClose={3000} />
+      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
 
       {/* Search + Buttons */}
       <Box
@@ -628,6 +628,7 @@ export default function TeacherManager() {
           </Button>
         </DialogActions>
       </Dialog>
+      <ToastContainer position="top-right" autoClose={3000} />
     </Box>
   );
 }
