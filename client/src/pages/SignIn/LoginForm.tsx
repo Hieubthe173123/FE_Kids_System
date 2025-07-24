@@ -29,7 +29,6 @@ const LoginForm = () => {
     const dispatch = useAppDispatch();
     const { loading } = useAppSelector((state) => state.auth);
 
-
     const handleLogin = async () => {
         try {
             const resultAction = await dispatch(login({ username, password }));
@@ -38,7 +37,6 @@ const LoginForm = () => {
                 const getUserResult = await dispatch(getUser());
                 if (getUser.fulfilled.match(getUserResult)) {
                     const userData = getUserResult.payload;
-                    console.log(getUserResult);
 
                     if (!userData) {
                         toast.error("Không xác định được thông tin người dùng!");
@@ -47,8 +45,6 @@ const LoginForm = () => {
                     toast.success(`Xin chào ${userData.account.role}! 🎉`);
 
                     const navigateByRole = (role: string): string => {
-                        console.log("navigateByRole", role);
-
                         const normalized = role.toLowerCase();
                         switch (normalized) {
                             case ROLE.ADMIN:
@@ -76,10 +72,9 @@ const LoginForm = () => {
         }
     };
 
-
     const navigateToForgot = () => {
         navigate("/forgot-password");
-    }
+    };
 
     return (
         <Box
@@ -108,7 +103,6 @@ const LoginForm = () => {
                     border: "1px solid #3982b8",
                 }}
             >
-                {/* Logo Header */}
                 <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mb: 2 }}>
                     <SchoolIcon sx={{ fontSize: "2.5rem", color: "#46a2da", mr: 1 }} />
                     <Typography variant="h5" sx={{ fontWeight: 700, color: "#4194cb" }}>
@@ -116,8 +110,13 @@ const LoginForm = () => {
                     </Typography>
                 </Box>
 
-                {/* Form fields */}
-                <form style={{ width: "100%" }}>
+                <form
+                    style={{ width: "100%" }}
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        handleLogin();
+                    }}
+                >
                     <Stack spacing={2}>
                         <TextField
                             label="Username"
@@ -142,14 +141,6 @@ const LoginForm = () => {
                             placeholder="••••••"
                             InputProps={{ style: { borderRadius: "12px" } }}
                         />
-                        <Link
-                            component="button"
-                            variant="body2"
-                            sx={{ alignSelf: "flex-end", mt: 1, color: "#e6687a" }}
-                            onClick={navigateToForgot}
-                        >
-                            Forgot Password
-                        </Link>
                     </Stack>
 
                     <FormControlLabel
@@ -161,7 +152,6 @@ const LoginForm = () => {
                     <Button
                         variant="contained"
                         fullWidth
-                        onClick={handleLogin}
                         disabled={loading}
                         sx={{
                             mt: 3,
@@ -175,10 +165,21 @@ const LoginForm = () => {
                                 backgroundColor: "#3982b8"
                             }
                         }}
+                        type="submit"
                     >
                         {loading ? "Đang đăng nhập..." : "Đăng nhập vào Sakura"}
                     </Button>
                 </form>
+
+                <Link
+                    component="button"
+                    variant="body2"
+                    sx={{ alignSelf: "flex-end", mt: 1, color: "#e6687a" }}
+                    onClick={navigateToForgot}
+                >
+                    Quên mật khẩu?
+                </Link>
+
                 <ToastContainer position="top-right" autoClose={3000} />
             </Card>
         </Box>

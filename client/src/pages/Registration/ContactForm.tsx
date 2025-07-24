@@ -38,6 +38,12 @@ export const ContactForm = () => {
         if (type === 'checkbox') {
             setFormState(prev => ({ ...prev, [name]: (event.target as HTMLInputElement).checked }));
         } else {
+            // Chỉ cho nhập số ở ô CCCD và số điện thoại
+            if (name === 'IDCard' || name === 'phoneNumber') {
+                const onlyNumbers = value.replace(/[^0-9]/g, '');
+                setFormState(prev => ({ ...prev, [name]: onlyNumbers }));
+                return;
+            }
             if (name === 'studentDob') {
                 const dob = value;
                 let age = '';
@@ -66,29 +72,29 @@ export const ContactForm = () => {
         ];
         const missingFields = requiredFields.filter(field => !formState[field as keyof typeof formState] || (typeof formState[field as keyof typeof formState] === 'string' && (formState[field as keyof typeof formState] as string).trim() === ''));
         if (missingFields.length > 0) {
-            toast.warning('Vui lòng điền đầy đủ tất cả các trường bắt buộc!');
+            toast.info('Vui lòng điền đầy đủ tất cả các trường bắt buộc!');
             return;
         }
         // Kiểm tra số điện thoại
         const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
         if (!phoneRegex.test(formState.phoneNumber)) {
-            toast.warning('Số điện thoại không hợp lệ!');
+            toast.info('Số điện thoại không hợp lệ!');
             return;
         }
         // Kiểm tra ID Card (CMND/CCCD: 9 hoặc 12 số)
         const idCardRegex = /^\d{9}$|^\d{12}$/;
         if (!idCardRegex.test(formState.IDCard)) {
-            toast.warning('CMND/CCCD phải gồm 9 hoặc 12 số!');
+            toast.info('CMND/CCCD phải gồm 9 hoặc 12 số!');
             return;
         }
         // Kiểm tra độ tuổi (chỉ nhận 1-5 tuổi)
         const ageNum = Number(formState.studentAge);
         if (isNaN(ageNum) || ageNum < 1 || ageNum > 5) {
-            toast.warning('Độ tuổi học sinh phải từ 1 đến 5 tuổi!');
+            toast.info('Độ tuổi học sinh phải từ 1 đến 5 tuổi!');
             return;
         }
         if (!formState.nda) {
-            toast.warning('Vui lòng xác nhận cam kết trước khi đăng ký!');
+            toast.info('Vui lòng xác nhận cam kết trước khi đăng ký!');
             return;
         }
         try {

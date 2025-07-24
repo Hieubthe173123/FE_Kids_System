@@ -1,23 +1,21 @@
-import { Typography, Box, Divider, TextField, InputAdornment, IconButton } from '@mui/material';
-import CheckIcon from '@mui/icons-material/Check';
+import { Typography, Box, Divider } from '@mui/material';
 
 export const ContactInfo = () => {
     return (
         <Box sx={{ pl: { md: 5 }, fontFamily: 'Poppins, sans-serif' }}>
-            {/* Thông tin trường Sakura */}
             <Box mb={5}>
                 <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Poppins, sans-serif' }}>Liên hệ trường mầm non Sakura</Typography>
                 <Typography variant="h6" sx={{ fontSize: '1rem', mb: 0.5, fontFamily: 'Poppins, sans-serif' }}>Cơ sở chính</Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontFamily: 'Poppins, sans-serif' }}>
-                    123 Đường Hoa Đào, Phường Sakura, Quận Bình Thạnh, TP. Hồ Chí Minh
+                    123 Đường Hoa Đào, Phường Nhật Tân, Quận Tây Hồ, TP. Hà Nội
                 </Typography>
                 <Typography variant="h6" sx={{ fontSize: '1rem', mb: 0.5, fontFamily: 'Poppins, sans-serif' }}>Cơ sở 2</Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontFamily: 'Poppins, sans-serif' }}>
-                    456 Đường Hoa Mai, Phường Sakura, Quận 1, TP. Hồ Chí Minh
+                    456 Đường Hoa Mai, Phường Bưởi, Quận Ba Đình, TP. Hà Nội
                 </Typography>
                 <Typography variant="h6" sx={{ fontSize: '1rem', mb: 0.5, fontFamily: 'Poppins, sans-serif' }}>Cơ sở 3</Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                    789 Đường Hoa Lan, Phường Sakura, Quận 3, TP. Hồ Chí Minh
+                    789 Đường Hoa Lan, Phường Xuân La, Quận Tây Hồ, TP. Hà Nội
                 </Typography>
             </Box>
 
@@ -36,26 +34,6 @@ export const ContactInfo = () => {
 
             <Divider sx={{ my: 4 }} />
 
-            {/* Đăng ký nhận tin */}
-            <Box>
-                <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Poppins, sans-serif' }}>Bạn muốn nhận thông báo từ Sakura?</Typography>
-                <TextField
-                    fullWidth
-                    label="Email của bạn"
-                    sx={{ fontFamily: 'Poppins, sans-serif' }}
-                    InputProps={{
-                        style: { fontFamily: 'Poppins, sans-serif' },
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton sx={{ backgroundColor: '#e6687a', color: 'white', '&:hover': { backgroundColor: '#4194cb' }, fontFamily: 'Poppins, sans-serif' }}>
-                                    <CheckIcon />
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                    InputLabelProps={{ style: { fontFamily: 'Poppins, sans-serif' } }}
-                />
-            </Box>
         </Box>
     );
 };

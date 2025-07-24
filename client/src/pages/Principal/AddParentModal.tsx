@@ -8,6 +8,9 @@ import {
   Box,
   Paper
 } from "@mui/material";
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import {
   getParentById,
@@ -94,7 +97,25 @@ export default function ParentFormPage() {
           {/* Cột trái */}
           <Box flex={1}>
             <TextField id="standard-basic" label="Họ tên" variant="standard" fullWidth value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
-            <TextField id="standard-dob" label="Ngày sinh" type="date" variant="standard" fullWidth InputLabelProps={{ shrink: true }} value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} sx={{ mt: 2 }} />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Ngày sinh"
+                format="DD/MM/YYYY"
+                value={form.dob ? dayjs(form.dob, ["DD/MM/YYYY", "YYYY-MM-DD"]) : null}
+                onChange={(date) => {
+                  let value = (date && typeof (date as any).format === 'function') ? (date as any).format('DD/MM/YYYY') : '';
+                  setForm({ ...form, dob: value });
+                }}
+                slotProps={{
+                  textField: {
+                    variant: 'standard',
+                    fullWidth: true,
+                    InputLabelProps: { shrink: true },
+                    sx: { mt: 2 }
+                  }
+                }}
+              />
+            </LocalizationProvider>
             <TextField id="standard-phone" label="Số điện thoại" type="number" variant="standard" fullWidth value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value.replace(/[^0-9]/g, "") })} sx={{ mt: 2 }} />
             <TextField id="standard-email" label="Email" variant="standard" fullWidth value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} sx={{ mt: 2 }} />
             <TextField id="standard-idcard" label="CCCD" type="number" variant="standard" fullWidth value={form.IDCard} onChange={(e) => setForm({ ...form, IDCard: e.target.value.replace(/[^0-9]/g, "") })} sx={{ mt: 2 }} />

@@ -24,7 +24,6 @@ import FastfoodIcon from '@mui/icons-material/Fastfood';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import DateRangeIcon from '@mui/icons-material/DateRange';
@@ -48,9 +47,9 @@ type MenuDataType = {
 };
 
 const mealTypes = [
-    { key: 'sáng', label: 'Bữa sáng', time: '06:30 - 07:00', icon: <Brightness6Icon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
-    { key: 'trưa', label: 'Bữa trưa', time: '11:00 - 12:00', icon: <FastfoodIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
-    { key: 'chiều', label: 'Bữa chiều', time: '15:30 - 16:00', icon: <RestaurantIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
+    { key: 'sáng', label: 'Bữa sáng', icon: <Brightness6Icon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
+    { key: 'trưa', label: 'Bữa trưa', icon: <FastfoodIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
+    { key: 'chiều', label: 'Bữa chiều', icon: <RestaurantIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.7 }} /> },
 ];
 
 const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
@@ -210,26 +209,6 @@ export default function WeeklyMealSchedule() {
         }, 0);
     };
 
-    const getTodaySpecial = (menuData: MenuDataType) => {
-        let todaySpecial = '–';
-        if (!menuData) return todaySpecial;
-
-        const todayKey = `${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-        const todayMenu = menuData[todayKey];
-        if (todayMenu) {
-            const allTodayDishes = [
-                ...(todayMenu.sáng && todayMenu.sáng !== '–' ? todayMenu.sáng.split(', ') : []),
-                ...(todayMenu.trưa && todayMenu.trưa !== '–' ? todayMenu.trưa.split(', ') : []),
-                ...(todayMenu.chiều && todayMenu.chiều !== '–' ? todayMenu.chiều.split(', ') : [])
-            ].filter(dish => dish);
-            if (allTodayDishes.length > 0) {
-                const randomIndex = Math.floor(Math.random() * allTodayDishes.length);
-                todaySpecial = allTodayDishes[randomIndex];
-            }
-        }
-        return todaySpecial;
-    };
-
     const headerCellStyle = {
         backgroundColor: '#4194cb',
         color: '#ffffff',
@@ -262,10 +241,7 @@ export default function WeeklyMealSchedule() {
                             {mealTypes.map((mealType) => (
                                 <StyledTableRow key={mealType.key}>
                                     <StyledTableCell component="th" scope="row" sx={{ fontWeight: 600, minWidth: 100, p: '6px 8px' }}>
-                                        <Box>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1em' }}>{mealType.icon} <span style={{ marginLeft: 4 }}>{mealType.label}</span></Box>
-                                            <Typography variant="caption" sx={{ color: '#4194cb', fontWeight: 400, display: 'block', mt: 0.2, fontSize: '0.85em' }}>{mealType.time}</Typography>
-                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1em' }}>{mealType.icon} <span style={{ marginLeft: 4 }}>{mealType.label}</span></Box>
                                     </StyledTableCell>
                                     {weekDays.map((day) => (
                                         <StyledTableCell key={`${day.fullDate}-${mealType.key}`} align="center" sx={{ p: '6px 8px', fontSize: '0.97em' }}>
@@ -293,7 +269,6 @@ export default function WeeklyMealSchedule() {
                         <Box key={mealType.key} sx={{ display: 'flex', alignItems: 'flex-start', mb: 0.5, borderBottom: '1px solid #eee', pb: 0.5, '&:last-child': { border: 0, mb: 0, pb: 0 } }}>
                             <Box sx={{ width: '140px', fontWeight: 500, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flexShrink: 0 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '0.97em' }}>{mealType.icon} <span style={{ marginLeft: 4 }}>{mealType.label}</span></Box>
-                                <Typography variant="caption" sx={{ color: '#4194cb', fontWeight: 400, display: 'block', mt: 0.1, fontSize: '0.85em' }}>{mealType.time}</Typography>
                             </Box>
                             <Typography variant="body2" sx={{ flexGrow: 1, textAlign: 'left', mt: 0.2, fontSize: '0.97em' }}>{menuData?.[day.date]?.[mealType.key as keyof MealType] || '–'}</Typography>
                         </Box>
@@ -342,7 +317,6 @@ export default function WeeklyMealSchedule() {
 
     const allMenus = Object.values(menuDataByAge);
     const totalDishes = allMenus.reduce((sum, menu) => sum + getTotalDishes(menu), 0);
-    const todaySpecial = getTodaySpecial(menuDataByAge[mapAgeToCategory(childrenList[0]?.age)] || {});
 
     return (
         <Box sx={{
@@ -353,20 +327,16 @@ export default function WeeklyMealSchedule() {
             p: { xs: 2, sm: 3 }
         }}>
             <Grid container spacing={3} mb={4} sx={{ flexShrink: 0 }}>
-                <Grid item xs={12} sm={6} md={3} {...({} as any)}>
+                <Grid item xs={12} sm={6} md={4} {...({} as any)}>
                     <StatCard title="Tuần đang xem" value={isLoading && !weekDisplay ? '...' : weekDisplay} icon={<DateRangeIcon />} color="success" />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3} {...({} as any)}>
-                    <StatCard title="Món đặc biệt hôm nay" value={todaySpecial} icon={<StarBorderIcon />} color="warning" />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3} {...({} as any)}>
+                <Grid item xs={12} sm={6} md={4} {...({} as any)}>
                     <StatCard title="Tổng số món trong tuần" value={isLoading ? '...' : `${totalDishes} món`} icon={<MenuBookIcon />} color="info" />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3} {...({} as any)}>
+                <Grid item xs={12} sm={6} md={4} {...({} as any)}>
                     <StatCard title="Năng lượng trung bình" value="~750 Kcal" icon={<LocalFireDepartmentIcon />} color="error" />
                 </Grid>
             </Grid>
-
             <Box sx={{ flexGrow: 1, overflowY: 'auto', minHeight: 0 }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} sx={{ flexShrink: 0 }}>
                     <Typography variant="h6" fontWeight="700" color="#333" display="flex" alignItems="center" gap={1}>

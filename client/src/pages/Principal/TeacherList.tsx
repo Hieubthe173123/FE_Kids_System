@@ -35,6 +35,8 @@ import {
 } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
 import dayjs from "dayjs";
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -498,18 +500,24 @@ export default function TeacherManager() {
               }
               fullWidth
             />
-            <TextField
-              label="Ngày sinh"
-              type="date"
-              value={
-                newTeacher.dob ? dayjs(newTeacher.dob).format("YYYY-MM-DD") : ""
-              }
-              onChange={(e) =>
-                setNewTeacher({ ...newTeacher, dob: e.target.value })
-              }
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Ngày sinh"
+                format="DD/MM/YYYY"
+                value={newTeacher.dob ? dayjs(newTeacher.dob, ["DD/MM/YYYY", "YYYY-MM-DD"]) : null}
+                onChange={(date) => {
+                  let value = (date && typeof (date as any).format === 'function') ? (date as any).format('DD/MM/YYYY') : '';
+                  setNewTeacher({ ...newTeacher, dob: value });
+                }}
+                slotProps={{
+                  textField: {
+                    variant: 'outlined',
+                    fullWidth: true,
+                    InputLabelProps: { shrink: true },
+                  }
+                }}
+              />
+            </LocalizationProvider>
             <TextField
               label="Giới tính"
               value={newTeacher.gender}

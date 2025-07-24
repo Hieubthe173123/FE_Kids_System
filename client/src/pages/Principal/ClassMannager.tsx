@@ -575,7 +575,21 @@ export default function ClassMannager() {
             <AddStudentModal
                 open={isStudentModalOpen}
                 onClose={() => setIsStudentModalOpen(false)}
-                availableStudents={availableStudents.map(s => ({ ...s, _id: s.studentId.toString(), studentId: s.studentId.toString() }))}
+                availableStudents={(() => {
+                    // Lấy tuổi của lớp hiện tại (ví dụ: lớp 3 thì tuổi là 3)
+                    let classAge = null;
+                    if (selectedRoom) {
+                        // Giả sử tên lớp là "3A", "3B", "3C" => lấy số đầu tiên
+                        const match = selectedRoom.match(/^(\d+)/);
+                        if (match) classAge = parseInt(match[1], 10);
+                    }
+                    return availableStudents
+                        .filter(s => {
+                            const age = dayjs().diff(dayjs(s.dob), "year");
+                            return classAge === null || age === classAge;
+                        })
+                        .map(s => ({ ...s, _id: s.studentId.toString(), studentId: s.studentId.toString() }));
+                })()}
                 onAddStudent={handleAddStudentToClass}
                 selectedRoom={selectedRoom}
             />

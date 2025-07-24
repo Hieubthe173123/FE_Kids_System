@@ -24,6 +24,7 @@ const activityNameMap: Record<string, string> = {
     "Free Play / Outdoor Activities": "Chơi tự do / Hoạt động ngoài trời",
 
 };
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 // Hàm dịch activityName trong schedule
 function translateSchedule(schedule: any) {
@@ -40,7 +41,7 @@ function translateSchedule(schedule: any) {
     }
     return newSchedule;
 }
-import { Box, Typography } from '@mui/material';
+import { Alert, Box, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import Schedules from './Schedules';
 import Information from './Information';
@@ -48,8 +49,7 @@ import {
     getStudentsByParentId,
     getStudentClassInfo,
     getScheduleByClassId,
-    getAttendanceByStudentID,
-    getAllHolidays
+    getAttendanceByStudentID
 } from '../../services/ParentApi';
 import AttendanceTable from './Attendance';
 
@@ -77,7 +77,18 @@ export default function TimeTable() {
     } | undefined>(undefined);
 
     const [scheduleDataByClass, setScheduleDataByClass] = useState<any>(null);
-    const [holidays, setHolidays] = useState<Record<string, string>>({}); // key: yyyy-MM-dd, value: holiday name
+    const vietnamHolidays: Record<string, string> = {
+        '2025-01-01': 'Tết Dương lịch',
+        '2025-04-30': 'Giải phóng miền Nam',
+        '2025-05-01': 'Quốc tế Lao động',
+        '2025-09-02': 'Quốc khánh',
+        '2025-01-28': 'Tết Nguyên Đán',
+        '2025-01-29': 'Tết Nguyên Đán',
+        '2025-01-30': 'Tết Nguyên Đán',
+        '2025-01-31': 'Tết Nguyên Đán',
+        '2025-02-01': 'Tết Nguyên Đán',
+        '2025-02-02': 'Tết Nguyên Đán',
+    };
 
     const selectedDayjs = dayjs(selectedDate);
     const startOfWeek = selectedDayjs.startOf('isoWeek');
@@ -86,36 +97,15 @@ export default function TimeTable() {
         startOfWeek.add(i, 'day')
     );
 
-    // Hàm lấy thông tin ngày nghỉ lễ cho cả tuần (dùng getAllHolidays)
-    const fetchHolidaysForWeek = async (weekDates: dayjs.Dayjs[]) => {
-        try {
-            const allHolidays = await getAllHolidays();
-            const holidayMap: Record<string, string> = {};
-            weekDates.forEach((d) => {
-                const dateStr = d.format('YYYY-MM-DD');
-                const found = allHolidays.find((h: any) => h.date === dateStr);
-                if (found) {
-                    holidayMap[dateStr] = found.name;
-                }
-            });
-            setHolidays(holidayMap);
-        } catch (err) {
-            setHolidays({});
-        }
-    };
-
     const weeklySchedules = useMemo(() => {
         const morningSchedule: any = {};
         const afternoonSchedule: any = {};
 
         if (scheduleDataByClass) {
             for (const [day, activities] of Object.entries(scheduleDataByClass)) {
-                // day có thể là '2025-07-14' dạng yyyy-MM-dd
-                const isHoliday = holidays[day];
-                if (isHoliday) {
-                    // Nếu là ngày nghỉ lễ, ẩn hoạt động, chỉ hiển thị tên ngày nghỉ lễ
-                    morningSchedule[day] = [{ time: '', subject: isHoliday }];
-                    afternoonSchedule[day] = [{ time: '', subject: isHoliday }];
+                if (vietnamHolidays[day]) {
+                    morningSchedule[day] = [{ time: '', subject: vietnamHolidays[day] }];
+                    afternoonSchedule[day] = [{ time: '', subject: vietnamHolidays[day] }];
                     continue;
                 }
                 const morningActivities: any[] = [];
@@ -138,7 +128,7 @@ export default function TimeTable() {
         }
 
         return { morningSchedule, afternoonSchedule };
-    }, [scheduleDataByClass, holidays]);
+    }, [scheduleDataByClass, vietnamHolidays]);
 
     const handleAccordionChange =
         (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -165,7 +155,7 @@ export default function TimeTable() {
                     setAttendanceData(attendanceRes.data || []);
                 }
             } catch (err) {
-                console.error("Failed to load students or attendance:", err);
+                setChildrenList([]);
             }
         };
 
@@ -182,12 +172,22 @@ export default function TimeTable() {
                 year: res.schoolYear || "Chưa rõ",
             });
             if (res.classId) {
-                const scheduleRes = await getScheduleByClassId(res.classId);
-                // Dịch activityName sang tiếng Việt trước khi set state
-                const translated = translateSchedule(scheduleRes.schedule || {});
-                setScheduleDataByClass(translated);
-                // Lấy ngày nghỉ lễ cho tuần hiện tại
-                await fetchHolidaysForWeek(weekDates);
+                try {
+                    const scheduleRes = await getScheduleByClassId(res.classId);
+                    // Nếu không có lịch thì API trả về message, không log ra, chỉ hiển thị alert
+                    if (scheduleRes?.message === "Schedule not found for this class") {
+                        setScheduleDataByClass(null);
+                    } else {
+                        // Dịch activityName sang tiếng Việt trước khi set state
+                        const translated = translateSchedule(scheduleRes.schedule || {});
+                        setScheduleDataByClass(translated);
+                    }
+                } catch (scheduleError) {
+                    setScheduleDataByClass(null);
+                }
+            } else {
+                // Nếu chưa được xếp lớp, không có lịch học
+                setScheduleDataByClass(null);
             }
             try {
                 const attendanceRes = await getAttendanceByStudentID(studentId);
@@ -197,16 +197,10 @@ export default function TimeTable() {
                     setAttendanceData(attendanceRes.data || []);
                 }
             } catch (attendanceError: any) {
-                if (attendanceError?.response?.status === 404) {
-                    setAttendanceData([]);
-                } else {
-                    console.error("Lỗi lấy điểm danh:", attendanceError);
-                    setAttendanceData([]);
-                }
+                setAttendanceData([]);
             }
         } catch (error) {
-            console.error("Không lấy được thông tin lớp hoặc thời khóa biểu:", error);
-            setCurrentClassInfo(undefined);
+            setCurrentClassInfo({ name: "---", teacher: "Chưa có giáo viên", year: "Chưa rõ" });
             setScheduleDataByClass(null);
         }
     };
@@ -234,24 +228,32 @@ export default function TimeTable() {
                 attendanceData={attendanceData}
             />
 
-            <Schedules
-                title="🌞 Buổi sáng"
-                panelKey="morning"
-                expanded={expanded['morning']}
-                onChange={handleAccordionChange}
-                scheduleData={weeklySchedules.morningSchedule}
-                startOfWeekDate={startOfWeek.format('YYYY-MM-DD')}
-                holidays={holidays}
-            />
-            <Schedules
-                title="🌙 Buổi chiều"
-                panelKey="afternoon"
-                expanded={expanded['afternoon']}
-                onChange={handleAccordionChange}
-                scheduleData={weeklySchedules.afternoonSchedule}
-                startOfWeekDate={startOfWeek.format('YYYY-MM-DD')}
-                holidays={holidays}
-            />
+            {scheduleDataByClass ? (
+                <>
+                    <Schedules
+                        title="🌞 Buổi sáng"
+                        panelKey="morning"
+                        expanded={expanded['morning']}
+                        onChange={handleAccordionChange}
+                        scheduleData={weeklySchedules.morningSchedule}
+                        startOfWeekDate={startOfWeek.format('YYYY-MM-DD')}
+                        holidays={vietnamHolidays}
+                    />
+                    <Schedules
+                        title="🌙 Buổi chiều"
+                        panelKey="afternoon"
+                        expanded={expanded['afternoon']}
+                        onChange={handleAccordionChange}
+                        scheduleData={weeklySchedules.afternoonSchedule}
+                        startOfWeekDate={startOfWeek.format('YYYY-MM-DD')}
+                        holidays={vietnamHolidays}
+                    />
+                </>
+            ) : (
+                <Alert severity="info" icon={<InfoOutlinedIcon fontSize="inherit" />} sx={{ borderRadius: 2 }}>
+                    Học sinh chưa được xếp vào lớp hoặc chưa có thời khóa biểu tuần này.
+                </Alert>
+            )}
         </Box>
     );
 }

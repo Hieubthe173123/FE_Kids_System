@@ -19,8 +19,9 @@ import {
   Tabs,
   Tab,
   Stack,
-  Alert,
 } from "@mui/material";
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -48,7 +49,6 @@ export default function WeeklyMenuCRUD() {
   const [ageCategory, setAgeCategory] = useState("");
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [dailyMenus, setDailyMenus] = useState<any[]>([]);
-  const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
   const isPast = dayjs(dailyMenus[selectedDayIndex]?.date).isBefore(dayjs(), "day");
 
@@ -59,7 +59,10 @@ export default function WeeklyMenuCRUD() {
   const fetchMenus = async () => {
     try {
       const data = await getAllWeeklyMenus();
-      setMenus(Array.isArray(data) ? data : []);
+      const sortedMenus = Array.isArray(data)
+        ? [...data].sort((a, b) => dayjs(b.weekStart).valueOf() - dayjs(a.weekStart).valueOf())
+        : [];
+      setMenus(sortedMenus);
     } catch (error) {
       console.error("Failed to fetch menus", error);
       setMenus([]);
@@ -107,7 +110,6 @@ export default function WeeklyMenuCRUD() {
     try {
       setLoading(true);
       if (!ageCategory) {
-        setErrorMsg("⛔ Vui lòng chọn độ tuổi.");
         toast.info("Vui lòng chọn độ tuổi.");
         setLoading(false);
         return;
@@ -119,7 +121,6 @@ export default function WeeklyMenuCRUD() {
       );
 
       if (existing && !editData) {
-        setErrorMsg("⛔ Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
         toast.info("Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
         setLoading(false);
         return;
@@ -129,7 +130,6 @@ export default function WeeklyMenuCRUD() {
       const startOfCurrentWeek = dayjs().startOf('week');
 
       if (startOfSelectedWeek.isBefore(startOfCurrentWeek, 'week')) {
-        setErrorMsg("Không thể tạo hoặc sửa thực đơn cho tuần đã trôi qua.");
         toast.info("Không thể tạo hoặc sửa thực đơn cho tuần đã trôi qua.");
         setLoading(false);
         return;
@@ -155,7 +155,7 @@ export default function WeeklyMenuCRUD() {
         );
 
         if (duplicate) {
-          setErrorMsg("⛔ Không thể cập nhật thực đơn do đã có một thực đơn khác tồn tại cho độ tuổi này trong tuần đó.");
+          toast.info("⛔ Không thể cập nhật thực đơn do đã có một thực đơn khác tồn tại cho độ tuổi này trong tuần đó.");
           return;
         }
 
@@ -176,7 +176,6 @@ export default function WeeklyMenuCRUD() {
 
       setOpenDialog(false);
       setEditData(null);
-      setErrorMsg("");
       fetchMenus();
       if (isUpdate) {
         toast.success("Cập nhật thực đơn tuần thành công!");
@@ -203,7 +202,6 @@ export default function WeeklyMenuCRUD() {
             onClick={() => {
               setOpenDialog(true);
               setEditData(null);
-              setErrorMsg("");
               const defaultStart = dayjs().startOf("isoWeek").format("YYYY-MM-DD");
               setWeekStart(defaultStart);
               setAgeCategory("");
@@ -269,7 +267,6 @@ export default function WeeklyMenuCRUD() {
                               toast.error("⛔ Không thể chỉnh sửa thực đơn của tuần đã trôi qua.");
                               return;
                             }
-                            setErrorMsg("");
                             setEditData(menu);
                             setWeekStart(start.format("YYYY-MM-DD"));
                             setAgeCategory(menu.ageCategory || "");
@@ -324,11 +321,6 @@ export default function WeeklyMenuCRUD() {
           {editData ? "Cập nhật thực đơn tuần" : "Tạo mới thực đơn tuần"}
         </DialogTitle>
         <DialogContent>
-          {errorMsg && (
-            <Alert severity="warning" sx={{ mb: 2 }}>
-              {errorMsg}
-            </Alert>
-          )}
           <Stack spacing={2}>
             <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
               <TextField
@@ -346,9 +338,7 @@ export default function WeeklyMenuCRUD() {
                       Number(m.ageCategory) === Number(newAge)
                     );
                     if (exists && !editData) {
-                      setErrorMsg("⛔ Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
-                    } else {
-                      setErrorMsg("");
+                      toast.info("Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
                     }
                   }
                 }}
@@ -362,37 +352,43 @@ export default function WeeklyMenuCRUD() {
                   </MenuItem>
                 ))}
               </TextField>
-              <TextField
-                variant="standard"
-                type="date"
-                label="Ngày bắt đầu tuần"
-                value={weekStart}
-                onChange={(e) => {
-                  const newStart = getStartOfWeek(e.target.value);
-                  const exists = menus.find((m) =>
-                    dayjs(m.weekStart).isoWeek() === dayjs(newStart).isoWeek() &&
-                    dayjs(m.weekStart).year() === dayjs(newStart).year() &&
-                    Number(m.ageCategory) == Number(ageCategory)
-                  );
-                  if (exists && !editData) {
-                    setErrorMsg("⛔ Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
-                    return;
-                  }
-                  setErrorMsg("");
-                  setWeekStart(newStart);
-                  setSelectedDayIndex(0);
-                  const monday = dayjs(newStart);
-                  setDailyMenus(
-                    Array.from({ length: 7 }, (_, i) => {
-                      const date = monday.add(i, "day").format("YYYY-MM-DD");
-                      return { date, breakfast: "", lunch: "", dinner: "" };
-                    })
-                  );
-                }}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                sx={{ minWidth: 180 }}
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Ngày bắt đầu tuần"
+                  format="DD/MM/YYYY"
+                  value={weekStart ? dayjs(weekStart, ["YYYY-MM-DD", "DD/MM/YYYY"]) : null}
+                  onChange={(date) => {
+                    let value = (date && typeof (date as any).format === 'function') ? (date as any).format('YYYY-MM-DD') : '';
+                    const newStart = getStartOfWeek(value);
+                    const exists = menus.find((m) =>
+                      dayjs(m.weekStart).isoWeek() === dayjs(newStart).isoWeek() &&
+                      dayjs(m.weekStart).year() === dayjs(newStart).year() &&
+                      Number(m.ageCategory) == Number(ageCategory)
+                    );
+                    if (exists && !editData) {
+                      toast.info("Tuần này đã có thực đơn cho độ tuổi này. Vui lòng chọn tuần khác hoặc sửa thực đơn cũ.");
+                      return;
+                    }
+                    setWeekStart(newStart);
+                    setSelectedDayIndex(0);
+                    const monday = dayjs(newStart);
+                    setDailyMenus(
+                      Array.from({ length: 7 }, (_, i) => {
+                        const date = monday.add(i, "day").format("YYYY-MM-DD");
+                        return { date, breakfast: "", lunch: "", dinner: "" };
+                      })
+                    );
+                  }}
+                  slotProps={{
+                    textField: {
+                      variant: 'standard',
+                      fullWidth: true,
+                      InputLabelProps: { shrink: true },
+                      sx: { minWidth: 180 }
+                    }
+                  }}
+                />
+              </LocalizationProvider>
             </Box>
             <Tabs
               value={selectedDayIndex}
