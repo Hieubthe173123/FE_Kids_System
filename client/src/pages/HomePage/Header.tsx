@@ -10,7 +10,7 @@ export const Header = () => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const navigate = useNavigate();
-    const mainColor = '#46a2da';
+    const mainColor = '#5eb3e8ff';
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 10);

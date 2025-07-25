@@ -2,11 +2,15 @@ import {
     createTheme, ThemeProvider, CssBaseline
 } from '@mui/material';
 import { Header } from '../pages/HomePage/Header';
-import { HeroSection } from '../pages/HomePage/HeroSection';
 import { FeaturesSection } from '../pages/HomePage/FeaturesSection';
-import { StatsSection } from '../pages/HomePage/StatsSection';
 import Footer from '../pages/HomePage/Footer';
 import { EnrollmentCTASection } from '../pages/HomePage/EnrollmentCTASection';
+import { ProgramsSection } from '../pages/HomePage/ProgramCard';
+import ProgramIntroSection from '../pages/HomePage/ProgramIntroSection';
+import ProgramListSection from '../pages/HomePage/ProgramListSection';
+import KnowMoreSection from '../pages/HomePage/KnowMoreSection';
+import JoinSessionSection from '../pages/HomePage/JoinSessionSection';
+import BestTeachersSection from '../pages/HomePage/BestTeachersSection';
 
 
 const elegantTheme = createTheme({
@@ -44,9 +48,13 @@ export default function SakuraHome() {
             <Header />
             <main>
                 <EnrollmentCTASection />
-                <HeroSection />
+                <ProgramsSection />
+                <ProgramIntroSection />
+                <ProgramListSection />
+                <KnowMoreSection />
+                <JoinSessionSection />
+                <BestTeachersSection />
                 <FeaturesSection />
-                <StatsSection />
             </main>
             <Footer />
         </ThemeProvider>

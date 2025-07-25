@@ -11,7 +11,7 @@ import { Facebook, YouTube } from "@mui/icons-material";
 
 export default function Footer() {
   return (
-    <Box sx={{ backgroundColor: "#46a2da", color: "#fff", pt: 0, pb: 6, mt: 8 }}>
+    <Box sx={{ backgroundColor: "#29C2B4", color: "#fff", pt: 0, pb: 6, mt: 8 }}>
 
       <Box
         sx={{
@@ -30,7 +30,7 @@ export default function Footer() {
             <Typography variant="body2">
               Địa chỉ: Khu Công Nghệ Cao Hòa Lạc, km 29
             </Typography>
-            <Typography variant="body2">Hotline: 0000 000 000</Typography>
+            <Typography variant="body2">Hotline: 0913339709</Typography>
             <Typography variant="body2">
               Website:{" "}
               <Link href="https://sakura.edu.vn" color="inherit" underline="hover">
@@ -80,7 +80,7 @@ export default function Footer() {
             <Typography variant="body2">
               © 2025 Sakura School. Thiết kế bởi{" "}
               <Link href="https://nina.vn" target="_blank" rel="noopener" color="inherit">
-                MomUni Team
+                Sakura team
               </Link>
             </Typography>
           </Grid>

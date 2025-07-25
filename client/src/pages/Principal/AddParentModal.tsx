@@ -70,7 +70,13 @@ export default function ParentFormPage() {
 
     try {
       setLoading(true);
-      const payload = { ...form, student: selectedStudents };
+      // Chuyển dob sang ISO string nếu có
+      let dobISO = form.dob;
+      if (form.dob && /\d{2}\/\d{2}\/\d{4}/.test(form.dob)) {
+        const [day, month, year] = form.dob.split('/');
+        dobISO = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      }
+      const payload = { ...form, dob: dobISO, student: selectedStudents };
       if (id) {
         await updateParent(id, payload);
         toast.success("Cập nhật thành công");
